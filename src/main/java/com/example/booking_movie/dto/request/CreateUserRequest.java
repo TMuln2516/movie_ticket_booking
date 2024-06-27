@@ -1,0 +1,22 @@
+package com.example.booking_movie.dto.request;
+
+import lombok.*;
+import lombok.experimental.FieldDefaults;
+
+import java.util.Date;
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@FieldDefaults(level = AccessLevel.PRIVATE)
+public class CreateUserRequest {
+    String username;
+    String password;
+    String first_name;
+    String last_name;
+    Date date_of_birth;
+    boolean gender;
+    String email;
+    String avatar;
+}
