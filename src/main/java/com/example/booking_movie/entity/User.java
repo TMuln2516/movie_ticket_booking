@@ -20,12 +20,13 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     String id;
+
     String username;
     String password;
     String first_name;
     String last_name;
     Date date_of_birth;
-    boolean gender;
+    Boolean gender;
     String email;
     String avatar;
 

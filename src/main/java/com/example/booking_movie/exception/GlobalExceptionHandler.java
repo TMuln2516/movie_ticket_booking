@@ -13,10 +13,6 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(value = RuntimeException.class)
     ResponseEntity<ApiResponse> handlingRuntimeException(RuntimeException exception) {
-//        ApiResponse apiResponse = new ApiResponse();
-//
-//        apiResponse.setCode(400);
-//        apiResponse.setMessage(exception.getMessage());
         return ResponseEntity.badRequest().body(ApiResponse.builder()
                 .code(400)
                 .message(exception.getMessage())
@@ -25,11 +21,6 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(value = MyException.class)
     ResponseEntity<ApiResponse<AuthenticationResponse>> handlingMyException(MyException exception) {
-//        ErrorCode errorCode = exception.getErrorCode();
-//        ApiResponse apiResponse = new ApiResponse();
-//
-//        apiResponse.setCode(errorCode.getCode());
-//        apiResponse.setMessage(errorCode.getMessage());
         return ResponseEntity.status(exception.getErrorCode().getCode()).body(
                 ApiResponse.<AuthenticationResponse>builder()
                         .code(exception.getErrorCode().getCode())

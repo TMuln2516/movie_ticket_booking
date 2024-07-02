@@ -61,11 +61,10 @@ public class AuthenticationService {
         var token = generateToken(user);
 
 //        log
-        log.info("Token: " + token);
+//        log.info("Token: " + token);
 
         return AuthenticationResponse.builder()
                 .token(token)
-                .authenticated(true)
                 .build();
 
     }
@@ -106,7 +105,6 @@ public class AuthenticationService {
 
         return AuthenticationResponse.builder()
                 .token(token)
-                .authenticated(true)
                 .build();
     }
 

@@ -12,9 +12,10 @@ public enum ErrorCode {
 //    User
     PASSWORD_OR_USERNAME_INCORRECT(HttpStatus.BAD_REQUEST.value(), "Username or Password incorrect"),
     USER_EXISTED(HttpStatus.BAD_REQUEST.value(), "User already existed"),
+    USER_NOT_EXISTED(HttpStatus.BAD_REQUEST.value(), "User not exist"),
 
 //    Token
-    UNAUTHORIZED(HttpStatus.UNAUTHORIZED.value(), "Category existed"),
+    UNAUTHORIZED(HttpStatus.UNAUTHORIZED.value(), "You do not have permission"),
     UNAUTHENTICATED(HttpStatus.BAD_REQUEST.value(), "Unauthenticated"),
     TOKEN_INVALID(HttpStatus.BAD_REQUEST.value(), "Token Invalid");
 

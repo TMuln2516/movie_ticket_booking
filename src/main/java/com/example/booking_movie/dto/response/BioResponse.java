@@ -10,14 +10,14 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class CreateUserResponse {
+public class BioResponse {
     String id;
     String username;
     String password;
     String first_name;
     String last_name;
     String date_of_birth;
-    boolean gender;
+    Boolean gender;
     String email;
     String avatar;
 }
