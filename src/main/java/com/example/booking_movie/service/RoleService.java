@@ -14,16 +14,4 @@ import org.springframework.stereotype.Service;
 @Slf4j
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class RoleService {
-    RoleRepository roleRepository;
-
-    public void createRole(CreateRoleRequest createRoleRequest) {
-        roleRepository.save(Role.builder()
-                .name(createRoleRequest.getName())
-                .description(createRoleRequest.getDescription())
-                .build());
-    }
-
-    public boolean existedByName(String roleName) {
-        return roleRepository.existsByName(roleName);
-    }
 }

@@ -19,7 +19,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.util.Date;
 import java.util.HashSet;
+import java.util.Locale;
 import java.util.Set;
 
 @Configuration
@@ -33,52 +35,95 @@ public class ApplicationInitConfig {
     static final String ADMIN_USERNAME = "admin";
 
     @NonFinal
-    static final String ADMIN_PASSWORD = "admin";
+    static final String ADMIN_PASSWORD = "Amin123@";
+
+    @NonFinal
+    static final String ADMIN_FIRSTNAME = "admin";
+
+    @NonFinal
+    static final String ADMIN_LASTNAME = "admin";
+
+    @NonFinal
+    static final String ADMIN_EMAIL = "admin@gmail.com";
+
+    @NonFinal
+    static final Boolean ADMIN_GENDER = true;
+
+    @NonFinal
+    static final Boolean ADMIN_STATUS = true;
 
     @NonFinal
     static final String MANAGER_USERNAME = "manager";
 
     @NonFinal
-    static final String MANAGER_PASSWORD = "manager";
+    static final String MANAGER_PASSWORD = "Manager123@";
+
+    @NonFinal
+    static final String MANAGER_FIRSTNAME = "manager";
+
+    @NonFinal
+    static final String MANAGER_LASTNAME = "manager";
+
+    @NonFinal
+    static final String MANAGER_EMAIL = "manager@gmail.com";
+
+    @NonFinal
+    static final Boolean MANAGER_GENDER = true;
+
+    @NonFinal
+    static final Boolean MANAGER_STATUS = true;
 
     @Bean
-    ApplicationRunner applicationRunner(UserService userService, RoleService roleService) {
+    ApplicationRunner applicationRunner(UserRepository userRepository, RoleRepository roleRepository) {
         log.info("Initializing application");
         return args -> {
-            if (!roleService.existedByName(DefinedRole.ADMIN_ROLE)) {
-                roleService.createRole(CreateRoleRequest.builder()
+            if (!roleRepository.existsByName(DefinedRole.ADMIN_ROLE)) {
+                roleRepository.save(Role.builder()
                         .name(DefinedRole.ADMIN_ROLE)
                         .description("Admin Role")
                         .build());
             }
 
-            if (!roleService.existedByName(DefinedRole.MANAGER_ROLE)) {
-                roleService.createRole(CreateRoleRequest.builder()
+            if (!roleRepository.existsByName(DefinedRole.MANAGER_ROLE)) {
+                roleRepository.save(Role.builder()
                         .name(DefinedRole.MANAGER_ROLE)
                         .description("Manager Role")
                         .build());
             }
-
-            if (!roleService.existedByName(DefinedRole.USER_ROLE)) {
-                roleService.createRole(CreateRoleRequest.builder()
+            if (!roleRepository.existsByName(DefinedRole.USER_ROLE)) {
+                roleRepository.save(Role.builder()
                         .name(DefinedRole.USER_ROLE)
                         .description("User Role")
                         .build());
             }
 
-            if (!userService.existedByUsername(ADMIN_USERNAME)) {
-                userService.createUser(CreateUserRequest.builder()
+            if (!userRepository.existsByUsername(ADMIN_USERNAME)) {
+                Set<Role> roles = new HashSet<>();
+                roles.add(roleRepository.findById(DefinedRole.ADMIN_ROLE).orElseThrow());
+                userRepository.save(User.builder()
                         .username(ADMIN_USERNAME)
-                        .password(ADMIN_PASSWORD)
-                        .gender(true)
+                        .password(passwordEncoder.encode(ADMIN_PASSWORD))
+                        .first_name(ADMIN_FIRSTNAME)
+                        .last_name(ADMIN_LASTNAME)
+                        .email(ADMIN_EMAIL)
+                        .gender(ADMIN_GENDER)
+                        .status(ADMIN_STATUS)
+                        .roles(roles)
                         .build());
             }
 
-            if (!userService.existedByUsername(MANAGER_USERNAME)) {
-                userService.createUser(CreateUserRequest.builder()
+            if (!userRepository.existsByUsername(MANAGER_USERNAME)) {
+                Set<Role> roles = new HashSet<>();
+                roles.add(roleRepository.findById(DefinedRole.MANAGER_ROLE).orElseThrow());
+                userRepository.save(User.builder()
                         .username(MANAGER_USERNAME)
-                        .password(MANAGER_PASSWORD)
-                        .gender(true)
+                        .password(passwordEncoder.encode(MANAGER_PASSWORD))
+                        .first_name(MANAGER_FIRSTNAME)
+                        .last_name(MANAGER_LASTNAME)
+                        .email(MANAGER_EMAIL)
+                        .gender(MANAGER_GENDER)
+                        .status(MANAGER_STATUS)
+                        .roles(roles)
                         .build());
             }
             log.info("Application initialization completed");
