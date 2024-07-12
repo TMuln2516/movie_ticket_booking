@@ -6,18 +6,15 @@ import lombok.experimental.FieldDefaults;
 import java.util.Date;
 
 @Data
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class BioResponse {
+public class CreateActorResponse {
     String id;
-    String username;
-    String password;
-    String firstName;
-    String lastName;
-    String dateOfBirth;
+    String name;
     Boolean gender;
-    String email;
-    String avatar;
+    String dateOfBirth;
+    String job;
+    String description;
 }

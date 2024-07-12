@@ -1,8 +1,10 @@
 package com.example.booking_movie.service;
 
 import com.example.booking_movie.dto.request.CreateGenreRequest;
+import com.example.booking_movie.dto.request.UpdateGenreRequest;
 import com.example.booking_movie.dto.response.CreateGenreResponse;
 import com.example.booking_movie.dto.response.GenreResponse;
+import com.example.booking_movie.dto.response.UpdateGenreResponse;
 import com.example.booking_movie.entity.Genre;
 import com.example.booking_movie.exception.ErrorCode;
 import com.example.booking_movie.exception.MyException;
@@ -24,6 +26,7 @@ import java.util.stream.Collectors;
 public class GenreService {
     GenreRepository genreRepository;
 
+//    create genre
     @PreAuthorize("hasRole('MANAGER')")
     public CreateGenreResponse create(CreateGenreRequest createGenreRequest) {
         //    check existed
@@ -43,6 +46,7 @@ public class GenreService {
                 .build();
     }
 
+//    get all genre
     @PreAuthorize("hasRole('MANAGER')")
     public List<GenreResponse> getAll() {
         return genreRepository.findAll()
@@ -52,5 +56,33 @@ public class GenreService {
                         .name(genre.getName())
                         .build())
                 .collect(Collectors.toList());
+    }
+
+//    update genre
+    @PreAuthorize("hasRole('MANAGER')")
+    public UpdateGenreResponse update(String id, UpdateGenreRequest updateGenreRequest) {
+//        get genre
+        Genre genre = genreRepository.findById(id).orElseThrow(() -> new MyException(ErrorCode.GENRE_NOT_EXISTED));
+
+//        update
+        genre.setName(updateGenreRequest.getName());
+        genreRepository.save(genre);
+
+        return UpdateGenreResponse.builder()
+                .id(genre.getId())
+                .name(updateGenreRequest.getName())
+                .build();
+    }
+
+//    delete genre
+    @PreAuthorize("hasRole('MANAGER')")
+    public void delete(String id) {
+//        check exist
+        if (genreRepository.findById(id).isEmpty()) {
+            throw new MyException(ErrorCode.GENRE_NOT_EXISTED);
+        }
+
+//        delete
+        genreRepository.deleteById(id);
     }
 }

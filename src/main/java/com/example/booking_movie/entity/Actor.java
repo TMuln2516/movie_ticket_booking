@@ -30,7 +30,10 @@ public class Actor {
     Boolean gender;
 
     @Past(message = "Invalid Date")
-    Date date_of_birth;
+    Date dateOfBirth;
+
+    @NotNull(message = "Job must not be null")
+    String job;
 
     @NotNull(message = "Description must not be null")
     String description;

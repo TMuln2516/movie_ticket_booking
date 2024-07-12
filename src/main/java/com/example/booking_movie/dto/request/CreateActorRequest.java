@@ -1,5 +1,7 @@
 package com.example.booking_movie.dto.request;
 
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Past;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -10,13 +12,10 @@ import java.util.Date;
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class CreateUserRequest {
-    String username;
-    String password;
-    String firstName;
-    String lastName;
+public class CreateActorRequest {
+    String name;
+    Boolean gender;
     Date dateOfBirth;
-    boolean gender;
-    String email;
-    String avatar;
+    String job;
+    String description;
 }

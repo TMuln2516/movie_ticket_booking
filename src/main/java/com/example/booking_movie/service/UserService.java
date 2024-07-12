@@ -55,9 +55,9 @@ public class UserService {
         User newUser = User.builder()
                 .username(createUserRequest.getUsername())
                 .password(passwordEncoder.encode(createUserRequest.getPassword()))
-                .first_name(createUserRequest.getFirst_name())
-                .last_name(createUserRequest.getLast_name())
-                .date_of_birth(createUserRequest.getDate_of_birth())
+                .firstName(createUserRequest.getFirstName())
+                .lastName(createUserRequest.getLastName())
+                .dateOfBirth(createUserRequest.getDateOfBirth())
                 .gender(createUserRequest.isGender())
                 .email(createUserRequest.getEmail())
                 .avatar(createUserRequest.getAvatar())
@@ -73,9 +73,9 @@ public class UserService {
                 .id(newUser.getId())
                 .username(newUser.getUsername())
                 .password(newUser.getPassword())
-                .first_name(newUser.getFirst_name())
-                .last_name(newUser.getLast_name())
-                .date_of_birth(DateUtils.formatDateTime(newUser.getDate_of_birth()))
+                .password(passwordEncoder.encode(newUser.getPassword()))
+                .firstName(newUser.getFirstName())
+                .lastName(newUser.getLastName())
                 .gender(newUser.getGender())
                 .email(newUser.getEmail())
                 .avatar(newUser.getAvatar())
@@ -93,9 +93,9 @@ public class UserService {
                 .id(user.getId())
                 .username(user.getUsername())
                 .password(user.getPassword())
-                .first_name(user.getFirst_name())
-                .last_name(user.getLast_name())
-                .date_of_birth(user.getDate_of_birth() != null ? DateUtils.formatDateTime(user.getDate_of_birth()) : null)
+                .firstName(user.getFirstName())
+                .lastName(user.getLastName())
+                .dateOfBirth(user.getDateOfBirth() != null ? DateUtils.formatDateTime(user.getDateOfBirth()) : null)
                 .gender(user.getGender())
                 .email(user.getEmail())
                 .avatar(user.getAvatar())
@@ -112,9 +112,9 @@ public class UserService {
 //        log.info(String.valueOf(updateBioRequest));
 
 //        update with not null field
-        updateFieldIfNotEmpty(user::setFirst_name, updateBioRequest.getFirst_name());
-        updateFieldIfNotEmpty(user::setLast_name, updateBioRequest.getLast_name());
-        updateFieldIfNotEmpty(user::setDate_of_birth, updateBioRequest.getDate_of_birth());
+        updateFieldIfNotEmpty(user::setFirstName, updateBioRequest.getFirstName());
+        updateFieldIfNotEmpty(user::setLastName, updateBioRequest.getLastName());
+        updateFieldIfNotEmpty(user::setDateOfBirth, updateBioRequest.getDateOfBirth());
         updateFieldIfNotEmpty(user::setEmail, updateBioRequest.getEmail());
         updateFieldIfNotEmpty(user::setAvatar, updateBioRequest.getAvatar());
 
@@ -125,9 +125,9 @@ public class UserService {
                 .id(user.getId())
                 .username(user.getUsername())
                 .password(user.getPassword())
-                .first_name(user.getFirst_name())
-                .last_name(user.getLast_name())
-                .date_of_birth(user.getDate_of_birth() != null ? DateUtils.formatDateTime(user.getDate_of_birth()) : null)
+                .firstName(user.getFirstName())
+                .lastName(user.getLastName())
+                .dateOfBirth(user.getDateOfBirth() != null ? DateUtils.formatDateTime(user.getDateOfBirth()) : null)
                 .gender(user.getGender())
                 .email(user.getEmail())
                 .avatar(user.getAvatar())
@@ -163,9 +163,9 @@ public class UserService {
                 .map(user -> UserResponse.builder()
                         .id(user.getId())
                         .username(user.getUsername())
-                        .first_name(user.getFirst_name())
-                        .last_name(user.getLast_name())
-                        .date_of_birth(user.getDate_of_birth() != null ? DateUtils.formatDateTime(user.getDate_of_birth()) : null)
+                        .firstName(user.getFirstName())
+                        .lastName(user.getLastName())
+                        .dateOfBirth(user.getDateOfBirth() != null ? DateUtils.formatDateTime(user.getDateOfBirth()) : null)
                         .gender(user.getGender())
                         .email(user.getEmail())
                         .avatar(user.getAvatar())

@@ -32,12 +32,12 @@ public class User {
     String password;
 
     @NotNull(message = "First Name must not be null")
-    String first_name;
+    String firstName;
 
     @NotNull(message = "Last Name must not be null")
-    String last_name;
+    String lastName;
 
-    Date date_of_birth;
+    Date dateOfBirth;
 
     @NotNull(message = "Invalid gender")
     Boolean gender;

@@ -1,9 +1,11 @@
 package com.example.booking_movie.controller;
 
 import com.example.booking_movie.dto.request.CreateGenreRequest;
+import com.example.booking_movie.dto.request.UpdateGenreRequest;
 import com.example.booking_movie.dto.response.ApiResponse;
 import com.example.booking_movie.dto.response.CreateGenreResponse;
 import com.example.booking_movie.dto.response.GenreResponse;
+import com.example.booking_movie.dto.response.UpdateGenreResponse;
 import com.example.booking_movie.service.GenreService;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
@@ -35,6 +37,24 @@ public class GenreController {
         return ApiResponse.<CreateGenreResponse>builder()
                 .message("Create Genre Success")
                 .result(genreService.create(createGenreRequest))
+                .build();
+    }
+
+//    update genre
+    @PutMapping("/{id}")
+    public ApiResponse<UpdateGenreResponse> update(@PathVariable String id, @RequestBody @Valid UpdateGenreRequest updateGenreRequest) {
+        return ApiResponse.<UpdateGenreResponse>builder()
+                .message("Update Genre Success")
+                .result(genreService.update(id, updateGenreRequest))
+                .build();
+    }
+
+//    delete genre
+    @DeleteMapping("/{id}")
+    public ApiResponse<Void> delete(@PathVariable String id) {
+        genreService.delete(id);
+        return ApiResponse.<Void>builder()
+                .message("Delete Genre Success")
                 .build();
     }
 }

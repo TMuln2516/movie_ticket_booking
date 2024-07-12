@@ -8,8 +8,12 @@ import org.springframework.http.HttpStatusCode;
 
 @Getter
 public enum ErrorCode {
+    //    Actor
+    ACTOR_EXISTED(HttpStatus.BAD_REQUEST.value(), "Actor already existed"),
+
     //    Genre
     GENRE_EXISTED(HttpStatus.BAD_REQUEST.value(), "Genre already existed"),
+    GENRE_NOT_EXISTED(HttpStatus.BAD_REQUEST.value(), "Genre not exist"),
 
     //    Invalid password
     MISSING_UPPERCASE(HttpStatus.BAD_REQUEST.value(), "Password must contain 1 or more uppercase characters."),

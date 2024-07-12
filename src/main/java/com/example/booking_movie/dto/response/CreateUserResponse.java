@@ -14,9 +14,9 @@ public class CreateUserResponse {
     String id;
     String username;
     String password;
-    String first_name;
-    String last_name;
-    String date_of_birth;
+    String firstName;
+    String lastName;
+    String dateOfBirth;
     Boolean gender;
     String email;
     String avatar;
