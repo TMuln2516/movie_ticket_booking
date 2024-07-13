@@ -13,6 +13,7 @@ import com.example.booking_movie.exception.MyException;
 import com.example.booking_movie.repository.RoleRepository;
 import com.example.booking_movie.repository.UserRepository;
 import com.example.booking_movie.utils.DateUtils;
+import com.example.booking_movie.utils.ValidUtils;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -112,11 +113,11 @@ public class UserService {
 //        log.info(String.valueOf(updateBioRequest));
 
 //        update with not null field
-        updateFieldIfNotEmpty(user::setFirstName, updateBioRequest.getFirstName());
-        updateFieldIfNotEmpty(user::setLastName, updateBioRequest.getLastName());
-        updateFieldIfNotEmpty(user::setDateOfBirth, updateBioRequest.getDateOfBirth());
-        updateFieldIfNotEmpty(user::setEmail, updateBioRequest.getEmail());
-        updateFieldIfNotEmpty(user::setAvatar, updateBioRequest.getAvatar());
+        ValidUtils.updateFieldIfNotEmpty(user::setFirstName, updateBioRequest.getFirstName());
+        ValidUtils.updateFieldIfNotEmpty(user::setLastName, updateBioRequest.getLastName());
+        ValidUtils.updateFieldIfNotEmpty(user::setDateOfBirth, updateBioRequest.getDateOfBirth());
+        ValidUtils.updateFieldIfNotEmpty(user::setEmail, updateBioRequest.getEmail());
+        ValidUtils.updateFieldIfNotEmpty(user::setAvatar, updateBioRequest.getAvatar());
 
         userRepository.save(user);
 //        log.info("Update bio: " + user);
@@ -132,14 +133,6 @@ public class UserService {
                 .email(user.getEmail())
                 .avatar(user.getAvatar())
                 .build();
-    }
-
-    //    function check null field before update
-    private <T> void updateFieldIfNotEmpty(Consumer<T> setter, T value) {
-//        check value not null + value is String and value not empty
-        if (value != null && !(value instanceof String && ((String) value).isEmpty())) {
-            setter.accept(value);
-        }
     }
 
 

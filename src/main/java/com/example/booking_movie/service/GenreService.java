@@ -47,7 +47,7 @@ public class GenreService {
     }
 
 //    get all genre
-    @PreAuthorize("hasRole('MANAGER')")
+    @PreAuthorize("hasAnyRole('USER', 'MANAGER')")
     public List<GenreResponse> getAll() {
         return genreRepository.findAll()
                 .stream()

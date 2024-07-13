@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatusCode;
 public enum ErrorCode {
     //    Actor
     ACTOR_EXISTED(HttpStatus.BAD_REQUEST.value(), "Actor already existed"),
+    ACTOR_NOT_EXISTED(HttpStatus.BAD_REQUEST.value(), "Actor not exist"),
 
     //    Genre
     GENRE_EXISTED(HttpStatus.BAD_REQUEST.value(), "Genre already existed"),
