@@ -63,10 +63,10 @@ public class UserController {
     }
 
     //    ban account
-    @PutMapping("/ban/{id}")
-    public ApiResponse<String> updateStatus(@PathVariable String id) {
+    @PutMapping("/ban/{userId}")
+    public ApiResponse<String> updateStatus(@PathVariable String userId) {
         return ApiResponse.<String>builder()
-                .message(userService.toggleStatus(id))
+                .message(userService.toggleStatus(userId))
                 .build();
     }
 }

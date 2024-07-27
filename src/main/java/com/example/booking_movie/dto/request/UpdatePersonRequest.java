@@ -1,15 +1,19 @@
 package com.example.booking_movie.dto.request;
 
-import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+
+import java.util.Date;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class CreateGenreRequest {
-    @NotNull(message = "Name must not be null")
+public class UpdatePersonRequest {
     String name;
+    Boolean gender;
+    Date dateOfBirth;
+    String job;
+    String image;
 }

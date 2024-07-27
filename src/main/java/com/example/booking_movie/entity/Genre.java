@@ -16,15 +16,13 @@ import java.util.Set;
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Table(name = "genres")
-public class Genre {
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    String id;
+    public class Genre {
+        @Id
+        @GeneratedValue(strategy = GenerationType.UUID)
+        String id;
+        String name;
 
-    @NotNull(message = "Name must not be null")
-    String name;
-
-    @ManyToMany(fetch = FetchType.LAZY, mappedBy = "genres")
-    @JsonBackReference
-    Set<Movie> movies;
-}
+        @ManyToMany(fetch = FetchType.LAZY, mappedBy = "genres")
+        @JsonBackReference
+        Set<Movie> movies;
+    }

@@ -25,7 +25,7 @@ public class SecurityConfig {
 
     final String[] PUBLIC_ENDPOINTS = {
 //            user
-            "/api/users/create",
+            "/api/users/",
 
 //            auth
             "/api/auth/login",

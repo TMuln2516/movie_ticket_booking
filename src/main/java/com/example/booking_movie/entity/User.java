@@ -23,31 +23,14 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     String id;
-
-    @NotBlank(message = "Username must not be blank")
-    @Size(min = 3, max = 10, message = "Username must have at least 3 characters")
     String username;
-
-    @PasswordConstrain
     String password;
-
-    @NotNull(message = "First Name must not be null")
     String firstName;
-
-    @NotNull(message = "Last Name must not be null")
     String lastName;
-
     Date dateOfBirth;
-
-    @NotNull(message = "Invalid gender")
     Boolean gender;
-
-    @EmailConstrain
     String email;
-
     String avatar;
-
-    @NotNull(message = "Status must not be null")
     Boolean status;
 
     @ManyToMany(fetch = FetchType.LAZY)

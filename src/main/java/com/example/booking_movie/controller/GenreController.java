@@ -22,6 +22,7 @@ import java.util.List;
 public class GenreController {
     GenreService genreService;
 
+//    ROLE USER AND MANAGER
 //    get all genre
     @GetMapping("/")
     public ApiResponse<List<GenreResponse>> getAll() {
@@ -31,6 +32,7 @@ public class GenreController {
                 .build();
     }
 
+//    ROLE MANAGER
 //    create genre
     @PostMapping("/")
     public ApiResponse<CreateGenreResponse> create(@RequestBody @Valid CreateGenreRequest createGenreRequest) {
@@ -41,18 +43,18 @@ public class GenreController {
     }
 
 //    update genre
-    @PutMapping("/{id}")
-    public ApiResponse<UpdateGenreResponse> update(@PathVariable String id, @RequestBody @Valid UpdateGenreRequest updateGenreRequest) {
+    @PutMapping("/{genreId}")
+    public ApiResponse<UpdateGenreResponse> update(@PathVariable String genreId, @RequestBody @Valid UpdateGenreRequest updateGenreRequest) {
         return ApiResponse.<UpdateGenreResponse>builder()
                 .message("Update Genre Success")
-                .result(genreService.update(id, updateGenreRequest))
+                .result(genreService.update(genreId, updateGenreRequest))
                 .build();
     }
 
 //    delete genre
-    @DeleteMapping("/{id}")
-    public ApiResponse<Void> delete(@PathVariable String id) {
-        genreService.delete(id);
+    @DeleteMapping("/{genreId}")
+    public ApiResponse<Void> delete(@PathVariable String genreId) {
+        genreService.delete(genreId);
         return ApiResponse.<Void>builder()
                 .message("Delete Genre Success")
                 .build();

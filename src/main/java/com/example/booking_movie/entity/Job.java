@@ -2,7 +2,6 @@ package com.example.booking_movie.entity;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -15,15 +14,14 @@ import java.util.Set;
 @AllArgsConstructor
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-@Table(name = "theaters")
-public class Theater {
+@Table(name = "jobs")
+public class Job {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     String id;
     String name;
-    String location;
 
-    @OneToMany(mappedBy = "theater")
+    @OneToMany(mappedBy = "job")
     @JsonManagedReference
-    Set<Room> rooms;
+    Set<Person> persons;
 }

@@ -19,8 +19,6 @@ import java.util.Set;
 public class Role {
     @Id
     String name;
-
-    @NotNull(message = "Description must not be null")
     String description;
 
     @ManyToMany(fetch = FetchType.LAZY, mappedBy = "roles")

@@ -8,9 +8,18 @@ import org.springframework.http.HttpStatusCode;
 
 @Getter
 public enum ErrorCode {
-    //    Actor
-    ACTOR_EXISTED(HttpStatus.BAD_REQUEST.value(), "Actor already existed"),
-    ACTOR_NOT_EXISTED(HttpStatus.BAD_REQUEST.value(), "Actor not exist"),
+    //    job
+
+
+    //    Movie
+    MOVIE_EXISTED(HttpStatus.BAD_REQUEST.value(), "Movie already existed"),
+    MOVIE_NOT_EXISTED(HttpStatus.BAD_REQUEST.value(), "Movie not exist"),
+    DIRECTOR_OF_MOVIE_EXISTED(HttpStatus.BAD_REQUEST.value(), "Director of movie existed"),
+
+    //    Person
+    PERSON_EXISTED(HttpStatus.BAD_REQUEST.value(), "Person already existed"),
+    PERSON_NOT_EXISTED(HttpStatus.BAD_REQUEST.value(), "Person not exist"),
+    PERSON_NOT_PERMISSION(HttpStatus.BAD_REQUEST.value(), "Person not permission"),
 
     //    Genre
     GENRE_EXISTED(HttpStatus.BAD_REQUEST.value(), "Genre already existed"),

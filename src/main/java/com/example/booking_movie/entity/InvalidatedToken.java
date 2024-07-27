@@ -21,7 +21,5 @@ import java.util.Date;
 public class InvalidatedToken {
     @Id
     String id;
-
-    @NotNull(message = "Expiry time must not be null")
     Date expiryTime;
 }

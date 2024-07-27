@@ -18,14 +18,8 @@ public class Room {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     String id;
-
-    @NotNull(message = "Name must not be null")
     String name;
-
-    @NotNull(message = "Number of row must not be null")
     Integer rows;
-
-    @NotNull(message = "Number of column must not be null")
     Integer columns;
 
     @ManyToOne(fetch = FetchType.LAZY)

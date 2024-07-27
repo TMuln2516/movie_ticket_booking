@@ -1,6 +1,5 @@
-package com.example.booking_movie.dto.request;
+package com.example.booking_movie.dto.response;
 
-import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -9,7 +8,7 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class CreateGenreRequest {
-    @NotNull(message = "Name must not be null")
+public class JobResponse {
+    String id;
     String name;
 }

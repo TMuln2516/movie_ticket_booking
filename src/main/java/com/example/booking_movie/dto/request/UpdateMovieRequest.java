@@ -4,12 +4,20 @@ import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.util.Date;
+import java.util.Set;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class CreateGenreRequest {
-    @NotNull(message = "Name must not be null")
+public class UpdateMovieRequest {
     String name;
+    Date premiere;
+    String language;
+    Integer duration;
+    String content;
+    Double rate;
+    String image;
 }

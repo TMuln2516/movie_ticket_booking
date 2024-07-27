@@ -1,14 +1,13 @@
 package com.example.booking_movie.config;
 
+import com.example.booking_movie.constant.DefinedJob;
 import com.example.booking_movie.constant.DefinedRole;
-import com.example.booking_movie.dto.request.CreateRoleRequest;
-import com.example.booking_movie.dto.request.CreateUserRequest;
+import com.example.booking_movie.entity.Job;
 import com.example.booking_movie.entity.Role;
 import com.example.booking_movie.entity.User;
+import com.example.booking_movie.repository.JobRepository;
 import com.example.booking_movie.repository.RoleRepository;
 import com.example.booking_movie.repository.UserRepository;
-import com.example.booking_movie.service.RoleService;
-import com.example.booking_movie.service.UserService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -19,9 +18,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import java.util.Date;
 import java.util.HashSet;
-import java.util.Locale;
 import java.util.Set;
 
 @Configuration
@@ -74,7 +71,7 @@ public class ApplicationInitConfig {
     static final Boolean MANAGER_STATUS = true;
 
     @Bean
-    ApplicationRunner applicationRunner(UserRepository userRepository, RoleRepository roleRepository) {
+    ApplicationRunner applicationRunner(UserRepository userRepository, RoleRepository roleRepository, JobRepository jobRepository) {
         log.info("Initializing application");
         return args -> {
             if (!roleRepository.existsByName(DefinedRole.ADMIN_ROLE)) {
@@ -125,6 +122,19 @@ public class ApplicationInitConfig {
                         .status(MANAGER_STATUS)
                         .roles(roles)
                         .build());
+            }
+
+            if (!jobRepository.existsByName(DefinedJob.ACTOR)) {
+                jobRepository.save(Job.builder()
+                        .name(DefinedJob.ACTOR)
+                        .build());
+            }
+
+            if (!jobRepository.existsByName(DefinedJob.DIRECTOR)) {
+                jobRepository.save(Job.builder()
+                        .name(DefinedJob.DIRECTOR)
+                        .build());
+
             }
             log.info("Application initialization completed");
         };

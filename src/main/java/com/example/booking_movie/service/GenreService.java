@@ -9,6 +9,7 @@ import com.example.booking_movie.entity.Genre;
 import com.example.booking_movie.exception.ErrorCode;
 import com.example.booking_movie.exception.MyException;
 import com.example.booking_movie.repository.GenreRepository;
+import com.example.booking_movie.repository.MovieRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -25,6 +26,7 @@ import java.util.stream.Collectors;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class GenreService {
     GenreRepository genreRepository;
+    MovieRepository movieRepository;
 
 //    create genre
     @PreAuthorize("hasRole('MANAGER')")
@@ -47,7 +49,7 @@ public class GenreService {
     }
 
 //    get all genre
-    @PreAuthorize("hasAnyRole('USER', 'MANAGER')")
+    @PreAuthorize("hasAnyRole('MANAGER', 'USER')")
     public List<GenreResponse> getAll() {
         return genreRepository.findAll()
                 .stream()
@@ -78,11 +80,15 @@ public class GenreService {
     @PreAuthorize("hasRole('MANAGER')")
     public void delete(String id) {
 //        check exist
-        if (genreRepository.findById(id).isEmpty()) {
-            throw new MyException(ErrorCode.GENRE_NOT_EXISTED);
-        }
+        Genre genre = genreRepository.findById(id).orElseThrow(() -> new MyException(ErrorCode.GENRE_NOT_EXISTED));
 
-//        delete
-        genreRepository.deleteById(id);
+//        delete genre in movie
+        genre.getMovies().forEach(movie -> {
+            movie.getGenres().remove(genre);
+            movieRepository.save(movie);
+        });
+
+//        delete genre
+        genreRepository.delete(genre);
     }
 }
