@@ -8,8 +8,9 @@ import org.springframework.http.HttpStatusCode;
 
 @Getter
 public enum ErrorCode {
-    //    job
-
+    //    theater
+    THEATER_EXISTED(HttpStatus.BAD_REQUEST.value(), "Theater already existed"),
+    THEATER_NOT_EXISTED(HttpStatus.BAD_REQUEST.value(), "Theater not exist"),
 
     //    Movie
     MOVIE_EXISTED(HttpStatus.BAD_REQUEST.value(), "Movie already existed"),

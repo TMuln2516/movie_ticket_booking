@@ -62,9 +62,9 @@ public class GenreService {
 
 //    update genre
     @PreAuthorize("hasRole('MANAGER')")
-    public UpdateGenreResponse update(String id, UpdateGenreRequest updateGenreRequest) {
+    public UpdateGenreResponse update(String genreId, UpdateGenreRequest updateGenreRequest) {
 //        get genre
-        Genre genre = genreRepository.findById(id).orElseThrow(() -> new MyException(ErrorCode.GENRE_NOT_EXISTED));
+        Genre genre = genreRepository.findById(genreId).orElseThrow(() -> new MyException(ErrorCode.GENRE_NOT_EXISTED));
 
 //        update
         genre.setName(updateGenreRequest.getName());
@@ -78,9 +78,9 @@ public class GenreService {
 
 //    delete genre
     @PreAuthorize("hasRole('MANAGER')")
-    public void delete(String id) {
+    public void delete(String genreId) {
 //        check exist
-        Genre genre = genreRepository.findById(id).orElseThrow(() -> new MyException(ErrorCode.GENRE_NOT_EXISTED));
+        Genre genre = genreRepository.findById(genreId).orElseThrow(() -> new MyException(ErrorCode.GENRE_NOT_EXISTED));
 
 //        delete genre in movie
         genre.getMovies().forEach(movie -> {

@@ -41,4 +41,8 @@ public class Movie {
             @JoinColumn(name = "person_id")})
     @JsonManagedReference
     Set<Person> persons;
+
+//    @OneToMany(mappedBy = "movie")
+//    @JsonManagedReference
+//    Set<Showtime> showtimes;
 }

@@ -174,9 +174,9 @@ public class MovieService {
 
     //    update movie
     @PreAuthorize("hasRole('MANAGER')")
-    public UpdateMovieResponse update(String id, UpdateMovieRequest updateMovieRequest) {
+    public UpdateMovieResponse update(String movieId, UpdateMovieRequest updateMovieRequest) {
 //        get movie
-        Movie movie = movieRepository.findById(id).orElseThrow(() -> new MyException(ErrorCode.MOVIE_NOT_EXISTED));
+        Movie movie = movieRepository.findById(movieId).orElseThrow(() -> new MyException(ErrorCode.MOVIE_NOT_EXISTED));
 
 //        check null field
         ValidUtils.updateFieldIfNotEmpty(movie::setName, updateMovieRequest.getName());
@@ -204,9 +204,9 @@ public class MovieService {
 
     //    delete movie
     @PreAuthorize("hasRole('MANAGER')")
-    public void delete(String id) {
+    public void delete(String movieId) {
 //        check exist
-        Movie movie = movieRepository.findById(id).orElseThrow(() -> new MyException(ErrorCode.MOVIE_NOT_EXISTED));
+        Movie movie = movieRepository.findById(movieId).orElseThrow(() -> new MyException(ErrorCode.MOVIE_NOT_EXISTED));
 
 //        delete genre in movie
         movie.getGenres().forEach(genre -> genreService.delete(genre.getId()));
@@ -220,9 +220,9 @@ public class MovieService {
 
     //    delete director
     @PreAuthorize("hasRole('MANAGER')")
-    public void deleteDirector(String id) {
+    public void deleteDirector(String directorId) {
 //        check exist
-        Movie movie = movieRepository.findById(id).orElseThrow(() -> new MyException(ErrorCode.MOVIE_NOT_EXISTED));
+        Movie movie = movieRepository.findById(directorId).orElseThrow(() -> new MyException(ErrorCode.MOVIE_NOT_EXISTED));
 
 //        use Iterator
         Iterator<Person> personIterator = movie.getPersons().iterator();

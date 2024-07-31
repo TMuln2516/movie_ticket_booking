@@ -107,9 +107,9 @@ public class PersonService {
     }
 
     @PreAuthorize("hasRole('MANAGER')")
-    public UpdatePersonResponse update(String id, UpdatePersonRequest updatePersonRequest) {
+    public UpdatePersonResponse update(String personId, UpdatePersonRequest updatePersonRequest) {
 //        get actor
-        Person person = personRepository.findById(id).orElseThrow(() -> new MyException(ErrorCode.PERSON_NOT_EXISTED));
+        Person person = personRepository.findById(personId).orElseThrow(() -> new MyException(ErrorCode.PERSON_NOT_EXISTED));
 
 //        check null and update
         ValidUtils.updateFieldIfNotEmpty(person::setName, updatePersonRequest.getName());
@@ -127,9 +127,9 @@ public class PersonService {
                 .build();
     }
 
-    public void delete(String id) {
+    public void delete(String personId) {
 //        check exist
-        Person person = personRepository.findById(id).orElseThrow(() -> new MyException(ErrorCode.USER_NOT_EXISTED));
+        Person person = personRepository.findById(personId).orElseThrow(() -> new MyException(ErrorCode.USER_NOT_EXISTED));
 
 //        delete person in movie
         person.getMovies().forEach(movie -> {
