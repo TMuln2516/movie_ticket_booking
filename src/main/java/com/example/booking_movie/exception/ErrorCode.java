@@ -8,6 +8,10 @@ import org.springframework.http.HttpStatusCode;
 
 @Getter
 public enum ErrorCode {
+    //    room
+    ROOM_EXISTED(HttpStatus.BAD_REQUEST.value(), "Room already existed"),
+    ROOM_NOT_EXISTED(HttpStatus.BAD_REQUEST.value(), "Room not exist"),
+
     //    theater
     THEATER_EXISTED(HttpStatus.BAD_REQUEST.value(), "Theater already existed"),
     THEATER_NOT_EXISTED(HttpStatus.BAD_REQUEST.value(), "Theater not exist"),
@@ -37,6 +41,7 @@ public enum ErrorCode {
     PASSWORD_OR_USERNAME_INCORRECT(HttpStatus.BAD_REQUEST.value(), "Username or Password incorrect"),
     USER_EXISTED(HttpStatus.BAD_REQUEST.value(), "User already existed"),
     USER_NOT_EXISTED(HttpStatus.BAD_REQUEST.value(), "User not exist"),
+    ACCOUNT_BANNED(HttpStatus.BAD_REQUEST.value(), "Sorry! Your account has already banned"),
 
     //    Token
     UNAUTHORIZED(HttpStatus.UNAUTHORIZED.value(), "You do not have permission"),

@@ -1,12 +1,9 @@
 package com.example.booking_movie.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-
-import java.util.Set;
 
 @Entity
 @Getter
@@ -15,22 +12,21 @@ import java.util.Set;
 @AllArgsConstructor
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-@Table(name = "seats")
-public class Seat {
+@Table(name = "schedule_seat")
+public class ScheduleSeat {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     String id;
 
-    Character locateRow;
-    Integer locateColumn;
-    Double price;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "showtime_id")
+    @JsonBackReference
+    Showtime showtime;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "room_id")
+    @JoinColumn(name = "seat_id")
     @JsonBackReference
-    Room room;
+    Seat seat;
 
-    @OneToMany(mappedBy = "seat")
-    @JsonManagedReference
-    Set<ScheduleSeat> scheduleSeats;
+    Boolean status;
 }

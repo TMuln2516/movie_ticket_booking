@@ -54,6 +54,11 @@ public class AuthenticationService {
         PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
         boolean authenticated = passwordEncoder.matches(authenticationRequest.getPassword(), user.getPassword());
 
+//        check ban
+        if (!user.getStatus()) {
+            throw new MyException(ErrorCode.ACCOUNT_BANNED);
+        }
+
         if (!authenticated) {
             throw new MyException(ErrorCode.PASSWORD_OR_USERNAME_INCORRECT);
         }

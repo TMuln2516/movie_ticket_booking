@@ -42,7 +42,7 @@ public class Movie {
     @JsonManagedReference
     Set<Person> persons;
 
-//    @OneToMany(mappedBy = "movie")
-//    @JsonManagedReference
-//    Set<Showtime> showtimes;
+    @OneToMany(mappedBy = "movie")
+    @JsonManagedReference
+    Set<Showtime> showtimes;
 }

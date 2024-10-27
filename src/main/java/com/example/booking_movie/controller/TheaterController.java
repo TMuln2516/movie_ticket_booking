@@ -1,11 +1,10 @@
 package com.example.booking_movie.controller;
 
+import com.example.booking_movie.dto.request.CreateRoomRequest;
 import com.example.booking_movie.dto.request.CreateTheaterRequest;
 import com.example.booking_movie.dto.request.UpdateTheaterRequest;
-import com.example.booking_movie.dto.response.ApiResponse;
-import com.example.booking_movie.dto.response.CreateTheaterResponse;
-import com.example.booking_movie.dto.response.TheaterResponse;
-import com.example.booking_movie.dto.response.UpdateTheaterResponse;
+import com.example.booking_movie.dto.response.*;
+import com.example.booking_movie.service.RoomService;
 import com.example.booking_movie.service.TheaterService;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;

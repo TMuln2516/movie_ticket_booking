@@ -38,7 +38,4 @@ public class CreateUserRequest {
     String email;
 
     String avatar;
-
-    @NotNull(message = "Status must not be null")
-    Boolean status;
 }

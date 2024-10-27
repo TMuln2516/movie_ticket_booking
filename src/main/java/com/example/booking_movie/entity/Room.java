@@ -30,7 +30,7 @@ public class Room {
     @JsonBackReference
     Theater theater;
 
-    @OneToMany(mappedBy = "room")
+    @OneToMany(mappedBy = "room", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     Set<Seat> seats;
 }

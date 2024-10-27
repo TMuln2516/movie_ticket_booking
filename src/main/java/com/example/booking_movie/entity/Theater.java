@@ -26,4 +26,8 @@ public class Theater {
     @OneToMany(mappedBy = "theater")
     @JsonManagedReference
     Set<Room> rooms;
+
+    @OneToMany(mappedBy = "theater")
+    @JsonManagedReference
+    Set<Showtime> showtimes;
 }

@@ -10,4 +10,5 @@ public class ValidUtils {
             setter.accept(value);
         }
     }
+
 }
