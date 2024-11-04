@@ -8,6 +8,7 @@ import jakarta.validation.constraints.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.Set;
 
@@ -27,10 +28,11 @@ public class User {
     String password;
     String firstName;
     String lastName;
-    Date dateOfBirth;
+    LocalDate dateOfBirth;
     Boolean gender;
     String email;
     String avatar;
+    String publicId;
     Boolean status;
 
     @ManyToMany(fetch = FetchType.LAZY)

@@ -11,7 +11,9 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -42,11 +44,13 @@ public class MovieController {
 
     //    ROLE MANAGER
 //    create movie
-    @PostMapping("/")
-    public ApiResponse<CreateMovieResponse> create(@RequestBody @Valid CreateMovieRequest createMovieRequest) {
+    @PostMapping(value = "/")
+    public ApiResponse<CreateMovieResponse> create(
+            @RequestPart("createMovieRequest") @Valid CreateMovieRequest createMovieRequest,
+            @RequestPart("file") MultipartFile file) throws IOException {
         return ApiResponse.<CreateMovieResponse>builder()
                 .message("Create Movie Success")
-                .result(movieService.create(createMovieRequest))
+                .result(movieService.create(createMovieRequest, file))
                 .build();
     }
 
@@ -61,7 +65,7 @@ public class MovieController {
 
 //    delete movie
     @DeleteMapping("/{movieId}")
-    public ApiResponse<Void> delete(@PathVariable String movieId) {
+    public ApiResponse<Void> delete(@PathVariable String movieId) throws IOException {
         movieService.delete(movieId);
         return ApiResponse.<Void>builder()
                 .message("Delete Movie Success")

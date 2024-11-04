@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.Set;
 
@@ -22,7 +23,7 @@ public class Person {
     String id;
     String name;
     Boolean gender;
-    Date dateOfBirth;
+    LocalDate dateOfBirth;
     String image;
 
     @ManyToMany(fetch = FetchType.LAZY, mappedBy = "persons")

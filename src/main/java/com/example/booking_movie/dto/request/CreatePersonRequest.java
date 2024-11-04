@@ -5,6 +5,7 @@ import jakarta.validation.constraints.Past;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.Set;
 
@@ -21,7 +22,7 @@ public class CreatePersonRequest {
     Boolean gender;
 
     @Past(message = "Invalid Date")
-    Date dateOfBirth;
+    LocalDate dateOfBirth;
 
     String image;
 }

@@ -21,17 +21,17 @@ import java.util.List;
 public class TheaterController {
     TheaterService theaterService;
 
-//    ROLE MANAGER AND USER
+    //    ROLE MANAGER AND USER
 //    get all theater
-@GetMapping("/")
-public ApiResponse<List<TheaterResponse>> getAll() {
-    return ApiResponse.<List<TheaterResponse>>builder()
-            .message("Get All Theater Success")
-            .result(theaterService.getAll())
-            .build();
-}
+    @GetMapping("/")
+    public ApiResponse<List<TheaterResponse>> getAll() {
+        return ApiResponse.<List<TheaterResponse>>builder()
+                .message("Get All Theater Success")
+                .result(theaterService.getAll())
+                .build();
+    }
 
-//    ROLE MANAGER
+    //    ROLE MANAGER
 //    create theater
     @PostMapping("/")
     public ApiResponse<CreateTheaterResponse> create(@RequestBody @Valid CreateTheaterRequest createTheaterRequest) {
@@ -41,7 +41,7 @@ public ApiResponse<List<TheaterResponse>> getAll() {
                 .build();
     }
 
-//    update theater
+    //    update theater
     @PutMapping("/{theaterId}")
     public ApiResponse<UpdateTheaterResponse> update(@PathVariable String theaterId, @RequestBody UpdateTheaterRequest updateTheaterRequest) {
         return ApiResponse.<UpdateTheaterResponse>builder()
@@ -50,7 +50,7 @@ public ApiResponse<List<TheaterResponse>> getAll() {
                 .build();
     }
 
-//    delete theater
+    //    delete theater
     @DeleteMapping("/{theaterId}")
     public ApiResponse<Void> delete(@PathVariable String theaterId) {
         theaterService.delete(theaterId);

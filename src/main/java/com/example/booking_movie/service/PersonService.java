@@ -75,7 +75,7 @@ public class PersonService {
                 .id(newPerson.getId())
                 .name(newPerson.getName())
                 .gender(newPerson.getGender())
-                .dateOfBirth(newPerson.getDateOfBirth() != null ? DateUtils.formatDateTime(newPerson.getDateOfBirth()) : null)
+                .dateOfBirth(newPerson.getDateOfBirth() != null ? DateUtils.formatDate(newPerson.getDateOfBirth()) : null)
                 .image(newPerson.getImage())
                 .build();
     }
@@ -96,7 +96,7 @@ public class PersonService {
                         .id(person.getId())
                         .name(person.getName())
                         .gender(person.getGender())
-                        .dateOfBirth(person.getDateOfBirth() != null ? DateUtils.formatDateTime(person.getDateOfBirth()) : null)
+                        .dateOfBirth(person.getDateOfBirth() != null ? DateUtils.formatDate(person.getDateOfBirth()) : null)
                         .image(person.getImage())
                         .job(JobResponse.builder()
                                 .id(person.getJob().getId())
@@ -122,7 +122,7 @@ public class PersonService {
                 .id(person.getId())
                 .name(person.getName())
                 .gender(person.getGender())
-                .dateOfBirth(person.getDateOfBirth() != null ? DateUtils.formatDateTime(person.getDateOfBirth()) : null)
+                .dateOfBirth(person.getDateOfBirth() != null ? DateUtils.formatDate(person.getDateOfBirth()) : null)
                 .description(person.getImage())
                 .build();
     }

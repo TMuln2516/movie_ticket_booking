@@ -20,17 +20,9 @@ public class CreateShowtimeRequest {
     @NotNull(message = "Start time must not be null")
     LocalTime startTime;
 
-    @NotNull(message = "End time not be null")
-    LocalTime endTime;
-
-    Integer totalSeat;
-
-    Integer emptySeat;
-
-    @NotNull(message = "Status must not be null")
-    String status;
-
     @NotNull(message = "Movie Id must not be null")
     String movieId;
-    String theaterId;
+
+    @NotNull(message = "Room Id must not be null")
+    String roomId;
 }

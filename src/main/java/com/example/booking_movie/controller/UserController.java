@@ -7,12 +7,15 @@ import com.example.booking_movie.dto.response.BioResponse;
 import com.example.booking_movie.dto.response.CreateUserResponse;
 import com.example.booking_movie.dto.response.UserResponse;
 import com.example.booking_movie.service.UserService;
+import jakarta.mail.MessagingException;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -35,7 +38,7 @@ public class UserController {
 
     //    create user
     @PostMapping("/")
-    public ApiResponse<CreateUserResponse> createUser(@RequestBody @Valid CreateUserRequest createUserRequest) {
+    public ApiResponse<CreateUserResponse> createUser(@RequestBody @Valid CreateUserRequest createUserRequest) throws MessagingException {
         return ApiResponse.<CreateUserResponse>builder()
                 .message("Create User Success")
                 .result(userService.createUser(createUserRequest))
@@ -48,6 +51,14 @@ public class UserController {
         return ApiResponse.<BioResponse>builder()
                 .message("Update Bio Success")
                 .result(userService.updateBio(updateBioRequest))
+                .build();
+    }
+
+    @PutMapping("/avatar")
+    public ApiResponse<Void> uploadAvatar(@RequestPart("file") MultipartFile file) throws IOException {
+        userService.uploadAvatar(file);
+        return ApiResponse.<Void>builder()
+                .message("Tải lên Avatar thành công")
                 .build();
     }
 

@@ -33,4 +33,8 @@ public class Room {
     @OneToMany(mappedBy = "room", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     Set<Seat> seats;
+
+    @ManyToMany(fetch = FetchType.LAZY, mappedBy = "rooms")
+    @JsonBackReference
+    Set<Showtime> showtimes;
 }

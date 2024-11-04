@@ -6,7 +6,9 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.Date;
 import java.util.Set;
 
@@ -23,24 +25,26 @@ public class Showtime {
     @GeneratedValue(strategy = GenerationType.UUID)
     String id;
 
-    Date date;
-    LocalDateTime startTime;
-    LocalDateTime endTime;
+    LocalDate date;
+    LocalTime startTime;
+    LocalTime endTime;
     Integer totalSeat;
     Integer emptySeat;
-    Boolean status;
+    String status;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "movie_id")
     @JsonBackReference
     Movie movie;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "theater_id")
-    @JsonBackReference
-    Theater theater;
-
     @OneToMany(mappedBy = "showtime")
     @JsonManagedReference
     Set<ScheduleSeat> scheduleSeats;
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(name = "showtime_room", joinColumns = {
+            @JoinColumn(name = "showtime_id")}, inverseJoinColumns = {
+            @JoinColumn(name = "room_id")})
+    @JsonManagedReference
+    Set<Room> rooms;
 }

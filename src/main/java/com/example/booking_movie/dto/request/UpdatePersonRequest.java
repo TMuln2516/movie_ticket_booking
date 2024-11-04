@@ -3,6 +3,7 @@ package com.example.booking_movie.dto.request;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.time.LocalDate;
 import java.util.Date;
 
 @Data
@@ -13,7 +14,7 @@ import java.util.Date;
 public class UpdatePersonRequest {
     String name;
     Boolean gender;
-    Date dateOfBirth;
+    LocalDate dateOfBirth;
     String job;
     String image;
 }

@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.Set;
 
@@ -21,12 +22,13 @@ public class Movie {
     @GeneratedValue(strategy = GenerationType.UUID)
     String id;
     String name;
-    Date premiere;
+    LocalDate premiere;
     String language;
     Integer duration;
     String content;
     Double rate;
     String image;
+    String publicId;
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "movie_genre", joinColumns = {

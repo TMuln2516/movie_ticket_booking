@@ -30,7 +30,10 @@ public class SecurityConfig {
 //            auth
             "/api/auth/login",
             "/api/auth/logout",
-            "/api/auth/refresh"
+            "/api/auth/refresh",
+
+//            verify
+            "/api/verify/*"
     };
 
     CustomJWTDecoder customJWTDecoder;

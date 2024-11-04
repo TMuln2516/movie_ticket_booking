@@ -4,6 +4,7 @@ import jakarta.validation.constraints.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.Set;
 
@@ -18,7 +19,7 @@ public class CreateMovieRequest {
 
     @NotNull(message = "Premiere Day must not be null")
     @Future(message = "Invalid date")
-    Date premiere;
+    LocalDate premiere;
 
     @NotNull(message = "Language must not be null")
     String language;

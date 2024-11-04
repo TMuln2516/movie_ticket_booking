@@ -2,18 +2,24 @@ package com.example.booking_movie.service;
 
 import com.example.booking_movie.constant.DefinedRole;
 import com.example.booking_movie.dto.request.CreateUserRequest;
+import com.example.booking_movie.dto.request.MailBody;
 import com.example.booking_movie.dto.request.UpdateBioRequest;
 import com.example.booking_movie.dto.response.BioResponse;
 import com.example.booking_movie.dto.response.CreateUserResponse;
 import com.example.booking_movie.dto.response.UserResponse;
+import com.example.booking_movie.entity.Otp;
 import com.example.booking_movie.entity.Role;
 import com.example.booking_movie.entity.User;
 import com.example.booking_movie.exception.ErrorCode;
 import com.example.booking_movie.exception.MyException;
+import com.example.booking_movie.repository.OtpRepository;
 import com.example.booking_movie.repository.RoleRepository;
 import com.example.booking_movie.repository.UserRepository;
 import com.example.booking_movie.utils.DateUtils;
+import com.example.booking_movie.utils.SecurityUtils;
 import com.example.booking_movie.utils.ValidUtils;
+import jakarta.mail.MessagingException;
+import jakarta.validation.constraints.Email;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -24,9 +30,14 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Random;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -39,9 +50,16 @@ public class UserService {
     RoleRepository roleRepository;
     UserRepository userRepository;
 
+    VerifyService verifyService;
+    ImageService imageService;
+
+    PasswordEncoder encoder = new BCryptPasswordEncoder(10);
+
     //    create new user
     public CreateUserResponse createUser(CreateUserRequest createUserRequest) {
-        PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
+
+//        verify otp
+        verifyService.verifyOTP(createUserRequest.getOtp(), createUserRequest.getEmail());
 
 //        check user existed
         if (userRepository.existsByUsername(createUserRequest.getUsername())) {
@@ -55,7 +73,7 @@ public class UserService {
 //        create new user
         User newUser = User.builder()
                 .username(createUserRequest.getUsername())
-                .password(passwordEncoder.encode(createUserRequest.getPassword()))
+                .password(encoder.encode(createUserRequest.getPassword()))
                 .firstName(createUserRequest.getFirstName())
                 .lastName(createUserRequest.getLastName())
                 .dateOfBirth(createUserRequest.getDateOfBirth())
@@ -73,10 +91,10 @@ public class UserService {
         return CreateUserResponse.builder()
                 .id(newUser.getId())
                 .username(newUser.getUsername())
-                .password(passwordEncoder.encode(newUser.getPassword()))
+                .password(encoder.encode(newUser.getPassword()))
                 .firstName(newUser.getFirstName())
                 .lastName(newUser.getLastName())
-                .dateOfBirth(newUser.getDateOfBirth() != null ? DateUtils.formatDateTime(newUser.getDateOfBirth()) : null)
+                .dateOfBirth(newUser.getDateOfBirth() != null ? DateUtils.formatDate(newUser.getDateOfBirth()) : null)
                 .gender(newUser.getGender())
                 .email(newUser.getEmail())
                 .avatar(newUser.getAvatar())
@@ -96,7 +114,7 @@ public class UserService {
                 .password(user.getPassword())
                 .firstName(user.getFirstName())
                 .lastName(user.getLastName())
-                .dateOfBirth(user.getDateOfBirth() != null ? DateUtils.formatDateTime(user.getDateOfBirth()) : null)
+                .dateOfBirth(user.getDateOfBirth() != null ? DateUtils.formatDate(user.getDateOfBirth()) : null)
                 .gender(user.getGender())
                 .email(user.getEmail())
                 .avatar(user.getAvatar())
@@ -128,13 +146,26 @@ public class UserService {
                 .password(user.getPassword())
                 .firstName(user.getFirstName())
                 .lastName(user.getLastName())
-                .dateOfBirth(user.getDateOfBirth() != null ? DateUtils.formatDateTime(user.getDateOfBirth()) : null)
+                .dateOfBirth(user.getDateOfBirth() != null ? DateUtils.formatDate(user.getDateOfBirth()) : null)
                 .gender(user.getGender())
                 .email(user.getEmail())
                 .avatar(user.getAvatar())
                 .build();
     }
 
+    public void uploadAvatar(MultipartFile file) throws IOException {
+        //        get user
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userRepository.findByUsername(username).orElseThrow(() -> new MyException(ErrorCode.USER_NOT_EXISTED));
+
+        //        upload image
+        var imageResponse = imageService.uploadImage(file, user.getUsername());
+
+//        update avatar
+        user.setAvatar(imageResponse.getSecureUrl());
+        user.setPublicId(imageResponse.getPublicId());
+        userRepository.save(user);
+    }
 
     //    ban account -> role manager
     @PreAuthorize("hasRole('MANAGER')")
@@ -158,7 +189,7 @@ public class UserService {
                         .username(user.getUsername())
                         .firstName(user.getFirstName())
                         .lastName(user.getLastName())
-                        .dateOfBirth(user.getDateOfBirth() != null ? DateUtils.formatDateTime(user.getDateOfBirth()) : null)
+                        .dateOfBirth(user.getDateOfBirth() != null ? DateUtils.formatDate(user.getDateOfBirth()) : null)
                         .gender(user.getGender())
                         .email(user.getEmail())
                         .avatar(user.getAvatar())

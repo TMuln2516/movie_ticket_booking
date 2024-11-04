@@ -8,6 +8,7 @@ import jakarta.validation.constraints.Size;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.time.LocalDate;
 import java.util.Date;
 
 @Data
@@ -29,7 +30,7 @@ public class CreateUserRequest {
     @NotNull(message = "Last Name must not be null")
     String lastName;
 
-    Date dateOfBirth;
+    LocalDate dateOfBirth;
 
     @NotNull(message = "Invalid gender")
     Boolean gender;
@@ -38,4 +39,6 @@ public class CreateUserRequest {
     String email;
 
     String avatar;
+
+    String otp;
 }

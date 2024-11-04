@@ -22,7 +22,9 @@ import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
@@ -38,10 +40,11 @@ public class MovieService {
 
     PersonService personService;
     GenreService genreService;
+    ImageService imageService;
 
     //    create movie
     @PreAuthorize("hasRole('MANAGER')")
-    public CreateMovieResponse create(CreateMovieRequest createMovieRequest) {
+    public CreateMovieResponse create(CreateMovieRequest createMovieRequest, MultipartFile file) throws IOException {
         // check exist
         if (movieRepository.existsByName(createMovieRequest.getName())) {
             throw new MyException(ErrorCode.MOVIE_EXISTED);
@@ -66,6 +69,9 @@ public class MovieService {
                 .collect(Collectors.toSet());
         persons.add(director);
 
+//        upload image
+        var imageResponse = imageService.uploadImage(file, "MovieImage");
+
         // init
         Movie newMovie = Movie.builder()
                 .name(createMovieRequest.getName())
@@ -74,7 +80,8 @@ public class MovieService {
                 .duration(createMovieRequest.getDuration())
                 .content(createMovieRequest.getContent())
                 .rate(createMovieRequest.getRate())
-                .image(createMovieRequest.getImage())
+                .image(imageResponse.getSecureUrl())
+                .publicId(imageResponse.getPublicId())
                 .genres(genres)
                 .persons(persons)
                 .build();
@@ -83,7 +90,7 @@ public class MovieService {
         return CreateMovieResponse.builder()
                 .id(newMovie.getId())
                 .name(newMovie.getName())
-                .premiere(DateUtils.formatDateTime(newMovie.getPremiere()))
+                .premiere(DateUtils.formatDate(newMovie.getPremiere()))
                 .language(newMovie.getLanguage())
                 .duration(newMovie.getDuration())
                 .content(newMovie.getContent())
@@ -100,7 +107,7 @@ public class MovieService {
                 .map(movie -> MovieResponse.builder()
                         .id(movie.getId())
                         .name(movie.getName())
-                        .premiere(DateUtils.formatDateTime(movie.getPremiere()))
+                        .premiere(DateUtils.formatDate(movie.getPremiere()))
                         .language(movie.getLanguage())
                         .duration(movie.getDuration())
                         .rate(movie.getRate())
@@ -131,7 +138,7 @@ public class MovieService {
                         .id(d.getId())
                         .name(d.getName())
                         .gender(d.getGender())
-                        .dateOfBirth(DateUtils.formatDateTime(d.getDateOfBirth()))
+                        .dateOfBirth(DateUtils.formatDate(d.getDateOfBirth()))
                         .image(d.getImage())
                         .job(JobResponse.builder()
                                 .id(d.getJob().getId())
@@ -143,7 +150,7 @@ public class MovieService {
         return MovieDetailResponse.builder()
                 .id(movie.getId())
                 .name(movie.getName())
-                .premiere(DateUtils.formatDateTime(movie.getPremiere()))
+                .premiere(DateUtils.formatDate(movie.getPremiere()))
                 .language(movie.getLanguage())
                 .duration(movie.getDuration())
                 .content(movie.getContent())
@@ -161,7 +168,7 @@ public class MovieService {
                                 .id(person.getId())
                                 .name(person.getName())
                                 .gender(person.getGender())
-                                .dateOfBirth(DateUtils.formatDateTime(person.getDateOfBirth()))
+                                .dateOfBirth(DateUtils.formatDate(person.getDateOfBirth()))
                                 .image(person.getImage())
                                 .job(JobResponse.builder()
                                         .id(person.getJob().getId())
@@ -191,7 +198,7 @@ public class MovieService {
         return UpdateMovieResponse.builder()
                 .id(movie.getId())
                 .name(movie.getName())
-                .premiere(DateUtils.formatDateTime(movie.getPremiere()))
+                .premiere(DateUtils.formatDate(movie.getPremiere()))
                 .language(movie.getLanguage())
                 .duration(movie.getDuration())
                 .content(movie.getContent())
@@ -204,15 +211,18 @@ public class MovieService {
 
     //    delete movie
     @PreAuthorize("hasRole('MANAGER')")
-    public void delete(String movieId) {
+    public void delete(String movieId) throws IOException {
 //        check exist
         Movie movie = movieRepository.findById(movieId).orElseThrow(() -> new MyException(ErrorCode.MOVIE_NOT_EXISTED));
 
 //        delete genre in movie
-        movie.getGenres().forEach(genre -> genreService.delete(genre.getId()));
+        movie.getGenres().clear();
 
 //        delete person in movie
-        movie.getPersons().forEach(person -> personService.delete(person.getId()));
+        movie.getPersons().clear();
+
+//        delete image in cloudinary
+        imageService.deleteImage(movie.getPublicId());
 
 //        delete
         movieRepository.delete(movie);
