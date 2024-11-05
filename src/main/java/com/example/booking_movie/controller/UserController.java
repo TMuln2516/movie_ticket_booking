@@ -1,5 +1,6 @@
 package com.example.booking_movie.controller;
 
+import com.example.booking_movie.dto.request.ChangePasswordRequest;
 import com.example.booking_movie.dto.request.CreateUserRequest;
 import com.example.booking_movie.dto.request.UpdateBioRequest;
 import com.example.booking_movie.dto.response.ApiResponse;
@@ -59,6 +60,14 @@ public class UserController {
         userService.uploadAvatar(file);
         return ApiResponse.<Void>builder()
                 .message("Tải lên Avatar thành công")
+                .build();
+    }
+
+    @PutMapping("/changePassword")
+    public ApiResponse<Void> forgotPassword(@RequestBody @Valid ChangePasswordRequest changePasswordRequest) {
+        userService.changePassword(changePasswordRequest);
+        return ApiResponse.<Void>builder()
+                .message("Đổi mật khẩu thành công")
                 .build();
     }
 

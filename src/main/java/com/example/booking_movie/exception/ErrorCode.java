@@ -8,10 +8,14 @@ import org.springframework.http.HttpStatusCode;
 
 @Getter
 public enum ErrorCode {
-    //    room
+    //    password
+    CONFIRM_PASS_NOT_MATCH(HttpStatus.BAD_REQUEST.value(), "Xác nhận mật khẩu không trùng khớp"),
+
+    //    otp
     MAIL_NOT_EXISTED(HttpStatus.BAD_REQUEST.value(), "Email not existed"),
     OTP_EXPIRED(HttpStatus.BAD_REQUEST.value(), "OTP has expired"),
     OTP_NOT_MATCH(HttpStatus.BAD_REQUEST.value(), "OTP does not match"),
+
     //    room
     ROOM_EXISTED(HttpStatus.BAD_REQUEST.value(), "Room already existed"),
     ROOM_NOT_EXISTED(HttpStatus.BAD_REQUEST.value(), "Room not exist"),

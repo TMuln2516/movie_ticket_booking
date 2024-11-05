@@ -76,7 +76,7 @@ public class VerifyService {
 //        otp info
         var otpInfo = otpRepository.findByEmail(email).orElseThrow(() -> new MyException(ErrorCode.MAIL_NOT_EXISTED));
 
-        if (!encoder.matches(otpInfo.getOtp(), otp)) {
+        if (!encoder.matches(otp, otpInfo.getOtp())) {
             throw new MyException(ErrorCode.OTP_NOT_MATCH);
         }
 
@@ -85,13 +85,5 @@ public class VerifyService {
         }
 
         return true;
-    }
-
-//    re-send otp
-    public void reSendOtp(String email, String title) throws MessagingException, UnsupportedEncodingException {
-        var infoOtp = otpRepository.findByEmail(email).orElseThrow();
-        otpRepository.delete(infoOtp);
-
-        sendOtp(email, title);
     }
 }

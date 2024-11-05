@@ -1,6 +1,7 @@
 package com.example.booking_movie.service;
 
 import com.example.booking_movie.constant.DefinedRole;
+import com.example.booking_movie.dto.request.ChangePasswordRequest;
 import com.example.booking_movie.dto.request.CreateUserRequest;
 import com.example.booking_movie.dto.request.MailBody;
 import com.example.booking_movie.dto.request.UpdateBioRequest;
@@ -49,6 +50,7 @@ import java.util.stream.Collectors;
 public class UserService {
     RoleRepository roleRepository;
     UserRepository userRepository;
+    OtpRepository otpRepository;
 
     VerifyService verifyService;
     ImageService imageService;
@@ -87,6 +89,10 @@ public class UserService {
 //        log.info("User: " + newUser);
 //        update db
         userRepository.save(newUser);
+
+//        delete info otp
+        var otpInfo = otpRepository.findByEmail(createUserRequest.getEmail()).orElseThrow();
+        otpRepository.delete(otpInfo);
 
         return CreateUserResponse.builder()
                 .id(newUser.getId())
@@ -165,6 +171,24 @@ public class UserService {
         user.setAvatar(imageResponse.getSecureUrl());
         user.setPublicId(imageResponse.getPublicId());
         userRepository.save(user);
+    }
+
+    public void changePassword(ChangePasswordRequest changePasswordRequest) {
+        verifyService.verifyOTP(changePasswordRequest.getOtp(), changePasswordRequest.getEmail());
+
+        if (!changePasswordRequest.getPassword().equals(changePasswordRequest.getPasswordConfirm())) {
+            throw new MyException(ErrorCode.CONFIRM_PASS_NOT_MATCH);
+        }
+
+        var user = userRepository.findByEmail(changePasswordRequest.getEmail())
+                .orElseThrow();
+
+        user.setPassword(encoder.encode(changePasswordRequest.getPassword()));
+        userRepository.save(user);
+
+//        delete otp info
+        var otpInfo = otpRepository.findByEmail(changePasswordRequest.getEmail()).orElseThrow();
+        otpRepository.delete(otpInfo);
     }
 
     //    ban account -> role manager

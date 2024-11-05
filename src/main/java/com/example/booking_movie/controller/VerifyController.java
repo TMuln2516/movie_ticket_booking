@@ -28,26 +28,28 @@ import java.io.UnsupportedEncodingException;
 public class VerifyController {
     VerifyService verifyService;
 
+//    gửi otp xác nhận khi đăng ký
     @PostMapping("/registration")
-    public ApiResponse<String> sendOtpForRegistration(@RequestBody @Valid EmailRequest emailRequest) throws MessagingException, UnsupportedEncodingException {
+    public ApiResponse<String> sendOtpRegistration(@RequestBody @Valid EmailRequest emailRequest) throws MessagingException, UnsupportedEncodingException {
         verifyService.sendOtp(emailRequest.getEmail(), DefinedTitleEmail.REGISTER);
         return ApiResponse.<String>builder()
                 .result("Gửi OTP thành công")
                 .build();
     }
 
+    @PostMapping("/forgotPassword")
+    public ApiResponse<String> sendOtpForgotPassword(@RequestBody @Valid EmailRequest emailRequest) throws MessagingException, UnsupportedEncodingException {
+        verifyService.sendOtp(emailRequest.getEmail(), DefinedTitleEmail.FORGOT_PASSWORD);
+        return ApiResponse.<String>builder()
+                .result("Gửi OTP thành công")
+                .build();
+    }
+
+//    verify otp
     @PostMapping("/verifyOtp")
     public ApiResponse<Boolean> verifyOtp(@RequestBody @Valid VerifyOtpRequest verifyOtpRequest) {
         return ApiResponse.<Boolean>builder()
                 .result(verifyService.verifyOTP(verifyOtpRequest.getOtp(), verifyOtpRequest.getEmail()))
-                .build();
-    }
-
-    @PostMapping("/resendOtpRes")
-    public ApiResponse<String> resendOtp(@RequestBody @Valid EmailRequest emailRequest) throws MessagingException, UnsupportedEncodingException {
-        verifyService.reSendOtp(emailRequest.getEmail(), DefinedTitleEmail.REGISTER);
-        return ApiResponse.<String>builder()
-                .result("Gửi OTP thành công")
                 .build();
     }
 }
