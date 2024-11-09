@@ -100,7 +100,6 @@ public class MovieService {
     }
 
     //        get all movie
-    @PreAuthorize("hasAnyRole('MANAGER', 'USER')")
     public List<MovieResponse> getAll() {
         return movieRepository.findAll()
                 .stream()
@@ -112,6 +111,12 @@ public class MovieService {
                         .duration(movie.getDuration())
                         .rate(movie.getRate())
                         .image(movie.getImage())
+                        .genres(movie.getGenres().stream()
+                                .map(genre -> GenreResponse.builder()
+                                        .id(genre.getId())
+                                        .name(genre.getName())
+                                        .build())
+                                .collect(Collectors.toList()))
                         .build())
                 .collect(Collectors.toList());
     }
