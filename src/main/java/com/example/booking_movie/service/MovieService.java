@@ -38,13 +38,16 @@ public class MovieService {
     GenreRepository genreRepository;
     PersonRepository personRepository;
 
-    PersonService personService;
-    GenreService genreService;
     ImageService imageService;
 
     //    create movie
     @PreAuthorize("hasRole('MANAGER')")
     public CreateMovieResponse create(CreateMovieRequest createMovieRequest, MultipartFile file) throws IOException {
+//        check file null
+        if (file.isEmpty()) {
+            throw new MyException(ErrorCode.MOVIE_IMAGE_NOT_NULL);
+        }
+
         // check exist
         if (movieRepository.existsByName(createMovieRequest.getName())) {
             throw new MyException(ErrorCode.MOVIE_EXISTED);
@@ -186,9 +189,20 @@ public class MovieService {
 
     //    update movie
     @PreAuthorize("hasRole('MANAGER')")
-    public UpdateMovieResponse update(String movieId, UpdateMovieRequest updateMovieRequest) {
+    public UpdateMovieResponse update(String movieId, UpdateMovieRequest updateMovieRequest, MultipartFile file) throws IOException {
 //        get movie
         Movie movie = movieRepository.findById(movieId).orElseThrow(() -> new MyException(ErrorCode.MOVIE_NOT_EXISTED));
+
+//        set image
+        if (!file.isEmpty()) {
+//            delete image
+            imageService.deleteImage(movie.getPublicId());
+//        upload image
+            var imageResponse = imageService.uploadImage(file, "MovieImage");
+            movie.setImage(imageResponse.getSecureUrl());
+            movie.setPublicId(imageResponse.getPublicId());
+            movieRepository.save(movie);
+        }
 
 //        check null field
         ValidUtils.updateFieldIfNotEmpty(movie::setName, updateMovieRequest.getName());
@@ -197,7 +211,6 @@ public class MovieService {
         ValidUtils.updateFieldIfNotEmpty(movie::setDuration, updateMovieRequest.getDuration());
         ValidUtils.updateFieldIfNotEmpty(movie::setContent, updateMovieRequest.getContent());
         ValidUtils.updateFieldIfNotEmpty(movie::setRate, updateMovieRequest.getRate());
-        ValidUtils.updateFieldIfNotEmpty(movie::setImage, updateMovieRequest.getImage());
         movieRepository.save(movie);
 
         return UpdateMovieResponse.builder()

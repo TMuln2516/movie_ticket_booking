@@ -20,5 +20,4 @@ public class UpdateMovieRequest {
     Integer duration;
     String content;
     Double rate;
-    String image;
 }

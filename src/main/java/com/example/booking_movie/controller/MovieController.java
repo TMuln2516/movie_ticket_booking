@@ -57,10 +57,13 @@ public class MovieController {
 
 //    update info of movie (not genre and actor)
     @PutMapping("/{movieId}")
-    public ApiResponse<UpdateMovieResponse> update(@PathVariable String movieId, @RequestBody UpdateMovieRequest updateMovieRequest) {
+    public ApiResponse<UpdateMovieResponse> update(
+            @PathVariable("movieId") String movieId,
+            @RequestPart("updateMovieRequest") @Valid UpdateMovieRequest updateMovieRequest,
+            @RequestPart("file") MultipartFile file) throws IOException {
         return ApiResponse.<UpdateMovieResponse>builder()
                 .message("Update Movie Success")
-                .result(movieService.update(movieId, updateMovieRequest))
+                .result(movieService.update(movieId, updateMovieRequest, file))
                 .build();
     }
 

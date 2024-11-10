@@ -32,6 +32,7 @@ public enum ErrorCode {
     MOVIE_EXISTED(HttpStatus.BAD_REQUEST.value(), "Movie already existed"),
     MOVIE_NOT_EXISTED(HttpStatus.BAD_REQUEST.value(), "Movie not exist"),
     DIRECTOR_OF_MOVIE_EXISTED(HttpStatus.BAD_REQUEST.value(), "Director of movie existed"),
+    MOVIE_IMAGE_NOT_NULL(HttpStatus.BAD_REQUEST.value(), "Hình ảnh của Phim không được để trống"),
 
     //    Person
     PERSON_EXISTED(HttpStatus.BAD_REQUEST.value(), "Person already existed"),
