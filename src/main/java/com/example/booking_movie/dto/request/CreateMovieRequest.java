@@ -32,9 +32,6 @@ public class CreateMovieRequest {
 
     Double rate;
 
-    @NotNull(message = "Image must not be null")
-    String image;
-
     @NotEmpty
     Set<String> genresId;
 
