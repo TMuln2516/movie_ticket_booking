@@ -41,8 +41,8 @@ public class RoomService {
 //        create room
         Room room = Room.builder()
                 .name(createRoomRequest.getName())
-                .rows(createRoomRequest.getRows())
-                .columns(createRoomRequest.getColumns())
+                .rowCount(createRoomRequest.getRows())
+                .columnCount(createRoomRequest.getColumns())
                 .build();
         roomRepository.save(room);
 
@@ -68,8 +68,8 @@ public class RoomService {
         return CreateRoomResponse.builder()
                 .id(room.getId())
                 .name(room.getName())
-                .columns(room.getColumns())
-                .rows(room.getRows())
+                .columns(room.getColumnCount())
+                .rows(room.getRowCount())
                 .build();   
     }
 

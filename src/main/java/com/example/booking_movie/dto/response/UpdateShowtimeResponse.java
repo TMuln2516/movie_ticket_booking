@@ -3,16 +3,12 @@ package com.example.booking_movie.dto.response;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.Date;
-
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class CreateShowtimeResponse {
+public class UpdateShowtimeResponse {
     String id;
     String date;
     String startTime;

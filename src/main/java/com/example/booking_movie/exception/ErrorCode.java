@@ -8,6 +8,10 @@ import org.springframework.http.HttpStatusCode;
 
 @Getter
 public enum ErrorCode {
+    //    Showtime
+    SHOWTIME_EXISTED(HttpStatus.BAD_REQUEST.value(), "Showtime already existed"),
+    SHOWTIME_NOT_EXISTED(HttpStatus.BAD_REQUEST.value(), "Suất chiếu không tồn tại"),
+
     //    password
     CONFIRM_PASS_NOT_MATCH(HttpStatus.BAD_REQUEST.value(), "Xác nhận mật khẩu không trùng khớp"),
 
@@ -57,10 +61,7 @@ public enum ErrorCode {
     TOKEN_INVALID(HttpStatus.BAD_REQUEST.value(), "Token Invalid"),
 
     //    Invalid
-    INVALID(HttpStatus.BAD_REQUEST.value(), "Invalid Parameter"),
-
-//    Showtime
-    SHOWTIME_EXISTED(HttpStatus.BAD_REQUEST.value(), "Showtime already existed");
+    INVALID(HttpStatus.BAD_REQUEST.value(), "Invalid Parameter");
 
     private final int code;
     private final String message;

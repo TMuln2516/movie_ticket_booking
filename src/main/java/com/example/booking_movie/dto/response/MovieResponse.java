@@ -5,6 +5,7 @@ import com.example.booking_movie.entity.Genre;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.util.List;
 import java.util.Set;
 
 @Data
@@ -20,4 +21,5 @@ public class MovieResponse {
     Integer duration;
     Double rate;
     String image;
+    List<GenreResponse> genres;
 }

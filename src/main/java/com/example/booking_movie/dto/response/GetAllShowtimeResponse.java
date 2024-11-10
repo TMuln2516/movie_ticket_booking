@@ -1,5 +1,6 @@
 package com.example.booking_movie.dto.response;
 
+import com.example.booking_movie.entity.Theater;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -8,7 +9,7 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class ShowtimeResponse {
+public class GetAllShowtimeResponse {
     String id;
     String date;
     String startTime;
@@ -16,4 +17,5 @@ public class ShowtimeResponse {
     Integer totalSeat;
     Integer emptySeat;
     String status;
+    TheaterResponse theater;
 }

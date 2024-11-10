@@ -22,8 +22,8 @@ public class Room {
     @GeneratedValue(strategy = GenerationType.UUID)
     String id;
     String name;
-    Integer rows;
-    Integer columns;
+    Integer rowCount;
+    Integer columnCount;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "theater_id")
@@ -37,4 +37,5 @@ public class Room {
     @ManyToMany(fetch = FetchType.LAZY, mappedBy = "rooms")
     @JsonBackReference
     Set<Showtime> showtimes;
+
 }
