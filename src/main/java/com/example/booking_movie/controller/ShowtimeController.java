@@ -2,16 +2,14 @@ package com.example.booking_movie.controller;
 
 import com.example.booking_movie.dto.request.*;
 import com.example.booking_movie.dto.response.*;
-import com.example.booking_movie.service.AuthenticationService;
+import com.example.booking_movie.service.ScheduleSeatService;
 import com.example.booking_movie.service.ShowtimeService;
-import com.nimbusds.jose.JOSEException;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.web.bind.annotation.*;
 
-import java.text.ParseException;
 import java.util.List;
 
 @RestController
@@ -21,6 +19,7 @@ import java.util.List;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class ShowtimeController {
     ShowtimeService showtimeService;
+    ScheduleSeatService scheduleSeatService;
 
 //    get all
     @GetMapping("/")
@@ -46,6 +45,15 @@ public class ShowtimeController {
         return ApiResponse.<UpdateShowtimeResponse>builder()
                 .message("Cập nhật suất chiếu thành công")
                 .result(showtimeService.update(showtimeId, updateShowtimeRequest))
+                .build();
+    }
+
+//    get seat
+    @GetMapping("/{showtimeId}")
+    public ApiResponse<List<ScheduleSeatResponse>> getAllSeat(@PathVariable String showtimeId) {
+        return ApiResponse.<List<ScheduleSeatResponse>>builder()
+                .message("Lấy tất cả các ghế thành công")
+                .result(scheduleSeatService.getAllSeatByShowtimeId(showtimeId))
                 .build();
     }
 }
