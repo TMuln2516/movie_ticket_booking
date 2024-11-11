@@ -23,6 +23,4 @@ public class CreatePersonRequest {
 
     @Past(message = "Invalid Date")
     LocalDate dateOfBirth;
-
-    String image;
 }

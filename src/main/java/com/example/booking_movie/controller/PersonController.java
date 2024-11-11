@@ -1,5 +1,6 @@
 package com.example.booking_movie.controller;
 
+import com.example.booking_movie.dto.request.CreateMovieRequest;
 import com.example.booking_movie.dto.request.CreatePersonRequest;
 import com.example.booking_movie.dto.request.UpdatePersonRequest;
 import com.example.booking_movie.dto.response.PersonResponse;
@@ -12,7 +13,9 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -36,18 +39,22 @@ public class PersonController {
     //    ROLE MANAGER
 //    create actor
     @PostMapping("/actor")
-    public ApiResponse<CreatePersonResponse> createActor(@RequestBody @Valid CreatePersonRequest createPersonRequest) {
+    public ApiResponse<CreatePersonResponse> createActor(
+            @RequestPart("createPersonRequest") @Valid CreatePersonRequest createPersonRequest,
+            @RequestPart("file") MultipartFile file) throws IOException {
         return ApiResponse.<CreatePersonResponse>builder()
                 .message("Create Actor Success")
-                .result(personService.createActor(createPersonRequest))
+                .result(personService.createActor(createPersonRequest, file))
                 .build();
     }
 //    create director
     @PostMapping("/director")
-    public ApiResponse<CreatePersonResponse> createDirector(@RequestBody @Valid CreatePersonRequest createPersonRequest) {
+    public ApiResponse<CreatePersonResponse> createDirector(
+            @RequestPart("createPersonRequest") @Valid CreatePersonRequest createPersonRequest,
+            @RequestPart("file") MultipartFile file) throws IOException {
         return ApiResponse.<CreatePersonResponse>builder()
                 .message("Create Director Success")
-                .result(personService.createDirector(createPersonRequest))
+                .result(personService.createDirector(createPersonRequest, file))
                 .build();
     }
 

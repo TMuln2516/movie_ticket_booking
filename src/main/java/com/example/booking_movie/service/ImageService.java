@@ -20,7 +20,7 @@ public class ImageService {
         var uploadResult = cloudinary.uploader().upload(file.getBytes(),
                 ObjectUtils.asMap("folder", folder));
         return UploadImageResponse.builder()
-                .secureUrl(uploadResult.get("secure_url").toString())
+                .imageUrl(uploadResult.get("secure_url").toString())
                 .publicId(uploadResult.get("public_id").toString())
                 .build();
     }

@@ -168,7 +168,7 @@ public class UserService {
         var imageResponse = imageService.uploadImage(file, user.getUsername());
 
 //        update avatar
-        user.setAvatar(imageResponse.getSecureUrl());
+        user.setAvatar(imageResponse.getImageUrl());
         user.setPublicId(imageResponse.getPublicId());
         userRepository.save(user);
     }

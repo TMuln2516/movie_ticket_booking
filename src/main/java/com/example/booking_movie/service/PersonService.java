@@ -22,7 +22,9 @@ import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -38,20 +40,22 @@ public class PersonService {
     JobRepository jobRepository;
     MovieRepository movieRepository;
 
+    ImageService imageService;
+
     // Create person
     @PreAuthorize("hasRole('MANAGER')")
-    public CreatePersonResponse createActor(CreatePersonRequest createPersonRequest) {
-        return createPerson(createPersonRequest, DefinedJob.ACTOR);
+    public CreatePersonResponse createActor(CreatePersonRequest createPersonRequest, MultipartFile file) throws IOException {
+        return createPerson(createPersonRequest, DefinedJob.ACTOR, file);
     }
 
     // Create director
     @PreAuthorize("hasRole('MANAGER')")
-    public CreatePersonResponse createDirector(CreatePersonRequest createPersonRequest) {
-        return createPerson(createPersonRequest, DefinedJob.DIRECTOR);
+    public CreatePersonResponse createDirector(CreatePersonRequest createPersonRequest, MultipartFile file) throws IOException {
+        return createPerson(createPersonRequest, DefinedJob.DIRECTOR, file);
     }
 
     //    create person
-    private CreatePersonResponse createPerson(CreatePersonRequest createPersonRequest, String definedJob) {
+    private CreatePersonResponse createPerson(CreatePersonRequest createPersonRequest, String definedJob, MultipartFile file) throws IOException {
         if (personRepository.existsByNameAndGenderAndDateOfBirth(createPersonRequest.getName(), createPersonRequest.getGender(),
                 createPersonRequest.getDateOfBirth())) {
             throw new MyException(ErrorCode.PERSON_EXISTED);
@@ -59,11 +63,15 @@ public class PersonService {
 
         Job job = jobRepository.findByName(definedJob).orElseThrow();
 
+        //        upload image
+        var imageResponse = imageService.uploadImage(file, createPersonRequest.getName());
+
         Person newPerson = Person.builder()
                 .name(createPersonRequest.getName())
                 .gender(createPersonRequest.getGender())
                 .dateOfBirth(createPersonRequest.getDateOfBirth())
-                .image(createPersonRequest.getImage())
+                .image(imageResponse.getImageUrl())
+                .publicId(imageResponse.getPublicId())
                 .job(job)
                 .build();
 

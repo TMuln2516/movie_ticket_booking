@@ -25,6 +25,7 @@ public class Person {
     Boolean gender;
     LocalDate dateOfBirth;
     String image;
+    String publicId;
 
     @ManyToMany(fetch = FetchType.LAZY, mappedBy = "persons")
     @JsonBackReference

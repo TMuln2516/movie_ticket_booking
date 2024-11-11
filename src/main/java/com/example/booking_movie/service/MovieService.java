@@ -83,7 +83,7 @@ public class MovieService {
                 .duration(createMovieRequest.getDuration())
                 .content(createMovieRequest.getContent())
                 .rate(createMovieRequest.getRate())
-                .image(imageResponse.getSecureUrl())
+                .image(imageResponse.getImageUrl())
                 .publicId(imageResponse.getPublicId())
                 .genres(genres)
                 .persons(persons)
@@ -199,7 +199,7 @@ public class MovieService {
             imageService.deleteImage(movie.getPublicId());
 //        upload image
             var imageResponse = imageService.uploadImage(file, "MovieImage");
-            movie.setImage(imageResponse.getSecureUrl());
+            movie.setImage(imageResponse.getImageUrl());
             movie.setPublicId(imageResponse.getPublicId());
             movieRepository.save(movie);
         }
@@ -232,6 +232,9 @@ public class MovieService {
     public void delete(String movieId) throws IOException {
 //        check exist
         Movie movie = movieRepository.findById(movieId).orElseThrow(() -> new MyException(ErrorCode.MOVIE_NOT_EXISTED));
+
+//        delete image
+        imageService.deleteImage(movie.getPublicId());
 
 //        delete genre in movie
         movie.getGenres().clear();
