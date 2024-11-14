@@ -12,21 +12,21 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-@Table(name = "schedule_seat")
-public class ScheduleSeat {
+@Table(name = "tiket_details")
+public class TicketDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     String id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "showtime_id")
+    @JoinColumn(name = "ticket_id")
     @JsonBackReference
-    Showtime showtime;
+    Ticket ticket;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "seat_id")
     @JsonBackReference
     Seat seat;
 
-    Boolean status;
+    Double price;
 }

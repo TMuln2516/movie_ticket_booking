@@ -9,8 +9,12 @@ import org.springframework.http.HttpStatusCode;
 @Getter
 public enum ErrorCode {
     //    Showtime
+    TICKET_NOT_EXISTED(HttpStatus.BAD_REQUEST.value(), "Vé không tồn tại"),
+    //    Showtime
     SHOWTIME_EXISTED(HttpStatus.BAD_REQUEST.value(), "Showtime already existed"),
     SHOWTIME_NOT_EXISTED(HttpStatus.BAD_REQUEST.value(), "Suất chiếu không tồn tại"),
+    SEAT_ALREADY_BOOK(HttpStatus.BAD_REQUEST.value(), "Xin lỗi ghế bạn chọn đã được đặt. Vui lòng thử lại sau"),
+    SEAT_NOT_EXISTED(HttpStatus.BAD_REQUEST.value(), "Ghế không tồn tại"),
 
     //    password
     CONFIRM_PASS_NOT_MATCH(HttpStatus.BAD_REQUEST.value(), "Xác nhận mật khẩu không trùng khớp"),

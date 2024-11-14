@@ -33,4 +33,8 @@ public class Seat {
     @OneToMany(mappedBy = "seat")
     @JsonManagedReference
     Set<ScheduleSeat> scheduleSeats;
+
+    @OneToMany(mappedBy = "seat")
+    @JsonManagedReference
+    Set<TicketDetails> ticketDetails;
 }

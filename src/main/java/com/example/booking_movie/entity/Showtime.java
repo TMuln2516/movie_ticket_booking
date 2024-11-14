@@ -47,4 +47,8 @@ public class Showtime {
             @JoinColumn(name = "room_id")})
     @JsonManagedReference
     Set<Room> rooms;
+
+    @OneToMany(mappedBy = "showtime")
+    @JsonManagedReference
+    Set<Ticket> tickets;
 }

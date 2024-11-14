@@ -11,4 +11,5 @@ import java.util.List;
 @Repository
 public interface ScheduleSeatRepository extends JpaRepository<ScheduleSeat, String> {
     List<ScheduleSeat> findAllByShowtimeId(String showtimeId);
+    ScheduleSeat findByShowtimeIdAndSeatId(String showtimeId, String seatId);
 }

@@ -41,4 +41,8 @@ public class User {
             @JoinColumn(name = "role_id")})
     @JsonManagedReference
     Set<Role> roles;
+
+    @OneToMany(mappedBy = "user")
+    @JsonManagedReference
+    Set<Ticket> tickets;
 }
