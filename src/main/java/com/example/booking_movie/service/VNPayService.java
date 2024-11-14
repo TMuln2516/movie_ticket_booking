@@ -1,10 +1,14 @@
 package com.example.booking_movie.service;
 
 import com.example.booking_movie.config.VNPayConfig;
+import com.example.booking_movie.entity.ScheduleSeat;
+import com.example.booking_movie.entity.Showtime;
 import com.example.booking_movie.entity.Ticket;
-import com.example.booking_movie.entity.TicketDetails;
 import com.example.booking_movie.exception.ErrorCode;
 import com.example.booking_movie.exception.MyException;
+import com.example.booking_movie.repository.ScheduleSeatRepository;
+import com.example.booking_movie.repository.ShowtimeRepository;
+import com.example.booking_movie.repository.TicketDetailsRepository;
 import com.example.booking_movie.repository.TicketRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.AccessLevel;
@@ -19,12 +23,15 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class VNPayService {
+    private final TicketDetailsRepository ticketDetailsRepository;
     @NonFinal
     @Value("${vnpay.vnp_TmnCode}")
     protected String vnp_TmnCode;
@@ -45,8 +52,25 @@ public class VNPayService {
     protected String vnp_ReturnUrl;
 
     TicketRepository ticketRepository;
+    ScheduleSeatRepository scheduleSeatRepository;
+    ShowtimeRepository showtimeRepository;
 
-    public String createPaymentVNPay(HttpServletRequest req){
+    public String createPaymentVNPay(HttpServletRequest req) {
+        String ticketId = req.getParameter("ticketId");
+        Ticket ticketInfo = ticketRepository.findById(ticketId)
+                .orElseThrow(() -> new MyException(ErrorCode.TICKET_NOT_EXISTED));
+
+        Showtime showtimeInfo = ticketInfo.getShowtime();
+
+        ticketInfo.getTicketDetails().forEach(ticketDetails -> {
+            if ((scheduleSeatRepository.findByShowtimeIdAndSeatId(showtimeInfo.getId(), ticketDetails.getSeat().getId())).getStatus()) {
+//                xóa thông tin trong details
+                ticketDetailsRepository.deleteAll(ticketInfo.getTicketDetails());
+                ticketRepository.delete(ticketInfo);
+                throw new MyException(ErrorCode.SEAT_ALREADY_BOOK);
+            }
+        });
+
         long amount = getAmount(req.getParameter("ticketId")) * 100L;
         String bankCode = req.getParameter("bankCode");
         //String vnp_TxnRef = VNPayConfig.getRandomNumber(8);
@@ -101,7 +125,8 @@ public class VNPayService {
         queryUrl += "&vnp_SecureHash=" + vnp_SecureHash;
         return vnp_PayUrl + "?" + queryUrl;
     }
-    private long getAmount(String ticketId){
+
+    private long getAmount(String ticketId) {
         Ticket ticketInfo = ticketRepository.findById(ticketId)
                 .orElseThrow(() -> new MyException(ErrorCode.TICKET_NOT_EXISTED));
 
@@ -110,12 +135,26 @@ public class VNPayService {
                 .sum();
     }
 
-    public void callBack(String responseCode, String ticketId){
+    public void callBack(String responseCode, String ticketId) {
         Ticket ticketInfo = ticketRepository.findById(ticketId)
                 .orElseThrow(() -> new MyException(ErrorCode.TICKET_NOT_EXISTED));
 
-        if(responseCode.equals("00")){
+        if (responseCode.equals("00")) {
+//            update status
             ticketInfo.setStatus(true);
+
+//            update status schedule
+            AtomicInteger countSeat = new AtomicInteger(0);
+            ticketInfo.getTicketDetails().forEach(ticketDetails -> {
+                ScheduleSeat scheduleSeatInfo = scheduleSeatRepository.findByShowtimeIdAndSeatId(ticketInfo.getShowtime().getId(), ticketDetails.getSeat().getId());
+                scheduleSeatInfo.setStatus(true);
+                countSeat.incrementAndGet();
+            });
+
+//            update empty seat
+            Showtime showtimeInfo = ticketInfo.getShowtime();
+            showtimeInfo.setEmptySeat(showtimeInfo.getEmptySeat() - countSeat.get());
+            showtimeRepository.save(showtimeInfo);
         }
         ticketRepository.save(ticketInfo);
     }
