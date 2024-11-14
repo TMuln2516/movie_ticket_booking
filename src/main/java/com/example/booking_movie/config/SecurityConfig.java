@@ -24,6 +24,8 @@ import org.springframework.security.web.SecurityFilterChain;
 public class SecurityConfig {
 
     final String[] PUBLIC_ENDPOINTS = {
+//            payment
+            "/api/payment/*",
 //            showtime
             "/api/showtimes/",
 //            user
@@ -34,6 +36,7 @@ public class SecurityConfig {
             "/api/auth/login",
             "/api/auth/logout",
             "/api/auth/refresh",
+            "/api/auth/introspect",
 
 //            verify
             "/api/verify/*"

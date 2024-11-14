@@ -1,10 +1,12 @@
 package com.example.booking_movie.controller;
 
 import com.example.booking_movie.dto.request.AuthenticationRequest;
+import com.example.booking_movie.dto.request.IntrospectRequest;
 import com.example.booking_movie.dto.request.LogoutRequest;
 import com.example.booking_movie.dto.request.RefreshRequest;
 import com.example.booking_movie.dto.response.ApiResponse;
 import com.example.booking_movie.dto.response.AuthenticationResponse;
+import com.example.booking_movie.dto.response.IntrospectResponse;
 import com.example.booking_movie.service.AuthenticationService;
 import com.nimbusds.jose.JOSEException;
 import lombok.AccessLevel;
@@ -47,6 +49,14 @@ public class AuthenticationController {
         var result = authenticationService.refreshToken(request);
         return ApiResponse.<AuthenticationResponse>builder()
                 .result(result)
+                .build();
+    }
+
+    @PostMapping("/introspect")
+    public ApiResponse<IntrospectResponse> introspect(@RequestBody IntrospectRequest introspectRequest) throws ParseException, JOSEException {
+        return ApiResponse.<IntrospectResponse>builder()
+                .message("Thành công")
+                .result(authenticationService.introspect(introspectRequest))
                 .build();
     }
 }
