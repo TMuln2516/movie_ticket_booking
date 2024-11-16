@@ -20,4 +20,5 @@ public class BioResponse {
     Boolean gender;
     String email;
     String avatar;
+    Boolean hasPassword;
 }

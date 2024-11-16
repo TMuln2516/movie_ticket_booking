@@ -18,6 +18,7 @@ public enum ErrorCode {
 
     //    password
     CONFIRM_PASS_NOT_MATCH(HttpStatus.BAD_REQUEST.value(), "Xác nhận mật khẩu không trùng khớp"),
+    PASSWORD_EXISTED(HttpStatus.BAD_REQUEST.value(), "Tài khoản đã có mật khẩu"),
 
     //    otp
     MAIL_NOT_EXISTED(HttpStatus.BAD_REQUEST.value(), "Email not existed"),

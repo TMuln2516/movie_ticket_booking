@@ -1,10 +1,7 @@
 package com.example.booking_movie.service;
 
 import com.example.booking_movie.constant.DefinedRole;
-import com.example.booking_movie.dto.request.ChangePasswordRequest;
-import com.example.booking_movie.dto.request.CreateUserRequest;
-import com.example.booking_movie.dto.request.MailBody;
-import com.example.booking_movie.dto.request.UpdateBioRequest;
+import com.example.booking_movie.dto.request.*;
 import com.example.booking_movie.dto.response.BioResponse;
 import com.example.booking_movie.dto.response.CreateUserResponse;
 import com.example.booking_movie.dto.response.UserResponse;
@@ -31,6 +28,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -107,6 +105,20 @@ public class UserService {
                 .build();
     }
 
+    //    create password when login with google
+    public void createPassword(CreatePasswordRequest createPasswordRequest) {
+        //        get user
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userRepository.findByUsername(username).orElseThrow(() -> new MyException(ErrorCode.USER_NOT_EXISTED));
+
+        if (StringUtils.hasText(user.getPassword())) {
+             throw new MyException(ErrorCode.PASSWORD_EXISTED);
+        }
+
+        user.setPassword(encoder.encode(createPasswordRequest.getPassword()));
+        userRepository.save(user);
+    }
+
     //    get my bio
     @PostAuthorize("returnObject.username == authentication.name")
     public BioResponse getMyBio() {
@@ -124,6 +136,7 @@ public class UserService {
                 .gender(user.getGender())
                 .email(user.getEmail())
                 .avatar(user.getAvatar())
+                .hasPassword(StringUtils.hasText(user.getPassword()))
                 .build();
     }
 

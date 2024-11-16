@@ -1,6 +1,7 @@
 package com.example.booking_movie.controller;
 
 import com.example.booking_movie.dto.request.ChangePasswordRequest;
+import com.example.booking_movie.dto.request.CreatePasswordRequest;
 import com.example.booking_movie.dto.request.CreateUserRequest;
 import com.example.booking_movie.dto.request.UpdateBioRequest;
 import com.example.booking_movie.dto.response.ApiResponse;
@@ -44,6 +45,14 @@ public class UserController {
         return ApiResponse.<CreateUserResponse>builder()
                 .message("Create User Success")
                 .result(userService.createUser(createUserRequest))
+                .build();
+    }
+
+    @PostMapping("/createPassword")
+    public ApiResponse<Void> createPassword(@RequestBody @Valid CreatePasswordRequest createPasswordRequest) {
+        userService.createPassword(createPasswordRequest);
+        return ApiResponse.<Void>builder()
+                .message("Tạo mật khẩu mới thành công")
                 .build();
     }
 
