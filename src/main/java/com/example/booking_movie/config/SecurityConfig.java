@@ -24,6 +24,8 @@ import org.springframework.security.web.SecurityFilterChain;
 public class SecurityConfig {
 
     final String[] PUBLIC_ENDPOINTS = {
+//            showtimes
+            "/api/showtimes/all",
 //            payment
             "/api/payment/*",
 //            showtime

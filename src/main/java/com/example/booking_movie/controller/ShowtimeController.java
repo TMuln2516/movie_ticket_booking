@@ -22,7 +22,7 @@ public class ShowtimeController {
     ScheduleSeatService scheduleSeatService;
 
 //    get all
-    @GetMapping("/")
+    @PostMapping("/all")
     public ApiResponse<List<GetAllShowtimeResponse>> getAll(@RequestBody @Valid GetAllShowTimeRequest getAllShowTimeRequest) {
         return ApiResponse.<List<GetAllShowtimeResponse>>builder()
                 .message("Lấy tất cả suất chiếu thành công")
