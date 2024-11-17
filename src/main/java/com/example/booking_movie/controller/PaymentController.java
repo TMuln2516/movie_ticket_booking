@@ -4,14 +4,15 @@ import com.example.booking_movie.dto.response.ApiResponse;
 import com.example.booking_movie.service.PaymentService;
 import com.example.booking_movie.service.VNPayService;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.IOException;
-import java.net.URLEncoder;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/payment")
@@ -28,22 +29,36 @@ public class PaymentController {
                 .build();
     }
     @GetMapping("/callback")
-    public void callback(@RequestParam(value = "vnp_ResponseCode") String responseCode,
-                         @RequestParam(value = "vnp_TxnRef") String ticketId,
-                         HttpServletResponse response) throws IOException {
+    public ResponseEntity<Void> callback(@RequestParam Map<String, String> params) {
+        // Lấy mã phản hồi và thông tin ticketId từ tham số
+        String responseCode = params.get("vnp_ResponseCode");
+        String ticketId = params.get("vnp_TxnRef");
+
+        // Xử lý thanh toán
         String message;
-        if (responseCode.equals("00")) {
+        if ("00".equals(responseCode)) {
             message = "Thanh toán thành công";
+            paymentService.callBackVNPay(responseCode, ticketId); // Gọi dịch vụ để xử lý thanh toán thành công
         } else {
             message = "Thanh toán thất bại";
         }
-        paymentService.callBackVNPay(responseCode, ticketId);
 
-        // Tạo URL chuyển hướng về frontend với kết quả thanh toán
-        String redirectUrl = String.format("http://localhost:3000/payment/result?status=%s&message=%s",
-                responseCode.equals("00") ? "success" : "failure",
-                URLEncoder.encode(message, "UTF-8"));
-        response.sendRedirect(redirectUrl);
+        // URL của frontend, kèm theo các tham số động
+        String frontendUrl = "http://localhost:3000/payment-status";
+        String redirectUrl = frontendUrl + "?";
+
+        // Thêm tất cả các tham số vào URL redirect
+        for (Map.Entry<String, String> entry : params.entrySet()) {
+            redirectUrl += entry.getKey() + "=" + entry.getValue() + "&";
+        }
+
+        // Loại bỏ dấu "&" thừa cuối cùng
+        redirectUrl = redirectUrl.substring(0, redirectUrl.length() - 1);
+
+        // Redirect người dùng đến frontend với các tham số
+        return ResponseEntity.status(HttpStatus.FOUND)
+                .header(HttpHeaders.LOCATION, redirectUrl)
+                .build();
     }
 
 }
