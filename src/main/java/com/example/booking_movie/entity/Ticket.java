@@ -27,6 +27,7 @@ public class Ticket {
     LocalDate date;
     LocalTime time;
     Boolean status;
+    Boolean finished;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
