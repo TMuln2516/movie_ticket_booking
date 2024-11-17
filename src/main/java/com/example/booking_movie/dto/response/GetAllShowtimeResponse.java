@@ -18,4 +18,5 @@ public class GetAllShowtimeResponse {
     Integer emptySeat;
     String status;
     TheaterResponse theater;
+    String movieId;
 }

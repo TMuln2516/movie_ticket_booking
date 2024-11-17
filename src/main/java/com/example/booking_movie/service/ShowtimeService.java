@@ -153,6 +153,7 @@ public class ShowtimeService {
                                 .totalSeat(showtime.getTotalSeat())
                                 .emptySeat(showtime.getEmptySeat())
                                 .status(showtime.getStatus())
+                                .movieId(showtime.getMovie().getId())
                                 .theater(TheaterResponse.builder()
                                         .id(room.getTheater().getId())
                                         .name(room.getTheater().getName())
