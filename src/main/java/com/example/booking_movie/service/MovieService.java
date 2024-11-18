@@ -356,5 +356,23 @@ public class MovieService {
         movieRepository.save(movie);
     }
 
-
+    public List<MovieResponse> getAllByGenre(String genreId) {
+        return movieRepository.findAllByGenresId(genreId).stream()
+                .map(movie -> MovieResponse.builder()
+                        .id(movie.getId())
+                        .name(movie.getName())
+                        .premiere(DateUtils.formatDate(movie.getPremiere()))
+                        .language(movie.getLanguage())
+                        .duration(movie.getDuration())
+                        .rate(movie.getRate())
+                        .image(movie.getImage())
+                        .genres(movie.getGenres().stream()
+                                .map(genre -> GenreResponse.builder()
+                                        .id(genre.getId())
+                                        .name(genre.getName())
+                                        .build())
+                                .collect(Collectors.toList()))
+                        .build())
+                .collect(Collectors.toList());
+    }
 }

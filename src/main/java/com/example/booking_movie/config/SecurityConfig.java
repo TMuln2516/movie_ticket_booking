@@ -26,6 +26,7 @@ public class SecurityConfig {
     final String[] PUBLIC_ENDPOINTS = {
 //            search
             "/api/movies/search",
+            "/api/movies/genre",
 
 //            outbound
             "/api/auth/outbound/authentication",

@@ -36,6 +36,14 @@ public class MovieController {
                 .build();
     }
 
+    @GetMapping("/genre")
+    public ApiResponse<List<MovieResponse>> getAllByGenre(@RequestParam String genreId) {
+        return ApiResponse.<List<MovieResponse>>builder()
+                .message("Lấy thông tin phim theo thể loại thành công")
+                .result(movieService.getAllByGenre(genreId))
+                .build();
+    }
+
     //    get detail movie
     @GetMapping("/{movieId}")
     public ApiResponse<MovieDetailResponse> getDetail(@PathVariable String movieId) {
