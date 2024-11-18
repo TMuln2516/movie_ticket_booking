@@ -5,6 +5,7 @@ import com.example.booking_movie.dto.request.*;
 import com.example.booking_movie.dto.response.BioResponse;
 import com.example.booking_movie.dto.response.CreateUserResponse;
 import com.example.booking_movie.dto.response.UserResponse;
+import com.example.booking_movie.entity.Feedback;
 import com.example.booking_movie.entity.Otp;
 import com.example.booking_movie.entity.Role;
 import com.example.booking_movie.entity.User;
@@ -70,6 +71,9 @@ public class UserService {
         Set<Role> roles = new HashSet<>();
         roles.add(roleRepository.findById(DefinedRole.USER_ROLE).orElseThrow());
 
+//        set feedback
+        Set<Feedback> feedbacks = new HashSet<>();
+
 //        create new user
         User newUser = User.builder()
                 .username(createUserRequest.getUsername())
@@ -82,6 +86,7 @@ public class UserService {
                 .avatar(createUserRequest.getAvatar())
                 .status(true)
                 .roles(roles)
+                .feedbacks(feedbacks)
                 .build();
 
 //        log.info("User: " + newUser);

@@ -5,6 +5,7 @@ import com.example.booking_movie.dto.request.CreateMovieRequest;
 import com.example.booking_movie.dto.request.DeleteActorsRequest;
 import com.example.booking_movie.dto.request.UpdateMovieRequest;
 import com.example.booking_movie.dto.response.*;
+import com.example.booking_movie.service.ElasticsearchService;
 import com.example.booking_movie.service.MovieService;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
@@ -23,6 +24,7 @@ import java.util.List;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class MovieController {
     MovieService movieService;
+    ElasticsearchService elasticsearchService;
 
     //    ROLE MANAGER & USER
 //    get all movie
@@ -34,7 +36,7 @@ public class MovieController {
                 .build();
     }
 
-//    get detail movie
+    //    get detail movie
     @GetMapping("/{movieId}")
     public ApiResponse<MovieDetailResponse> getDetail(@PathVariable String movieId) {
         return ApiResponse.<MovieDetailResponse>builder()
@@ -55,7 +57,7 @@ public class MovieController {
                 .build();
     }
 
-//    update info of movie (not genre and actor)
+    //    update info of movie (not genre and actor)
     @PutMapping("/{movieId}")
     public ApiResponse<UpdateMovieResponse> update(
             @PathVariable("movieId") String movieId,
@@ -67,7 +69,7 @@ public class MovieController {
                 .build();
     }
 
-//    delete movie
+    //    delete movie
     @DeleteMapping("/{movieId}")
     public ApiResponse<Void> delete(@PathVariable String movieId) throws IOException {
         movieService.delete(movieId);
@@ -76,7 +78,7 @@ public class MovieController {
                 .build();
     }
 
-//    add director to movie
+    //    add director to movie
     @PutMapping("/{movieId}/{directorId}")
     public ApiResponse<Void> addDirector(@PathVariable String movieId, @PathVariable String directorId) {
         movieService.addDirector(movieId, directorId);
@@ -85,7 +87,7 @@ public class MovieController {
                 .build();
     }
 
-//    delete director of movie
+    //    delete director of movie
     @PutMapping("/{movieId}/deleteDirector")
     public ApiResponse<Void> deleteDirector(@PathVariable String movieId) {
         movieService.deleteDirector(movieId);
@@ -94,7 +96,7 @@ public class MovieController {
                 .build();
     }
 
-//    add actors to movie
+    //    add actors to movie
     @PutMapping("/{movieId}/addActors")
     public ApiResponse<Void> addActors(@PathVariable String movieId, @RequestBody @Valid AddActorsRequest addActorsRequest) {
         movieService.addActors(movieId, addActorsRequest);
@@ -103,12 +105,20 @@ public class MovieController {
                 .build();
     }
 
-//    delete actors of movie
+    //    delete actors of movie
     @PutMapping("/{movieId}/deleteActors")
     public ApiResponse<Void> deleteActors(@PathVariable String movieId, @RequestBody @Valid DeleteActorsRequest deleteActorsRequest) {
         movieService.deleteActors(movieId, deleteActorsRequest);
         return ApiResponse.<Void>builder()
                 .message("Delete Actors of Movie Success")
+                .build();
+    }
+
+    //    search
+    @GetMapping("/search")
+    public ApiResponse<List<MovieResponse>> fuzzySearch(@RequestParam String value) throws IOException {
+        return ApiResponse.<List<MovieResponse>>builder()
+                .result(elasticsearchService.fuzzyQuery(value))
                 .build();
     }
 }

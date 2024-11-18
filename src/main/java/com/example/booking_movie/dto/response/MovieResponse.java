@@ -18,6 +18,7 @@ public class MovieResponse {
     String name;
     String premiere;
     String language;
+    String content;
     Integer duration;
     Double rate;
     String image;

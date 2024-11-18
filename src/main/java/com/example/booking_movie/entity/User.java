@@ -45,4 +45,8 @@ public class User {
     @OneToMany(mappedBy = "user")
     @JsonManagedReference
     Set<Ticket> tickets;
+
+    @OneToMany(mappedBy = "user")
+    @JsonManagedReference
+    Set<Feedback> feedbacks;
 }

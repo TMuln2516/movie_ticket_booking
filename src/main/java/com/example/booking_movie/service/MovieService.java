@@ -6,6 +6,8 @@ import com.example.booking_movie.dto.request.CreateMovieRequest;
 import com.example.booking_movie.dto.request.DeleteActorsRequest;
 import com.example.booking_movie.dto.request.UpdateMovieRequest;
 import com.example.booking_movie.dto.response.*;
+import com.example.booking_movie.entity.Elastic.ElasticMovie;
+import com.example.booking_movie.entity.Feedback;
 import com.example.booking_movie.entity.Person;
 import com.example.booking_movie.entity.Genre;
 import com.example.booking_movie.entity.Movie;
@@ -14,6 +16,7 @@ import com.example.booking_movie.exception.MyException;
 import com.example.booking_movie.repository.PersonRepository;
 import com.example.booking_movie.repository.GenreRepository;
 import com.example.booking_movie.repository.MovieRepository;
+import com.example.booking_movie.service.Elastic.ElasticMovieService;
 import com.example.booking_movie.utils.DateUtils;
 import com.example.booking_movie.utils.ValidUtils;
 import lombok.AccessLevel;
@@ -37,6 +40,7 @@ public class MovieService {
     MovieRepository movieRepository;
     GenreRepository genreRepository;
     PersonRepository personRepository;
+    ElasticMovieService elasticMovieService;
 
     ImageService imageService;
 
@@ -75,6 +79,9 @@ public class MovieService {
 //        upload image
         var imageResponse = imageService.uploadImage(file, "MovieImage");
 
+//        set feedback
+        Set<Feedback> feedbacks = new HashSet<>();
+
         // init
         Movie newMovie = Movie.builder()
                 .name(createMovieRequest.getName())
@@ -87,8 +94,27 @@ public class MovieService {
                 .publicId(imageResponse.getPublicId())
                 .genres(genres)
                 .persons(persons)
+                .feedbacks(feedbacks)
                 .build();
         movieRepository.save(newMovie);
+
+        elasticMovieService.createOrUpdate(ElasticMovie.builder()
+                .id(newMovie.getId())
+                .name(newMovie.getName())
+                .premiere(DateUtils.formatDateToEpochMillis(newMovie.getPremiere()))
+                .language(newMovie.getLanguage())
+                .duration(newMovie.getDuration())
+                .content(newMovie.getContent())
+                .rate(newMovie.getRate())
+                .image(newMovie.getImage())
+                .publicId(newMovie.getPublicId())
+                .genreIds(newMovie.getGenres().stream()
+                        .map(Genre::getId)
+                        .collect(Collectors.toSet()))
+                .personIds(newMovie.getPersons().stream()
+                        .map(Person::getId)
+                        .collect(Collectors.toSet()))
+                .build());
 
         return CreateMovieResponse.builder()
                 .id(newMovie.getId())
@@ -271,7 +297,7 @@ public class MovieService {
         movieRepository.save(movie);
     }
 
-//    add director of movie (one movie -> one director)
+    //    add director of movie (one movie -> one director)
     @PreAuthorize("hasRole('MANAGER')")
     public void addDirector(String movieId, String directorId) {
 //        find person
@@ -329,4 +355,6 @@ public class MovieService {
         movie.getPersons().removeAll(actors);
         movieRepository.save(movie);
     }
+
+
 }
