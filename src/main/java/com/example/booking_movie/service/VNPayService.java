@@ -10,6 +10,7 @@ import com.example.booking_movie.repository.ScheduleSeatRepository;
 import com.example.booking_movie.repository.ShowtimeRepository;
 import com.example.booking_movie.repository.TicketDetailsRepository;
 import com.example.booking_movie.repository.TicketRepository;
+//import com.example.booking_movie.service.Elastic.ElasticTicketService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -54,6 +55,7 @@ public class VNPayService {
     TicketRepository ticketRepository;
     ScheduleSeatRepository scheduleSeatRepository;
     ShowtimeRepository showtimeRepository;
+//    ElasticTicketService elasticTicketService;
 
     public String createPaymentVNPay(HttpServletRequest req) {
         String ticketId = req.getParameter("ticketId");
@@ -157,5 +159,8 @@ public class VNPayService {
             showtimeRepository.save(showtimeInfo);
         }
         ticketRepository.save(ticketInfo);
+
+//        insert value to document elastic
+//        elasticTicketService.createOrUpdate(ticketInfo);
     }
 }

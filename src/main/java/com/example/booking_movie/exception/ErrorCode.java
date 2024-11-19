@@ -8,8 +8,11 @@ import org.springframework.http.HttpStatusCode;
 
 @Getter
 public enum ErrorCode {
-//    Session
-SESSION_EXPIRED_OR_INVALID(HttpStatus.BAD_REQUEST.value(), "Không có thông tin trong session"),
+    //    date
+    DATE_NULL(HttpStatus.BAD_REQUEST.value(), "Ngày bắt đầu và ngày kết thúc không được để trống"),
+    DATE_INVALID(HttpStatus.BAD_REQUEST.value(), "Ngày bắt đầu không thể lớn hơn ngày kết thúc"),
+    //    Session
+    SESSION_EXPIRED_OR_INVALID(HttpStatus.BAD_REQUEST.value(), "Không có thông tin trong session"),
     //    Showtime
     TICKET_NOT_EXISTED(HttpStatus.BAD_REQUEST.value(), "Vé không tồn tại"),
     //    Showtime

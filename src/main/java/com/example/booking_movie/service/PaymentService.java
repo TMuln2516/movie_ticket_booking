@@ -24,9 +24,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class PaymentService {
     VNPayService vnPayService;
-    TicketRepository ticketRepository;
-    ScheduleSeatRepository scheduleSeatRepository;
-    ShowtimeRepository showtimeRepository;
 
 //    VNPAY
      public String payment(HttpServletRequest request) {

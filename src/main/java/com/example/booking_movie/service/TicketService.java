@@ -3,6 +3,8 @@ package com.example.booking_movie.service;
 import com.example.booking_movie.dto.request.CreateTicketRequest;
 import com.example.booking_movie.dto.request.SetSeatSessionRequest;
 import com.example.booking_movie.dto.response.CreateTicketResponse;
+import com.example.booking_movie.dto.response.RevenueResponse;
+import com.example.booking_movie.dto.response.TicketDetailResponse;
 import com.example.booking_movie.entity.*;
 import com.example.booking_movie.exception.ErrorCode;
 import com.example.booking_movie.exception.MyException;
@@ -23,7 +25,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
-import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -157,4 +159,74 @@ public class TicketService {
             }
         });
     }
+
+    @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
+    public RevenueResponse getRevenueByDate(LocalDate date) {
+//        List<Ticket> tickets = ticketRepository.findByDate(date);
+//
+//        double totalRevenue = tickets.stream()
+//                .filter(ticket -> ticket.getStatus() != null && ticket.getStatus())
+//                .flatMap(ticket -> ticket.getTicketDetails().stream())
+//                .mapToDouble(TicketDetails::getPrice)
+//                .sum();
+//
+//        var ticketDetailResponses = tickets.stream()
+//                .map(ticket -> TicketDetailResponse.builder()
+//                        .id(ticket.getId())
+//                        .date(DateUtils.formatDate(ticket.getDate()))
+//                        .time(DateUtils.formatTime(ticket.getTime()))
+//                        .startTime(DateUtils.formatTime(ticket.getShowtime().getStartTime()))
+//                        .endTime(DateUtils.formatTime(ticket.getShowtime().getEndTime()))
+//                        .movieName(ticket.getShowtime().getMovie().getName())
+//                        .totalPrice(ticket.getTicketDetails().stream()
+//                                .mapToDouble(TicketDetails::getPrice)
+//                                .sum())
+//                        .build())
+//                .collect(Collectors.toSet());
+//
+//        return RevenueResponse.builder()
+//                .amount(totalRevenue)
+//                .ticketDetails(ticketDetailResponses)
+//                .build();
+        return getRevenueByDateRange(date, date);
+    }
+
+    @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
+    public RevenueResponse getRevenueByDateRange(LocalDate startDate, LocalDate endDate) {
+        if (startDate == null || endDate == null) {
+            throw new MyException(ErrorCode.DATE_NULL);
+        }
+
+        if (startDate.isAfter(endDate)) {
+            throw new MyException(ErrorCode.DATE_INVALID);
+        }
+
+        List<Ticket> tickets = ticketRepository.findByDateBetween(startDate, endDate);
+
+        double totalRevenue = tickets.stream()
+                .filter(ticket -> ticket.getStatus() != null && ticket.getStatus())
+                .flatMap(ticket -> ticket.getTicketDetails().stream())
+                .mapToDouble(TicketDetails::getPrice)
+                .sum();
+
+        var ticketDetailResponses = tickets.stream()
+                .map(ticket -> TicketDetailResponse.builder()
+                        .id(ticket.getId())
+                        .date(DateUtils.formatDate(ticket.getDate()))
+                        .time(DateUtils.formatTime(ticket.getTime()))
+                        .startTime(DateUtils.formatTime(ticket.getShowtime().getStartTime()))
+                        .endTime(DateUtils.formatTime(ticket.getShowtime().getEndTime()))
+                        .movieName(ticket.getShowtime().getMovie().getName())
+                        .totalPrice(ticket.getTicketDetails().stream()
+                                .mapToDouble(TicketDetails::getPrice)
+                                .sum())
+                        .build())
+                .collect(Collectors.toSet());
+
+        return RevenueResponse.builder()
+                .amount(totalRevenue)
+                .ticketDetails(ticketDetailResponses)
+                .build();
+    }
+
 }

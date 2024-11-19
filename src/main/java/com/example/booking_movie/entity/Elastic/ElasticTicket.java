@@ -7,6 +7,8 @@
 //import org.springframework.data.elasticsearch.annotations.Document;
 //
 //import java.time.LocalDate;
+//import java.time.LocalDateTime;
+//import java.time.LocalTime;
 //import java.util.Set;
 //
 //@Data
@@ -14,21 +16,15 @@
 //@NoArgsConstructor
 //@Builder
 //@FieldDefaults(level = AccessLevel.PRIVATE)
+//@Document(indexName = "tickets")
 //@JsonIgnoreProperties(ignoreUnknown = true)
-//public class ElasticMovie {
+//public class ElasticTicket {
 //    @Id
 //    String id;
 //
-//    String name;
-//    Long premiere;
-//    String language;
-//    Integer duration;
-//    String content;
-//    Double rate;
-//    String image;
-//    String publicId;
-//
-//    Set<String> genreIds;
-//    Set<String> personIds;
-//    Set<String> showtimeIds;
+//    LocalDateTime date;
+//    String showtimeId;
+//    String movieId;
+//    String theaterId;
+//    Double amount;
 //}
