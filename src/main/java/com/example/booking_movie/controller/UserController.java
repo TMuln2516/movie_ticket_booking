@@ -1,13 +1,7 @@
 package com.example.booking_movie.controller;
 
-import com.example.booking_movie.dto.request.ChangePasswordRequest;
-import com.example.booking_movie.dto.request.CreatePasswordRequest;
-import com.example.booking_movie.dto.request.CreateUserRequest;
-import com.example.booking_movie.dto.request.UpdateBioRequest;
-import com.example.booking_movie.dto.response.ApiResponse;
-import com.example.booking_movie.dto.response.BioResponse;
-import com.example.booking_movie.dto.response.CreateUserResponse;
-import com.example.booking_movie.dto.response.UserResponse;
+import com.example.booking_movie.dto.request.*;
+import com.example.booking_movie.dto.response.*;
 import com.example.booking_movie.service.UserService;
 import jakarta.mail.MessagingException;
 import jakarta.validation.Valid;
@@ -97,6 +91,23 @@ public class UserController {
     public ApiResponse<String> updateStatus(@PathVariable String userId) {
         return ApiResponse.<String>builder()
                 .message(userService.toggleStatus(userId))
+                .build();
+    }
+
+//    ROLE ADMIN
+    @PostMapping("/createManager")
+    public ApiResponse<CreateManagerResponse> createManager(@RequestBody @Valid CreateManagerRequest createManagerRequest) {
+        return ApiResponse.<CreateManagerResponse>builder()
+                .message("Tạo tài khoản Manager thành công")
+                .result(userService.createManager(createManagerRequest))
+                .build();
+    }
+
+    @DeleteMapping("/{accountId}")
+    public ApiResponse<Void> deleteAccount(@PathVariable String accountId) {
+        userService.deleteAccount(accountId);
+        return ApiResponse.<Void>builder()
+                .message("Xóa tài khoản thành công")
                 .build();
     }
 }

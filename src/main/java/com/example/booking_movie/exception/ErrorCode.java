@@ -8,6 +8,8 @@ import org.springframework.http.HttpStatusCode;
 
 @Getter
 public enum ErrorCode {
+    //    manager
+    MANAGER_EXISTED(HttpStatus.BAD_REQUEST.value(), "Username đã tồn tại"),
     //    date
     DATE_NULL(HttpStatus.BAD_REQUEST.value(), "Ngày bắt đầu và ngày kết thúc không được để trống"),
     DATE_INVALID(HttpStatus.BAD_REQUEST.value(), "Ngày bắt đầu không thể lớn hơn ngày kết thúc"),

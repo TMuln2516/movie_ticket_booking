@@ -3,6 +3,7 @@ package com.example.booking_movie.service;
 import com.example.booking_movie.constant.DefinedRole;
 import com.example.booking_movie.dto.request.*;
 import com.example.booking_movie.dto.response.BioResponse;
+import com.example.booking_movie.dto.response.CreateManagerResponse;
 import com.example.booking_movie.dto.response.CreateUserResponse;
 import com.example.booking_movie.dto.response.UserResponse;
 import com.example.booking_movie.entity.Feedback;
@@ -11,9 +12,7 @@ import com.example.booking_movie.entity.Role;
 import com.example.booking_movie.entity.User;
 import com.example.booking_movie.exception.ErrorCode;
 import com.example.booking_movie.exception.MyException;
-import com.example.booking_movie.repository.OtpRepository;
-import com.example.booking_movie.repository.RoleRepository;
-import com.example.booking_movie.repository.UserRepository;
+import com.example.booking_movie.repository.*;
 import com.example.booking_movie.utils.DateUtils;
 import com.example.booking_movie.utils.SecurityUtils;
 import com.example.booking_movie.utils.ValidUtils;
@@ -29,16 +28,15 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Random;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -50,6 +48,8 @@ public class UserService {
     RoleRepository roleRepository;
     UserRepository userRepository;
     OtpRepository otpRepository;
+    FeedbackRepository feedbackRepository;
+    TicketRepository ticketRepository;
 
     VerifyService verifyService;
     ImageService imageService;
@@ -117,7 +117,7 @@ public class UserService {
         User user = userRepository.findByUsername(username).orElseThrow(() -> new MyException(ErrorCode.USER_NOT_EXISTED));
 
         if (StringUtils.hasText(user.getPassword())) {
-             throw new MyException(ErrorCode.PASSWORD_EXISTED);
+            throw new MyException(ErrorCode.PASSWORD_EXISTED);
         }
 
         user.setPassword(encoder.encode(createPasswordRequest.getPassword()));
@@ -222,21 +222,107 @@ public class UserService {
         return user.getStatus() ? "Account has been unbanned" : "Account has been banned";
     }
 
-    @PreAuthorize("hasRole('MANAGER')")
+    @PreAuthorize("hasAnyRole('MANAGER','ADMIN')")
     public List<UserResponse> getAll() {
-        return userRepository.findAll()
-                .stream()
-                .map(user -> UserResponse.builder()
-                        .id(user.getId())
-                        .username(user.getUsername())
-                        .firstName(user.getFirstName())
-                        .lastName(user.getLastName())
-                        .dateOfBirth(user.getDateOfBirth() != null ? DateUtils.formatDate(user.getDateOfBirth()) : null)
-                        .gender(user.getGender())
-                        .email(user.getEmail())
-                        .avatar(user.getAvatar())
-                        .roles(user.getRoles())
-                        .build())
-                .collect(Collectors.toList());
+        //        get user
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        User currentUser = userRepository.findByUsername(username).orElseThrow(() -> new MyException(ErrorCode.USER_NOT_EXISTED));
+
+        boolean isAdmin = currentUser.getRoles().stream()
+                .anyMatch(role -> role.getName().equals(DefinedRole.ADMIN_ROLE));
+        boolean isManager = currentUser.getRoles().stream()
+                .anyMatch(role -> role.getName().equals(DefinedRole.MANAGER_ROLE));
+
+        List<User> users = userRepository.findAll().stream()
+                .filter(user -> !user.getUsername().equals(username))
+                .toList();
+
+        if (isAdmin) {
+            return users.stream()
+                    .map(user -> UserResponse.builder()
+                            .id(user.getId())
+                            .username(user.getUsername())
+                            .firstName(user.getFirstName())
+                            .lastName(user.getLastName())
+                            .dateOfBirth(user.getDateOfBirth() != null ? DateUtils.formatDate(user.getDateOfBirth()) : null)
+                            .gender(user.getGender())
+                            .email(user.getEmail())
+                            .avatar(user.getAvatar())
+                            .roles(user.getRoles())
+                            .build())
+                    .collect(Collectors.toList());
+        }
+
+        if (isManager) {
+            return users.stream()
+                    .filter(user -> user.getRoles().stream()
+                            .anyMatch(role -> role.getName().equals(DefinedRole.USER_ROLE)))
+                    .map(user -> UserResponse.builder()
+                            .id(user.getId())
+                            .username(user.getUsername())
+                            .firstName(user.getFirstName())
+                            .lastName(user.getLastName())
+                            .dateOfBirth(user.getDateOfBirth() != null ? DateUtils.formatDate(user.getDateOfBirth()) : null)
+                            .gender(user.getGender())
+                            .email(user.getEmail())
+                            .avatar(user.getAvatar())
+                            .roles(user.getRoles())
+                            .build())
+                    .collect(Collectors.toList());
+        }
+
+        return Collections.emptyList();
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    public CreateManagerResponse createManager(CreateManagerRequest createManagerRequest) {
+        //        check user existed
+        if (userRepository.existsByUsername(createManagerRequest.getUsername())) {
+            throw new MyException(ErrorCode.MANAGER_EXISTED);
+        }
+
+//       set roles
+        Set<Role> roles = new HashSet<>();
+        roles.add(roleRepository.findById(DefinedRole.MANAGER_ROLE).orElseThrow());
+
+        User newManager = User.builder()
+                .username(createManagerRequest.getUsername())
+                .password(encoder.encode(createManagerRequest.getPassword()))
+                .firstName(createManagerRequest.getFirstName())
+                .lastName(createManagerRequest.getLastName())
+                .dateOfBirth(LocalDate.of(2003, 1, 1))
+                .gender(true)
+                .email("manager@gmail.com")
+                .avatar("avatar")
+                .status(true)
+                .roles(roles)
+                .build();
+        userRepository.save(newManager);
+
+        return CreateManagerResponse.builder()
+                .id(newManager.getId())
+                .username(newManager.getUsername())
+                .password(encoder.encode(newManager.getPassword()))
+                .firstName(newManager.getFirstName())
+                .lastName(newManager.getLastName())
+                .dateOfBirth(newManager.getDateOfBirth() != null ? DateUtils.formatDate(newManager.getDateOfBirth()) : null)
+                .gender(newManager.getGender())
+                .email(newManager.getEmail())
+                .avatar(newManager.getAvatar())
+                .build();
+    }
+
+    @Transactional
+    @PreAuthorize("hasAnyRole('MANAGER','ADMIN')")
+    public void deleteAccount(String accountId) {
+        User userInfo = userRepository.findById(accountId).orElseThrow(() -> new MyException(ErrorCode.USER_NOT_EXISTED));
+
+//        xóa feedback giữ lại ticket
+        feedbackRepository.deleteAllByUserId(userInfo.getId());
+
+//        cập nhật user của ticket thành null
+        ticketRepository.updateUserToNullByUserId(accountId);
+
+        userRepository.delete(userInfo);
     }
 }
