@@ -59,11 +59,14 @@ public class PersonController {
     }
 
     //    update actor
-    @PutMapping("/{personId}")
-    public ApiResponse<UpdatePersonResponse> update(@PathVariable String personId, @RequestBody @Valid UpdatePersonRequest updatePersonRequest) {
+    @PutMapping("/")
+    public ApiResponse<UpdatePersonResponse> update(
+            @RequestPart("personId") String personId,
+            @RequestPart("updatePersonRequest") @Valid UpdatePersonRequest updatePersonRequest,
+            @RequestPart("file") MultipartFile file) throws IOException {
         return ApiResponse.<UpdatePersonResponse>builder()
                 .message("Update Person Success")
-                .result(personService.update(personId, updatePersonRequest))
+                .result(personService.update(personId, updatePersonRequest, file))
                 .build();
     }
 

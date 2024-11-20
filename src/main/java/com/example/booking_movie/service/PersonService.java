@@ -115,7 +115,7 @@ public class PersonService {
     }
 
     @PreAuthorize("hasRole('MANAGER')")
-    public UpdatePersonResponse update(String personId, UpdatePersonRequest updatePersonRequest) {
+    public UpdatePersonResponse update(String personId, UpdatePersonRequest updatePersonRequest, MultipartFile file) throws IOException {
 //        get actor
         Person person = personRepository.findById(personId).orElseThrow(() -> new MyException(ErrorCode.PERSON_NOT_EXISTED));
 
@@ -124,6 +124,16 @@ public class PersonService {
         ValidUtils.updateFieldIfNotEmpty(person::setGender, updatePersonRequest.getGender());
         ValidUtils.updateFieldIfNotEmpty(person::setDateOfBirth, updatePersonRequest.getDateOfBirth());
         ValidUtils.updateFieldIfNotEmpty(person::setImage, updatePersonRequest.getImage());
+
+        //        set image
+        if (!file.isEmpty()) {
+//            delete image
+            imageService.deleteImage(person.getPublicId());
+//        upload image
+            var imageResponse = imageService.uploadImage(file, "MovieImage");
+            person.setImage(imageResponse.getImageUrl());
+            person.setPublicId(imageResponse.getPublicId());
+        }
         personRepository.save(person);
 
         return UpdatePersonResponse.builder()
