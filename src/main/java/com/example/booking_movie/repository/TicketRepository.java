@@ -19,6 +19,8 @@ public interface TicketRepository extends JpaRepository<Ticket, String> {
     List<Ticket> findByDate(LocalDate date);
     List<Ticket> findByDateBetween(LocalDate startDate, LocalDate endDate);
 
+    List<Ticket> findAllByUserId(String userId);
+
     @Modifying
     @Transactional
     @Query("UPDATE Ticket t SET t.user = NULL WHERE t.user.id = :userId")

@@ -36,4 +36,12 @@ public class RevenueController {
                 .build();
     }
 
+    @GetMapping("/ticket/all")
+    public ApiResponse<RevenueResponse> getRevenue() {
+        return ApiResponse.<RevenueResponse>builder()
+                .message("Thống kê tổng doanh thu thành công")
+                .result(ticketService.getRevenue())
+                .build();
+    }
+
 }

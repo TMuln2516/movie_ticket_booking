@@ -4,6 +4,7 @@ import com.example.booking_movie.dto.request.CreateTicketRequest;
 import com.example.booking_movie.dto.request.SetSeatSessionRequest;
 import com.example.booking_movie.dto.response.CreateTicketResponse;
 import com.example.booking_movie.dto.response.RevenueResponse;
+import com.example.booking_movie.dto.response.SeatResponse;
 import com.example.booking_movie.dto.response.TicketDetailResponse;
 import com.example.booking_movie.entity.*;
 import com.example.booking_movie.exception.ErrorCode;
@@ -220,6 +221,14 @@ public class TicketService {
                         .totalPrice(ticket.getTicketDetails().stream()
                                 .mapToDouble(TicketDetails::getPrice)
                                 .sum())
+                        .seats(ticket.getTicketDetails().stream().map(
+                                ticketDetails -> SeatResponse.builder()
+                                        .id(ticketDetails.getSeat().getId())
+                                        .locateRow(ticketDetails.getSeat().getLocateRow())
+                                        .locateColumn(ticketDetails.getSeat().getLocateColumn())
+                                        .price(ticketDetails.getPrice())
+                                        .build()
+                        ).collect(Collectors.toSet()))
                         .build())
                 .collect(Collectors.toSet());
 
@@ -228,5 +237,44 @@ public class TicketService {
                 .ticketDetails(ticketDetailResponses)
                 .build();
     }
+
+    @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
+    public RevenueResponse getRevenue() {
+        List<Ticket> tickets = ticketRepository.findAll();
+
+        double totalRevenue = tickets.stream()
+                .filter(ticket -> ticket.getStatus() != null && ticket.getStatus())
+                .flatMap(ticket -> ticket.getTicketDetails().stream())
+                .mapToDouble(TicketDetails::getPrice)
+                .sum();
+
+        var ticketDetailResponses = tickets.stream()
+                .map(ticket -> TicketDetailResponse.builder()
+                        .id(ticket.getId())
+                        .date(DateUtils.formatDate(ticket.getDate()))
+                        .time(DateUtils.formatTime(ticket.getTime()))
+                        .startTime(DateUtils.formatTime(ticket.getShowtime().getStartTime()))
+                        .endTime(DateUtils.formatTime(ticket.getShowtime().getEndTime()))
+                        .movieName(ticket.getShowtime().getMovie().getName())
+                        .totalPrice(ticket.getTicketDetails().stream()
+                                .mapToDouble(TicketDetails::getPrice)
+                                .sum())
+                        .seats(ticket.getTicketDetails().stream().map(
+                                ticketDetails -> SeatResponse.builder()
+                                        .id(ticketDetails.getSeat().getId())
+                                        .locateRow(ticketDetails.getSeat().getLocateRow())
+                                        .locateColumn(ticketDetails.getSeat().getLocateColumn())
+                                        .price(ticketDetails.getPrice())
+                                        .build()
+                        ).collect(Collectors.toSet()))
+                        .build())
+                .collect(Collectors.toSet());
+
+        return RevenueResponse.builder()
+                .amount(totalRevenue)
+                .ticketDetails(ticketDetailResponses)
+                .build();
+    }
+
 
 }

@@ -33,6 +33,14 @@ public class UserController {
                 .build();
     }
 
+    @GetMapping("/ticket")
+    public ApiResponse<List<TicketDetailResponse>> myTicket() {
+        return ApiResponse.<List<TicketDetailResponse>>builder()
+                .message("Lấy thông tin vé thành công")
+                .result(userService.myTicket())
+                .build();
+    }
+
     //    create user
     @PostMapping("/")
     public ApiResponse<CreateUserResponse> createUser(@RequestBody @Valid CreateUserRequest createUserRequest) throws MessagingException {

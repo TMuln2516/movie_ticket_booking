@@ -2,14 +2,8 @@ package com.example.booking_movie.service;
 
 import com.example.booking_movie.constant.DefinedRole;
 import com.example.booking_movie.dto.request.*;
-import com.example.booking_movie.dto.response.BioResponse;
-import com.example.booking_movie.dto.response.CreateManagerResponse;
-import com.example.booking_movie.dto.response.CreateUserResponse;
-import com.example.booking_movie.dto.response.UserResponse;
-import com.example.booking_movie.entity.Feedback;
-import com.example.booking_movie.entity.Otp;
-import com.example.booking_movie.entity.Role;
-import com.example.booking_movie.entity.User;
+import com.example.booking_movie.dto.response.*;
+import com.example.booking_movie.entity.*;
 import com.example.booking_movie.exception.ErrorCode;
 import com.example.booking_movie.exception.MyException;
 import com.example.booking_movie.repository.*;
@@ -175,6 +169,36 @@ public class UserService {
                 .email(user.getEmail())
                 .avatar(user.getAvatar())
                 .build();
+    }
+
+    @PreAuthorize("hasRole('USER')")
+    public List<TicketDetailResponse> myTicket() {
+        //        get user
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userRepository.findByUsername(username).orElseThrow(() -> new MyException(ErrorCode.USER_NOT_EXISTED));
+
+        return ticketRepository.findAllByUserId(user.getId()).stream()
+                .filter(ticket -> ticket.getStatus() != null && ticket.getStatus())
+                .map(ticket -> TicketDetailResponse.builder()
+                        .id(ticket.getId())
+                        .date(DateUtils.formatDate(ticket.getDate()))
+                        .time(DateUtils.formatTime(ticket.getTime()))
+                        .startTime(DateUtils.formatTime(ticket.getShowtime().getStartTime()))
+                        .endTime(DateUtils.formatTime(ticket.getShowtime().getEndTime()))
+                        .movieName(ticket.getShowtime().getMovie().getName())
+                        .totalPrice(ticket.getTicketDetails().stream()
+                                .mapToDouble(TicketDetails::getPrice)
+                                .sum())
+                        .seats(ticket.getTicketDetails().stream().map(
+                                ticketDetails -> SeatResponse.builder()
+                                        .id(ticketDetails.getSeat().getId())
+                                        .locateRow(ticketDetails.getSeat().getLocateRow())
+                                        .locateColumn(ticketDetails.getSeat().getLocateColumn())
+                                        .price(ticketDetails.getPrice())
+                                        .build()
+                        ).collect(Collectors.toSet()))
+                        .build())
+                .collect(Collectors.toList());
     }
 
     public void uploadAvatar(MultipartFile file) throws IOException {
