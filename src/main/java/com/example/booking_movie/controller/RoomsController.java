@@ -13,22 +13,12 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/theaters")
+@RequestMapping("/api/rooms")
 @CrossOrigin(origins = "http://localhost:3000")
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-public class RoomController {
+public class RoomsController {
     RoomService roomService;
-
-//    ROLE MANAGER
-//    create room
-    @PostMapping("/{theaterId}/rooms")
-    public ApiResponse<CreateRoomResponse> create(@PathVariable String theaterId, @RequestBody CreateRoomRequest createRoomRequest) {
-        return ApiResponse.<CreateRoomResponse>builder()
-                .message("Create Room Success")
-                .result(roomService.create(theaterId, createRoomRequest))
-                .build();
-    }
 
     @GetMapping("/getAll")
     public ApiResponse<List<RoomResponse>> getAll() {
@@ -38,11 +28,4 @@ public class RoomController {
                 .build();
     }
 
-    @DeleteMapping("/{theaterId}/rooms/{roomId}")
-    public ApiResponse<Void> delete(@PathVariable String roomId, @PathVariable String theaterId) {
-        roomService.delete(roomId, theaterId);
-        return ApiResponse.<Void>builder()
-                .message("Delete Room Success")
-                .build();
-    }
 }

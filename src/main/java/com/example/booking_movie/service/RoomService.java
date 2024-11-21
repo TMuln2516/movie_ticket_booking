@@ -3,6 +3,8 @@ package com.example.booking_movie.service;
 import com.example.booking_movie.dto.request.CreateRoomRequest;
 import com.example.booking_movie.dto.request.CreateSeatRequest;
 import com.example.booking_movie.dto.response.CreateRoomResponse;
+import com.example.booking_movie.dto.response.RoomResponse;
+import com.example.booking_movie.dto.response.SeatResponse;
 import com.example.booking_movie.entity.Room;
 import com.example.booking_movie.entity.Theater;
 import com.example.booking_movie.exception.ErrorCode;
@@ -17,6 +19,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -27,7 +32,7 @@ public class RoomService {
     TheaterRepository theaterRepository;
     SeatService seatService;
 
-//    create room and add to theater
+    //    create room and add to theater
     @PreAuthorize("hasRole('MANAGER')")
     public CreateRoomResponse create(String theaterId, CreateRoomRequest createRoomRequest) {
 //        find theater
@@ -70,7 +75,7 @@ public class RoomService {
                 .name(room.getName())
                 .columns(room.getColumnCount())
                 .rows(room.getRowCount())
-                .build();   
+                .build();
     }
 
     @PreAuthorize("hasRole('MANAGER')")
@@ -78,5 +83,25 @@ public class RoomService {
         Room room = roomRepository.findRoomByIdAndTheaterId(roomId, theaterId).orElseThrow(() -> new MyException(ErrorCode.ROOM_NOT_EXISTED));
 
         roomRepository.delete(room);
+    }
+
+    @PreAuthorize("hasAnyRole('USER', 'MANAGER', 'ADMIN')")
+    public List<RoomResponse> getAll() {
+        return roomRepository.findAll().stream()
+                .map(room -> RoomResponse.builder()
+                        .id(room.getId())
+                        .name(room.getName())
+                        .rows(room.getRowCount())
+                        .columns(room.getColumnCount())
+                        .seats(room.getSeats().stream().map(
+                                        seat -> SeatResponse.builder()
+                                                .id(seat.getId())
+                                                .locateRow(seat.getLocateRow())
+                                                .locateColumn(seat.getLocateColumn())
+                                                .price(seat.getPrice())
+                                                .build())
+                                .collect(Collectors.toSet()))
+                        .build())
+                .collect(Collectors.toList());
     }
 }
