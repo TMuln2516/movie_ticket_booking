@@ -37,11 +37,11 @@ public class Showtime {
     @JsonBackReference
     Movie movie;
 
-    @OneToMany(mappedBy = "showtime")
+    @OneToMany(mappedBy = "showtime", cascade = CascadeType.REMOVE, orphanRemoval = true)
     @JsonManagedReference
     Set<ScheduleSeat> scheduleSeats;
 
-    @ManyToMany(fetch = FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     @JoinTable(name = "showtime_room", joinColumns = {
             @JoinColumn(name = "showtime_id")}, inverseJoinColumns = {
             @JoinColumn(name = "room_id")})

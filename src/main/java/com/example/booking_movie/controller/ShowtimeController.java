@@ -30,6 +30,15 @@ public class ShowtimeController {
                 .build();
     }
 
+//    get all by movie
+    @GetMapping("{movieId}/all")
+    public ApiResponse<List<GetAllShowtimeResponse>> getAllByMovie(@PathVariable String movieId) {
+        return ApiResponse.<List<GetAllShowtimeResponse>>builder()
+                .message("Lấy danh sách suất chiếu theo Phim thành công")
+                .result(showtimeService.getAllShowtimeByMovie(movieId))
+                .build();
+    }
+
 //    create
     @PostMapping("/")
     public ApiResponse<CreateShowtimeResponse> create(@RequestBody @Valid CreateShowtimeRequest createShowtimeRequest) {
@@ -54,6 +63,14 @@ public class ShowtimeController {
         return ApiResponse.<List<ScheduleSeatResponse>>builder()
                 .message("Lấy tất cả các ghế thành công")
                 .result(scheduleSeatService.getAllSeatByShowtimeId(showtimeId))
+                .build();
+    }
+
+    @DeleteMapping("/{showtimeId}")
+    public ApiResponse<Void> delete(@PathVariable String showtimeId) {
+        showtimeService.deleteShowtime(showtimeId);
+        return ApiResponse.<Void>builder()
+                .message("Xóa Suất chiếu thành công")
                 .build();
     }
 }

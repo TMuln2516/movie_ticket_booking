@@ -25,4 +25,9 @@ public interface TicketRepository extends JpaRepository<Ticket, String> {
     @Transactional
     @Query("UPDATE Ticket t SET t.user = NULL WHERE t.user.id = :userId")
     void updateUserToNullByUserId(@Param("userId") String userId);
+
+    @Modifying
+    @Transactional
+    @Query("UPDATE Ticket t SET t.showtime = NULL WHERE t.showtime.id = :showtimeId")
+    void setShowtimeToNull(String showtimeId);
 }

@@ -39,6 +39,7 @@ public class SecurityConfig {
 
 //            showtime
             "/api/showtimes/",
+            "/api/showtimes/*/all",
 
 //            user
             "/api/users/",

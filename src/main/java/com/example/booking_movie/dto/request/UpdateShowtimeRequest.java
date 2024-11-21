@@ -14,4 +14,5 @@ import java.time.LocalTime;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class UpdateShowtimeRequest {
     LocalTime startTime;
+    LocalDate date;
 }

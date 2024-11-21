@@ -16,6 +16,7 @@ import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalTime;
 import java.util.ArrayList;
@@ -35,6 +36,7 @@ public class ShowtimeService {
     TheaterRepository theaterRepository;
     SeatRepository seatRepository;
     ScheduleSeatRepository scheduleSeatRepository;
+    TicketRepository ticketRepository;
 
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     public CreateShowtimeResponse create(CreateShowtimeRequest createShowtimeRequest) {
@@ -182,5 +184,37 @@ public class ShowtimeService {
                 .emptySeat(showtimeInfo.getEmptySeat())
                 .status(showtimeInfo.getStatus())
                 .build();
+    }
+
+    public List<GetAllShowtimeResponse> getAllShowtimeByMovie(String movieId) {
+        return showtimeRepository.findAllByMovieId(movieId).stream()
+                .flatMap(showtime -> showtime.getRooms().stream() // Lấy danh sách các phòng cho mỗi showtime
+                        .map(room -> GetAllShowtimeResponse.builder()
+                                .id(showtime.getId())
+                                .date(DateUtils.formatDate(showtime.getDate()))
+                                .startTime(DateUtils.formatTime(showtime.getStartTime()))
+                                .endTime(DateUtils.formatTime(showtime.getEndTime()))
+                                .totalSeat(showtime.getTotalSeat())
+                                .emptySeat(showtime.getEmptySeat())
+                                .status(showtime.getStatus())
+                                .movieId(showtime.getMovie().getId())
+                                .theater(TheaterResponse.builder()
+                                        .id(room.getTheater().getId())
+                                        .name(room.getTheater().getName())
+                                        .location(room.getTheater().getLocation())
+                                        .build())
+                                .build()))
+                .collect(Collectors.toList());
+    }
+
+
+    @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
+    @Transactional
+    public void deleteShowtime(String showtimeId) {
+        scheduleSeatRepository.setShowtimeToNull(showtimeId);
+
+        ticketRepository.setShowtimeToNull(showtimeId);
+
+        showtimeRepository.deleteById(showtimeId);
     }
 }
