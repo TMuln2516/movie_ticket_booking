@@ -5,6 +5,7 @@ import com.example.booking_movie.constant.DefinedRole;
 import com.example.booking_movie.entity.Job;
 import com.example.booking_movie.entity.Role;
 import com.example.booking_movie.entity.User;
+import com.example.booking_movie.initializer.*;
 import com.example.booking_movie.repository.JobRepository;
 import com.example.booking_movie.repository.RoleRepository;
 import com.example.booking_movie.repository.UserRepository;
@@ -26,116 +27,23 @@ import java.util.Set;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Slf4j
 public class ApplicationInitConfig {
-    PasswordEncoder passwordEncoder;
-
-    @NonFinal
-    static final String ADMIN_USERNAME = "admin";
-
-    @NonFinal
-    static final String ADMIN_PASSWORD = "Amin123@";
-
-    @NonFinal
-    static final String ADMIN_FIRSTNAME = "admin";
-
-    @NonFinal
-    static final String ADMIN_LASTNAME = "admin";
-
-    @NonFinal
-    static final String ADMIN_EMAIL = "admin@gmail.com";
-
-    @NonFinal
-    static final Boolean ADMIN_GENDER = true;
-
-    @NonFinal
-    static final Boolean ADMIN_STATUS = true;
-
-    @NonFinal
-    static final String MANAGER_USERNAME = "manager";
-
-    @NonFinal
-    static final String MANAGER_PASSWORD = "Manager123@";
-
-    @NonFinal
-    static final String MANAGER_FIRSTNAME = "manager";
-
-    @NonFinal
-    static final String MANAGER_LASTNAME = "manager";
-
-    @NonFinal
-    static final String MANAGER_EMAIL = "manager@gmail.com";
-
-    @NonFinal
-    static final Boolean MANAGER_GENDER = true;
-
-    @NonFinal
-    static final Boolean MANAGER_STATUS = true;
+    RoleInitializer roleInitializer;
+    UserInitializer userInitializer;
+    JobInitializer jobInitializer;
+    GenreInitializer genreInitializer;
+    PersonInitializer personInitializer;
+    MovieInitializer movieInitializer;
 
     @Bean
-    ApplicationRunner applicationRunner(UserRepository userRepository, RoleRepository roleRepository, JobRepository jobRepository) {
+    ApplicationRunner applicationRunner() {
         log.info("Initializing application");
         return args -> {
-            if (!roleRepository.existsByName(DefinedRole.ADMIN_ROLE)) {
-                roleRepository.save(Role.builder()
-                        .name(DefinedRole.ADMIN_ROLE)
-                        .description("Admin Role")
-                        .build());
-            }
-
-            if (!roleRepository.existsByName(DefinedRole.MANAGER_ROLE)) {
-                roleRepository.save(Role.builder()
-                        .name(DefinedRole.MANAGER_ROLE)
-                        .description("Manager Role")
-                        .build());
-            }
-            if (!roleRepository.existsByName(DefinedRole.USER_ROLE)) {
-                roleRepository.save(Role.builder()
-                        .name(DefinedRole.USER_ROLE)
-                        .description("User Role")
-                        .build());
-            }
-
-            if (!userRepository.existsByUsername(ADMIN_USERNAME)) {
-                Set<Role> roles = new HashSet<>();
-                roles.add(roleRepository.findById(DefinedRole.ADMIN_ROLE).orElseThrow());
-                userRepository.save(User.builder()
-                        .username(ADMIN_USERNAME)
-                        .password(passwordEncoder.encode(ADMIN_PASSWORD))
-                        .firstName(ADMIN_FIRSTNAME)
-                        .lastName(ADMIN_LASTNAME)
-                        .email(ADMIN_EMAIL)
-                        .gender(ADMIN_GENDER)
-                        .status(ADMIN_STATUS)
-                        .roles(roles)
-                        .build());
-            }
-
-            if (!userRepository.existsByUsername(MANAGER_USERNAME)) {
-                Set<Role> roles = new HashSet<>();
-                roles.add(roleRepository.findById(DefinedRole.MANAGER_ROLE).orElseThrow());
-                userRepository.save(User.builder()
-                        .username(MANAGER_USERNAME)
-                        .password(passwordEncoder.encode(MANAGER_PASSWORD))
-                        .firstName(MANAGER_FIRSTNAME)
-                        .lastName(MANAGER_LASTNAME)
-                        .email(MANAGER_EMAIL)
-                        .gender(MANAGER_GENDER)
-                        .status(MANAGER_STATUS)
-                        .roles(roles)
-                        .build());
-            }
-
-            if (!jobRepository.existsByName(DefinedJob.ACTOR)) {
-                jobRepository.save(Job.builder()
-                        .name(DefinedJob.ACTOR)
-                        .build());
-            }
-
-            if (!jobRepository.existsByName(DefinedJob.DIRECTOR)) {
-                jobRepository.save(Job.builder()
-                        .name(DefinedJob.DIRECTOR)
-                        .build());
-
-            }
+            roleInitializer.initializeRoles();
+            userInitializer.initializeUsers();
+            jobInitializer.initializeJobs();
+            genreInitializer.initializeGenres();
+            personInitializer.initializePerson();
+            movieInitializer.movieInitializer();
             log.info("Application initialization completed");
         };
     }

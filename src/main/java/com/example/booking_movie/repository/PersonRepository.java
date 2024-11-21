@@ -7,9 +7,14 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface PersonRepository extends JpaRepository<Person, String> {
     boolean existsByNameAndGenderAndDateOfBirth(String name, Boolean gender, @Past(message = "Invalid Date") LocalDate dateOfBirth);
     List<Person> findByJobNameIgnoreCase(String jobName);
+
+    boolean existsByName(String name);
+
+    Optional<Person> findByName(String name);
 }
