@@ -234,7 +234,7 @@ public class UserService {
     }
 
     //    ban account -> role manager
-    @PreAuthorize("hasRole('MANAGER', 'ADMIN')")
+    @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
     public String toggleStatus(String id) {
 //        get user
         User user = userRepository.findById(id).orElseThrow(() -> new MyException(ErrorCode.USER_NOT_EXISTED));

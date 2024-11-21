@@ -145,7 +145,7 @@ public class TicketService {
     }
 
     @Transactional
-    @Scheduled(cron = "0 * * * * ?")
+//    @Scheduled(cron = "0 * * * * ?")
     public void updateFinishedStatus() {
         var tickets = ticketRepository.findAllByFinished(false);
 
