@@ -170,9 +170,22 @@ public class ShowtimeService {
         var showtimeInfo = showtimeRepository.findById(showtimeId)
                 .orElseThrow(() -> new MyException(ErrorCode.SHOWTIME_NOT_EXISTED));
 
+        var roomInfo = roomRepository.findById(updateShowtimeRequest.getRoomId())
+                        .orElseThrow(() -> new MyException(ErrorCode.ROOM_NOT_EXISTED));
+
+        showtimeInfo.getRooms().clear();
+
         showtimeInfo.setStartTime(updateShowtimeRequest.getStartTime());
 //        update endTime
         showtimeInfo.setEndTime(updateShowtimeRequest.getStartTime().plusMinutes(showtimeInfo.getMovie().getDuration()).plusMinutes(15));
+
+//        update date
+        showtimeInfo.setDate(updateShowtimeRequest.getDate());
+
+//        update room
+        Set<Room> rooms = new HashSet<>();
+        rooms.add(roomInfo);
+        showtimeInfo.setRooms(rooms);
         showtimeRepository.save(showtimeInfo);
 
         return UpdateShowtimeResponse.builder()
@@ -207,13 +220,17 @@ public class ShowtimeService {
                 .collect(Collectors.toList());
     }
 
-
     @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
     @Transactional
     public void deleteShowtime(String showtimeId) {
-        scheduleSeatRepository.setShowtimeToNull(showtimeId);
+        var showtimeInfo = showtimeRepository.findById(showtimeId)
+                .orElseThrow(() -> new MyException(ErrorCode.SHOWTIME_NOT_EXISTED));
 
         ticketRepository.setShowtimeToNull(showtimeId);
+
+//        xóa dữ liệu trong bảng many to many
+        showtimeInfo.getRooms().clear();
+        showtimeInfo.getScheduleSeats().clear();
 
         showtimeRepository.deleteById(showtimeId);
     }

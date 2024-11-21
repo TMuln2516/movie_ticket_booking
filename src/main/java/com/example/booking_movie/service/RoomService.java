@@ -33,7 +33,7 @@ public class RoomService {
     SeatService seatService;
 
     //    create room and add to theater
-    @PreAuthorize("hasRole('MANAGER')")
+    @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
     public CreateRoomResponse create(String theaterId, CreateRoomRequest createRoomRequest) {
 //        find theater
         Theater theater = theaterRepository.findById(theaterId).orElseThrow(() -> new MyException(ErrorCode.THEATER_NOT_EXISTED));

@@ -15,4 +15,5 @@ import java.time.LocalTime;
 public class UpdateShowtimeRequest {
     LocalTime startTime;
     LocalDate date;
+    String roomId;
 }

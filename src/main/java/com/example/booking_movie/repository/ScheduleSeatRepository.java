@@ -15,9 +15,4 @@ import java.util.List;
 public interface ScheduleSeatRepository extends JpaRepository<ScheduleSeat, String> {
     List<ScheduleSeat> findAllByShowtimeId(String showtimeId);
     ScheduleSeat findByShowtimeIdAndSeatId(String showtimeId, String seatId);
-
-    @Modifying
-    @Transactional
-    @Query("UPDATE ScheduleSeat ss SET ss.showtime = NULL WHERE ss.showtime.id = :showtimeId")
-    void setShowtimeToNull(String showtimeId);
 }
