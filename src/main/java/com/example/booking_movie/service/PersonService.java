@@ -43,13 +43,13 @@ public class PersonService {
     ImageService imageService;
 
     // Create person
-    @PreAuthorize("hasRole('MANAGER')")
+    @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
     public CreatePersonResponse createActor(CreatePersonRequest createPersonRequest, MultipartFile file) throws IOException {
         return createPerson(createPersonRequest, DefinedJob.ACTOR, file);
     }
 
     // Create director
-    @PreAuthorize("hasRole('MANAGER')")
+    @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
     public CreatePersonResponse createDirector(CreatePersonRequest createPersonRequest, MultipartFile file) throws IOException {
         return createPerson(createPersonRequest, DefinedJob.DIRECTOR, file);
     }
@@ -89,7 +89,7 @@ public class PersonService {
     }
 
     //    get all
-    @PreAuthorize("hasAnyRole('USER', 'MANAGER')")
+    @PreAuthorize("hasAnyRole('USER', 'MANAGER', 'ADMIN')")
     public List<PersonResponse> getAll(String jobName) {
         List<Person> personResponses;
 
@@ -114,7 +114,7 @@ public class PersonService {
                 .collect(Collectors.toList());
     }
 
-    @PreAuthorize("hasRole('MANAGER')")
+    @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
     public UpdatePersonResponse update(String personId, UpdatePersonRequest updatePersonRequest, MultipartFile file) throws IOException {
 //        get actor
         Person person = personRepository.findById(personId).orElseThrow(() -> new MyException(ErrorCode.PERSON_NOT_EXISTED));
@@ -145,6 +145,7 @@ public class PersonService {
                 .build();
     }
 
+    @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
     public void delete(String personId) {
 //        check exist
         Person person = personRepository.findById(personId).orElseThrow(() -> new MyException(ErrorCode.USER_NOT_EXISTED));

@@ -33,6 +33,8 @@ public class ApplicationInitConfig {
     GenreInitializer genreInitializer;
     PersonInitializer personInitializer;
     MovieInitializer movieInitializer;
+    TheaterInitializer theaterInitializer;
+    RoomInitializer roomInitializer;
 
     @Bean
     ApplicationRunner applicationRunner() {
@@ -44,6 +46,9 @@ public class ApplicationInitConfig {
             genreInitializer.initializeGenres();
             personInitializer.initializePerson();
             movieInitializer.movieInitializer();
+
+            theaterInitializer.initializeTheaters();
+            roomInitializer.initializeRooms();
             log.info("Application initialization completed");
         };
     }

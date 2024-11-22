@@ -28,7 +28,7 @@ public class TheaterService {
     TheaterRepository theaterRepository;
 
 //    create theater
-    @PreAuthorize("hasRole('MANAGER')")
+    @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
     public CreateTheaterResponse create(CreateTheaterRequest createTheaterRequest) {
 //        check existed
         if (theaterRepository.existsByName(createTheaterRequest.getName())) {
@@ -49,7 +49,7 @@ public class TheaterService {
                 .build();
     }
 
-    @PreAuthorize("hasAnyRole('MANAGER', 'USER')")
+    @PreAuthorize("hasAnyRole('MANAGER', 'USER', 'ADMIN')")
     public List<TheaterResponse> getAll() {
         return theaterRepository.findAll()
                 .stream()
@@ -61,7 +61,7 @@ public class TheaterService {
                 .collect(Collectors.toList());
     }
 
-    @PreAuthorize("hasRole('MANAGER')")
+    @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
     public UpdateTheaterResponse update(String theaterId, UpdateTheaterRequest updateTheaterRequest) {
         Theater theater = theaterRepository.findById(theaterId).orElseThrow(() -> new MyException(ErrorCode.THEATER_NOT_EXISTED));
 
@@ -76,7 +76,7 @@ public class TheaterService {
                 .build();
     }
 
-    @PreAuthorize("hasRole('MANAGER')")
+    @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
     public void delete(String theaterId) {
 //        check exist
         Theater theater = theaterRepository.findById(theaterId).orElseThrow(() -> new MyException(ErrorCode.THEATER_NOT_EXISTED));

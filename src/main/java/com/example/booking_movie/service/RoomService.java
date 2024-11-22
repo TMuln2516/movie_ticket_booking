@@ -78,7 +78,7 @@ public class RoomService {
                 .build();
     }
 
-    @PreAuthorize("hasRole('MANAGER')")
+    @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
     public void delete(String roomId, String theaterId) {
         Room room = roomRepository.findRoomByIdAndTheaterId(roomId, theaterId).orElseThrow(() -> new MyException(ErrorCode.ROOM_NOT_EXISTED));
 

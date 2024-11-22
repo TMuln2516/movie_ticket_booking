@@ -30,7 +30,7 @@ public class GenreService {
     MovieRepository movieRepository;
 
 //    create genre
-    @PreAuthorize("hasRole('MANAGER')")
+    @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
     public CreateGenreResponse create(CreateGenreRequest createGenreRequest) {
         //    check existed
         if (genreRepository.existsByName(createGenreRequest.getName())) {
@@ -50,7 +50,7 @@ public class GenreService {
     }
 
 //    get all genre
-    @PreAuthorize("hasAnyRole('MANAGER', 'USER')")
+    @PreAuthorize("hasAnyRole('MANAGER', 'USER', 'ADMIN')")
     public List<GenreResponse> getAll() {
         return genreRepository.findAll()
                 .stream()
@@ -62,7 +62,7 @@ public class GenreService {
     }
 
 //    update genre
-    @PreAuthorize("hasRole('MANAGER')")
+    @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
     public UpdateGenreResponse update(String genreId, UpdateGenreRequest updateGenreRequest) {
 //        get genre
         Genre genre = genreRepository.findById(genreId).orElseThrow(() -> new MyException(ErrorCode.GENRE_NOT_EXISTED));
@@ -78,7 +78,7 @@ public class GenreService {
     }
 
 //    delete genre
-    @PreAuthorize("hasRole('MANAGER')")
+    @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
     public void delete(String genreId) {
 //        check exist
         Genre genre = genreRepository.findById(genreId).orElseThrow(() -> new MyException(ErrorCode.GENRE_NOT_EXISTED));

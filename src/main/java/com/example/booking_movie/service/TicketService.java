@@ -275,6 +275,4 @@ public class TicketService {
                 .ticketDetails(ticketDetailResponses)
                 .build();
     }
-
-
 }

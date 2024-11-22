@@ -43,7 +43,7 @@ public class MovieService {
     ImageService imageService;
 
     //    create movie
-    @PreAuthorize("hasRole('MANAGER')")
+    @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
     public CreateMovieResponse create(CreateMovieRequest createMovieRequest, MultipartFile file) throws IOException {
 //        check file null
         if (file.isEmpty()) {
@@ -148,7 +148,7 @@ public class MovieService {
                 .collect(Collectors.toList());
     }
 
-    @PreAuthorize("hasAnyRole('MANAGER', 'USER')")
+    @PreAuthorize("hasAnyRole('MANAGER', 'USER', 'ADMIN')")
     public MovieDetailResponse getDetailMovie(String id) {
         Movie movie = movieRepository.findById(id).orElseThrow(() -> new MyException(ErrorCode.MOVIE_NOT_EXISTED));
 
@@ -212,7 +212,7 @@ public class MovieService {
     }
 
     //    update movie
-    @PreAuthorize("hasRole('MANAGER')")
+    @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
     public UpdateMovieResponse update(String movieId, UpdateMovieRequest updateMovieRequest, MultipartFile file) throws IOException {
 //        get movie
         Movie movie = movieRepository.findById(movieId).orElseThrow(() -> new MyException(ErrorCode.MOVIE_NOT_EXISTED));
@@ -252,7 +252,7 @@ public class MovieService {
     }
 
     //    delete movie
-    @PreAuthorize("hasRole('MANAGER')")
+    @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
     public void delete(String movieId) throws IOException {
 //        check exist
         Movie movie = movieRepository.findById(movieId).orElseThrow(() -> new MyException(ErrorCode.MOVIE_NOT_EXISTED));
@@ -274,7 +274,7 @@ public class MovieService {
     }
 
     //    delete director
-    @PreAuthorize("hasRole('MANAGER')")
+    @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
     public void deleteDirector(String directorId) {
 //        check exist
         Movie movie = movieRepository.findById(directorId).orElseThrow(() -> new MyException(ErrorCode.MOVIE_NOT_EXISTED));
@@ -296,7 +296,7 @@ public class MovieService {
     }
 
     //    add director of movie (one movie -> one director)
-    @PreAuthorize("hasRole('MANAGER')")
+    @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
     public void addDirector(String movieId, String directorId) {
 //        find person
         Person person = personRepository.findById(directorId).orElseThrow(() -> new MyException(ErrorCode.PERSON_NOT_EXISTED));
@@ -321,7 +321,7 @@ public class MovieService {
         }
     }
 
-    @PreAuthorize("hasRole('MANAGER')")
+    @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
     public void addActors(String movieId, AddActorsRequest addActorsRequest) {
 //        find movie
         Movie movie = movieRepository.findById(movieId).orElseThrow(() -> new MyException(ErrorCode.MOVIE_NOT_EXISTED));
@@ -338,7 +338,7 @@ public class MovieService {
         movieRepository.save(movie);
     }
 
-    @PreAuthorize("hasRole('MANAGER')")
+    @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
     public void deleteActors(String movieId, DeleteActorsRequest deleteActorsRequest) {
 //        find movie
         Movie movie = movieRepository.findById(movieId).orElseThrow(() -> new MyException(ErrorCode.MOVIE_NOT_EXISTED));
