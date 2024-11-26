@@ -70,6 +70,19 @@ public class ElasticsearchUtil {
                 .toLowerCase();  // Đảm bảo tất cả chữ cái đều là chữ thường
     }
 
+    public static MatchQuery createAutoSuggestMatchQuery(String name) {
+        return new MatchQuery.Builder()
+                .field("name")
+                .query(name)
+                .analyzer("custom_index")
+                .build();
+    }
+
+    public static Query buildAutoSuggestQuery(String name) {
+        return Query.of(q -> q.match(createAutoSuggestMatchQuery(name)));
+    }
+
+
 //    public static Supplier<Query> fuzzyQueySupplier(String value) {
 //        return () -> Query.of(q -> q.bool(b -> b
 //                .should(prefixQuery(value))    // Tìm kiếm với prefix query

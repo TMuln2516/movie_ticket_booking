@@ -30,6 +30,7 @@ public class SecurityConfig {
 //            search
             "/api/movies/search",
             "/api/movies/genre",
+            "api/movies/suggest",
 
 //            outbound
             "/api/auth/outbound/authentication",

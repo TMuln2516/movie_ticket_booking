@@ -72,9 +72,6 @@ public class ShowtimeService {
 //        tính endTime
         var endTime = createShowtimeRequest.getStartTime().plusMinutes(movie.getDuration()).plusMinutes(15);
 
-//        tạo Set<Room>
-        Set<Room> rooms = new HashSet<>();
-        rooms.add(room);
 
 //        builder
         Showtime newShowtime = Showtime.builder()
@@ -85,7 +82,7 @@ public class ShowtimeService {
                 .emptySeat(totalSeat)
                 .status(DefinedStatus.COMING_SOON)
                 .movie(movie)
-                .rooms(rooms)
+                .room(room)
                 .build();
         showtimeRepository.save(newShowtime);
 
@@ -146,22 +143,21 @@ public class ShowtimeService {
                 // Lọc theo ngày
                 .filter(showtime -> showtime.getDate().isEqual(getAllShowTimeRequest.getDate())) // Lọc theo date
                 .filter(showtime -> showtime.getMovie().getId().equals(getAllShowTimeRequest.getMovieId())) // Lọc theo movieId
-                .flatMap(showtime -> showtime.getRooms().stream() // Lấy danh sách các phòng cho mỗi showtime
-                        .map(room -> GetAllShowtimeResponse.builder()
-                                .id(showtime.getId())
-                                .date(DateUtils.formatDate(showtime.getDate()))
-                                .startTime(DateUtils.formatTime(showtime.getStartTime()))
-                                .endTime(DateUtils.formatTime(showtime.getEndTime()))
-                                .totalSeat(showtime.getTotalSeat())
-                                .emptySeat(showtime.getEmptySeat())
-                                .status(showtime.getStatus())
-                                .movieId(showtime.getMovie().getId())
-                                .theater(TheaterResponse.builder()
-                                        .id(room.getTheater().getId())
-                                        .name(room.getTheater().getName())
-                                        .location(room.getTheater().getLocation())
-                                        .build())
-                                .build()))
+                .map(showtime -> GetAllShowtimeResponse.builder()
+                        .id(showtime.getId())
+                        .date(DateUtils.formatDate(showtime.getDate()))
+                        .startTime(DateUtils.formatTime(showtime.getStartTime()))
+                        .endTime(DateUtils.formatTime(showtime.getEndTime()))
+                        .totalSeat(showtime.getTotalSeat())
+                        .emptySeat(showtime.getEmptySeat())
+                        .status(showtime.getStatus())
+                        .movieId(showtime.getMovie().getId())
+                        .theater(TheaterResponse.builder()
+                                .id(showtime.getRoom().getTheater().getId())
+                                .name(showtime.getRoom().getTheater().getName())
+                                .location(showtime.getRoom().getTheater().getLocation())
+                                .build())
+                        .build())
                 .collect(Collectors.toList());
     }
 
@@ -173,8 +169,6 @@ public class ShowtimeService {
         var roomInfo = roomRepository.findById(updateShowtimeRequest.getRoomId())
                         .orElseThrow(() -> new MyException(ErrorCode.ROOM_NOT_EXISTED));
 
-        showtimeInfo.getRooms().clear();
-
         showtimeInfo.setStartTime(updateShowtimeRequest.getStartTime());
 //        update endTime
         showtimeInfo.setEndTime(updateShowtimeRequest.getStartTime().plusMinutes(showtimeInfo.getMovie().getDuration()).plusMinutes(15));
@@ -183,9 +177,7 @@ public class ShowtimeService {
         showtimeInfo.setDate(updateShowtimeRequest.getDate());
 
 //        update room
-        Set<Room> rooms = new HashSet<>();
-        rooms.add(roomInfo);
-        showtimeInfo.setRooms(rooms);
+        showtimeInfo.setRoom(roomInfo);
         showtimeRepository.save(showtimeInfo);
 
         return UpdateShowtimeResponse.builder()
@@ -201,22 +193,21 @@ public class ShowtimeService {
 
     public List<GetAllShowtimeResponse> getAllShowtimeByMovie(String movieId) {
         return showtimeRepository.findAllByMovieId(movieId).stream()
-                .flatMap(showtime -> showtime.getRooms().stream() // Lấy danh sách các phòng cho mỗi showtime
-                        .map(room -> GetAllShowtimeResponse.builder()
-                                .id(showtime.getId())
-                                .date(DateUtils.formatDate(showtime.getDate()))
-                                .startTime(DateUtils.formatTime(showtime.getStartTime()))
-                                .endTime(DateUtils.formatTime(showtime.getEndTime()))
-                                .totalSeat(showtime.getTotalSeat())
-                                .emptySeat(showtime.getEmptySeat())
-                                .status(showtime.getStatus())
-                                .movieId(showtime.getMovie().getId())
-                                .theater(TheaterResponse.builder()
-                                        .id(room.getTheater().getId())
-                                        .name(room.getTheater().getName())
-                                        .location(room.getTheater().getLocation())
-                                        .build())
-                                .build()))
+                .map(showtime -> GetAllShowtimeResponse.builder()
+                        .id(showtime.getId())
+                        .date(DateUtils.formatDate(showtime.getDate()))
+                        .startTime(DateUtils.formatTime(showtime.getStartTime()))
+                        .endTime(DateUtils.formatTime(showtime.getEndTime()))
+                        .totalSeat(showtime.getTotalSeat())
+                        .emptySeat(showtime.getEmptySeat())
+                        .status(showtime.getStatus())
+                        .movieId(showtime.getMovie().getId())
+                        .theater(TheaterResponse.builder()
+                                .id(showtime.getRoom().getTheater().getId())
+                                .name(showtime.getRoom().getTheater().getName())
+                                .location(showtime.getRoom().getTheater().getLocation())
+                                .build())
+                        .build())
                 .collect(Collectors.toList());
     }
 
@@ -229,7 +220,6 @@ public class ShowtimeService {
         ticketRepository.setShowtimeToNull(showtimeId);
 
 //        xóa dữ liệu trong bảng many to many
-        showtimeInfo.getRooms().clear();
         showtimeInfo.getScheduleSeats().clear();
 
         showtimeRepository.deleteById(showtimeId);

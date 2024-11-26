@@ -24,6 +24,9 @@ public class Movie {
     LocalDate premiere;
     String language;
     Integer duration;
+
+    @Lob
+    @Column(columnDefinition = "LONGTEXT")
     String content;
     Double rate;
     String image;

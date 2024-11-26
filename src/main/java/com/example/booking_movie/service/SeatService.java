@@ -22,8 +22,6 @@ public class SeatService {
     SeatRepository seatRepository;
     RoomRepository roomRepository;
 
-//    create seat
-//    @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
     public void create(String roomId, CreateSeatRequest createSeatRequest) {
         Room room = roomRepository.findById(roomId).orElseThrow(() -> new MyException(ErrorCode.ROOM_NOT_EXISTED));
 

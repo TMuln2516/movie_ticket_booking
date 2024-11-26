@@ -5,6 +5,7 @@ import com.example.booking_movie.dto.request.CreateMovieRequest;
 import com.example.booking_movie.dto.request.DeleteActorsRequest;
 import com.example.booking_movie.dto.request.UpdateMovieRequest;
 import com.example.booking_movie.dto.response.*;
+import com.example.booking_movie.service.ElasticsearchService;
 import com.example.booking_movie.service.MovieService;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
@@ -15,6 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/api/movies")
@@ -23,7 +25,7 @@ import java.util.List;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class MovieController {
     MovieService movieService;
-//    ElasticsearchService elasticsearchService;
+    ElasticsearchService elasticsearchService;
 
     //    ROLE MANAGER & USER
 //    get all movie
@@ -122,10 +124,17 @@ public class MovieController {
     }
 
     //    search
-//    @GetMapping("/search")
-//    public ApiResponse<List<MovieResponse>> fuzzySearch(@RequestParam String value) throws IOException {
-//        return ApiResponse.<List<MovieResponse>>builder()
-//                .result(elasticsearchService.fuzzyQuery(value))
-//                .build();
-//    }
+    @GetMapping("/search")
+    public ApiResponse<List<MovieResponse>> fuzzySearch(@RequestParam String value) throws IOException {
+        return ApiResponse.<List<MovieResponse>>builder()
+                .result(elasticsearchService.fuzzyQuery(value))
+                .build();
+    }
+
+    @GetMapping("/suggest")
+    public ApiResponse<Set<String>> autoSuggest(@RequestParam String value) throws IOException {
+        return ApiResponse.<Set<String>>builder()
+                .result(elasticsearchService.findSuggestedByMovieNames(value))
+                .build();
+    }
 }
