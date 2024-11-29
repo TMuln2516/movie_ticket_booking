@@ -33,6 +33,7 @@ public class UserController {
                 .build();
     }
 
+//    get ticket
     @GetMapping("/ticket")
     public ApiResponse<List<TicketDetailResponse>> myTicket() {
         return ApiResponse.<List<TicketDetailResponse>>builder()

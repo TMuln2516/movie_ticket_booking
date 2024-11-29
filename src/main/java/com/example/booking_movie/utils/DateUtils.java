@@ -27,4 +27,16 @@ public class DateUtils {
     public static Long formatDateToEpochMillis(LocalDate date) {
         return date.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli();
     }
+
+    // Hàm chuyển đổi từ String sang LocalDate
+    public static LocalDate formatStringToLocalDate(String dateStr, String pattern) {
+        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern(pattern);
+        return LocalDate.parse(dateStr, dateFormatter);
+    }
+
+    // Hàm chuyển đổi từ String sang LocalTime
+    public static LocalTime formatStringToLocalTime(String timeStr, String pattern) {
+        DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern(pattern);
+        return LocalTime.parse(timeStr, timeFormatter);
+    }
 }

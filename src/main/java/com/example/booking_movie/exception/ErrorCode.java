@@ -8,6 +8,8 @@ import org.springframework.http.HttpStatusCode;
 
 @Getter
 public enum ErrorCode {
+    //    feedback
+    FEEDBACK_NOT_EXISTED(HttpStatus.BAD_REQUEST.value(), "Bình luận không tồn tại"),
     //    email
     EMAIL_EXISTED(HttpStatus.BAD_REQUEST.value(), "Email đã được đăng ký"),
     //    manager

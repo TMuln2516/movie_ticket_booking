@@ -24,7 +24,7 @@ public class ElasticMovie {
     @Id
     String id;
 
-    @Field(type = FieldType.Text, analyzer = "custom_index", searchAnalyzer = "custom_search")
+    @Field(type = FieldType.Text, analyzer = "custom_analyzer", searchAnalyzer = "custom_search")
     String name;
 
     Long premiere;

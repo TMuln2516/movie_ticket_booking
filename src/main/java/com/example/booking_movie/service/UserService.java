@@ -271,6 +271,7 @@ public class UserService {
                             .dateOfBirth(user.getDateOfBirth() != null ? DateUtils.formatDate(user.getDateOfBirth()) : null)
                             .gender(user.getGender())
                             .email(user.getEmail())
+                            .status(user.getStatus())
                             .avatar(user.getAvatar())
                             .roles(user.getRoles())
                             .build())

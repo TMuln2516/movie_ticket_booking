@@ -18,7 +18,7 @@ import java.util.Date;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class CreateUserRequest {
     @NotBlank(message = "Username must not be blank")
-    @Size(min = 3, max = 10, message = "Username must have at least 3 characters")
+    @Size(min = 3, max = 15, message = "Username must have at least 3 characters")
     String username;
 
     @PasswordConstrain

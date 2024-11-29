@@ -95,6 +95,7 @@ public class TicketService {
 //    }
 
     @PreAuthorize("hasRole('USER')")
+    @Transactional
     public CreateTicketResponse create(CreateTicketRequest createTicketRequest) {
 //      lấy user
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -126,7 +127,6 @@ public class TicketService {
                     .build();
             ticketDetailsRepository.save(ticketDetails);
         });
-
 
         return CreateTicketResponse.builder()
                 .id(ticket.getId())

@@ -1,26 +1,27 @@
 {
   "analysis": {
-    "filter": {
-      "custom_filter": {
+    "tokenizer": {
+      "edge_ngram_tokenizer": {
         "type": "edge_ngram",
         "min_gram": 1,
-        "max_gram": 20
+        "max_gram": 25,
+        "token_chars": ["letter", "digit"]
       }
     },
     "analyzer": {
+      "custom_analyzer": {
+        "type": "custom",
+        "tokenizer": "edge_ngram_tokenizer",
+        "filter": [
+          "lowercase",
+          "asciifolding"
+        ]
+      },
       "custom_search": {
         "type": "custom",
         "tokenizer": "standard",
         "filter": [
           "lowercase"
-        ]
-      },
-      "custom_index": {
-        "type": "custom",
-        "tokenizer": "standard",
-        "filter": [
-          "lowercase",
-          "custom_filter"
         ]
       }
     }
