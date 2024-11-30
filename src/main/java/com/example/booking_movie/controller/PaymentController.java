@@ -2,7 +2,6 @@ package com.example.booking_movie.controller;
 
 import com.example.booking_movie.dto.response.ApiResponse;
 import com.example.booking_movie.service.PaymentService;
-import com.example.booking_movie.service.VNPayService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;

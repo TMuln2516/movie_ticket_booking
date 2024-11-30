@@ -3,9 +3,6 @@ package com.example.booking_movie.dto.response;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-import java.util.Date;
-import java.util.Set;
-
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

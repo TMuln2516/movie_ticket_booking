@@ -1,11 +1,7 @@
 package com.example.booking_movie.utils;
 
-import co.elastic.clients.elasticsearch._types.query_dsl.FuzzyQuery;
-import co.elastic.clients.elasticsearch._types.query_dsl.MatchAllQuery;
-import co.elastic.clients.elasticsearch._types.query_dsl.MatchQuery;
-import co.elastic.clients.elasticsearch._types.query_dsl.Query;
+import co.elastic.clients.elasticsearch._types.query_dsl.*;
 import lombok.val;
-import co.elastic.clients.elasticsearch._types.query_dsl.Operator;
 
 import java.util.function.Supplier;
 

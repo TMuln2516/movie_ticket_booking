@@ -1,13 +1,9 @@
 package com.example.booking_movie.controller;
 
 import com.example.booking_movie.constant.DefinedTitleEmail;
-import com.example.booking_movie.dto.request.CreateShowtimeRequest;
 import com.example.booking_movie.dto.request.EmailRequest;
 import com.example.booking_movie.dto.request.VerifyOtpRequest;
 import com.example.booking_movie.dto.response.ApiResponse;
-import com.example.booking_movie.dto.response.CreateShowtimeResponse;
-import com.example.booking_movie.service.ShowtimeService;
-import com.example.booking_movie.service.UserService;
 import com.example.booking_movie.service.VerifyService;
 import jakarta.mail.MessagingException;
 import jakarta.validation.Valid;

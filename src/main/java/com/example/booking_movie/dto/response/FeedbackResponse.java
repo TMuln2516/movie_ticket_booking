@@ -1,6 +1,5 @@
-package com.example.booking_movie.dto.request;
+package com.example.booking_movie.dto.response;
 
-import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -9,13 +8,12 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class CreateFeedbackRequest {
-    @NotNull
+public class FeedbackResponse {
+    String id;
     String content;
-
-    @NotNull
     Double rate;
-
-    @NotNull
-    String movieId;
+    String date;
+    String time;
+    String byName;
+    Boolean status;
 }

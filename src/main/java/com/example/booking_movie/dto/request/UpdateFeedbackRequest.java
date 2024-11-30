@@ -4,6 +4,9 @@ import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
+
 @Data
 @Builder
 @NoArgsConstructor
@@ -17,8 +20,8 @@ public class UpdateFeedbackRequest {
     Double rate;
 
     @NotNull
-    String date;
+    LocalDate date;
 
     @NotNull
-    String time;
+    LocalTime time;
 }

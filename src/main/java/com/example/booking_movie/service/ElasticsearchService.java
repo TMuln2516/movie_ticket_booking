@@ -1,33 +1,17 @@
 package com.example.booking_movie.service;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
-import co.elastic.clients.elasticsearch._types.query_dsl.BoolQuery;
 import co.elastic.clients.elasticsearch._types.query_dsl.Query;
-import co.elastic.clients.elasticsearch.core.search.Hit;
-import com.example.booking_movie.entity.Movie;
-import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsRequest;
-import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsResponse;
-import org.elasticsearch.client.Request;
-import org.elasticsearch.client.RequestOptions;
-import org.elasticsearch.client.Response;
 import co.elastic.clients.elasticsearch.core.SearchResponse;
-import org.elasticsearch.client.RestHighLevelClient;
-import org.elasticsearch.client.indices.CreateIndexRequest;
-import org.elasticsearch.client.indices.CreateIndexResponse;
-import org.elasticsearch.client.indices.GetIndexRequest;
-import org.elasticsearch.client.indices.GetIndexResponse;
+import co.elastic.clients.elasticsearch.core.search.Hit;
 import com.example.booking_movie.dto.response.MovieResponse;
 import com.example.booking_movie.entity.Elastic.ElasticMovie;
 import com.example.booking_movie.utils.DateUtils;
 import com.example.booking_movie.utils.ElasticsearchUtil;
-import jakarta.annotation.PostConstruct;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.elasticsearch.xcontent.XContentType;
-import org.springframework.context.event.ContextRefreshedEvent;
-import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;

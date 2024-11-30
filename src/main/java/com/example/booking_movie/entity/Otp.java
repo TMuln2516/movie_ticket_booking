@@ -1,12 +1,10 @@
 package com.example.booking_movie.entity;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDateTime;
-import java.util.Set;
 
 @Entity
 @Getter

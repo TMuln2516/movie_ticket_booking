@@ -1,11 +1,10 @@
 package com.example.booking_movie.controller;
 
-import com.example.booking_movie.dto.request.CreateMovieRequest;
 import com.example.booking_movie.dto.request.CreatePersonRequest;
 import com.example.booking_movie.dto.request.UpdatePersonRequest;
-import com.example.booking_movie.dto.response.PersonResponse;
 import com.example.booking_movie.dto.response.ApiResponse;
 import com.example.booking_movie.dto.response.CreatePersonResponse;
+import com.example.booking_movie.dto.response.PersonResponse;
 import com.example.booking_movie.dto.response.UpdatePersonResponse;
 import com.example.booking_movie.service.PersonService;
 import jakarta.validation.Valid;

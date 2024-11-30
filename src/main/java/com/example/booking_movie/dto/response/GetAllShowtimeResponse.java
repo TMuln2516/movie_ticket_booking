@@ -1,6 +1,5 @@
 package com.example.booking_movie.dto.response;
 
-import com.example.booking_movie.entity.Theater;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 

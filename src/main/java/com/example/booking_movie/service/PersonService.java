@@ -3,9 +3,9 @@ package com.example.booking_movie.service;
 import com.example.booking_movie.constant.DefinedJob;
 import com.example.booking_movie.dto.request.CreatePersonRequest;
 import com.example.booking_movie.dto.request.UpdatePersonRequest;
-import com.example.booking_movie.dto.response.PersonResponse;
 import com.example.booking_movie.dto.response.CreatePersonResponse;
 import com.example.booking_movie.dto.response.JobResponse;
+import com.example.booking_movie.dto.response.PersonResponse;
 import com.example.booking_movie.dto.response.UpdatePersonResponse;
 import com.example.booking_movie.entity.Job;
 import com.example.booking_movie.entity.Person;
@@ -25,10 +25,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service

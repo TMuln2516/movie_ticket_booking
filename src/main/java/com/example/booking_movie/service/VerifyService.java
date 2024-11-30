@@ -1,32 +1,22 @@
 package com.example.booking_movie.service;
 
 import com.example.booking_movie.constant.DefinedTitleEmail;
-import com.example.booking_movie.dto.request.CreateSeatRequest;
 import com.example.booking_movie.dto.request.MailBody;
 import com.example.booking_movie.entity.Otp;
-import com.example.booking_movie.entity.Room;
-import com.example.booking_movie.entity.Seat;
 import com.example.booking_movie.exception.ErrorCode;
 import com.example.booking_movie.exception.MyException;
 import com.example.booking_movie.repository.OtpRepository;
-import com.example.booking_movie.repository.RoomRepository;
-import com.example.booking_movie.repository.SeatRepository;
 import com.example.booking_movie.repository.UserRepository;
 import com.example.booking_movie.utils.SecurityUtils;
-import jakarta.mail.MessagingException;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.io.UnsupportedEncodingException;
-import java.time.Instant;
 import java.time.LocalDateTime;
-import java.util.Date;
 
 @Service
 @RequiredArgsConstructor

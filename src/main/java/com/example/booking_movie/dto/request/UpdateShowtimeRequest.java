@@ -1,6 +1,5 @@
 package com.example.booking_movie.dto.request;
 
-import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 

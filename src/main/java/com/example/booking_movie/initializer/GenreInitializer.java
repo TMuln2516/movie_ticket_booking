@@ -1,10 +1,7 @@
 package com.example.booking_movie.initializer;
 
-import com.example.booking_movie.constant.DefinedJob;
 import com.example.booking_movie.entity.Genre;
-import com.example.booking_movie.entity.Job;
 import com.example.booking_movie.repository.GenreRepository;
-import com.example.booking_movie.repository.JobRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;

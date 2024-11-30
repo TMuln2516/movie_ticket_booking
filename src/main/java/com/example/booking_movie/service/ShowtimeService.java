@@ -4,8 +4,13 @@ import com.example.booking_movie.constant.DefinedStatus;
 import com.example.booking_movie.dto.request.CreateShowtimeRequest;
 import com.example.booking_movie.dto.request.GetAllShowTimeRequest;
 import com.example.booking_movie.dto.request.UpdateShowtimeRequest;
-import com.example.booking_movie.dto.response.*;
-import com.example.booking_movie.entity.*;
+import com.example.booking_movie.dto.response.CreateShowtimeResponse;
+import com.example.booking_movie.dto.response.GetAllShowtimeResponse;
+import com.example.booking_movie.dto.response.TheaterResponse;
+import com.example.booking_movie.dto.response.UpdateShowtimeResponse;
+import com.example.booking_movie.entity.Room;
+import com.example.booking_movie.entity.ScheduleSeat;
+import com.example.booking_movie.entity.Showtime;
 import com.example.booking_movie.exception.ErrorCode;
 import com.example.booking_movie.exception.MyException;
 import com.example.booking_movie.repository.*;
@@ -20,9 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalTime;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service

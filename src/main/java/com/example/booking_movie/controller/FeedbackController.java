@@ -3,10 +3,7 @@ package com.example.booking_movie.controller;
 import com.example.booking_movie.dto.request.CreateFeedbackRequest;
 import com.example.booking_movie.dto.request.CreateRoomRequest;
 import com.example.booking_movie.dto.request.UpdateFeedbackRequest;
-import com.example.booking_movie.dto.response.ApiResponse;
-import com.example.booking_movie.dto.response.CreateFeedbackResponse;
-import com.example.booking_movie.dto.response.CreateRoomResponse;
-import com.example.booking_movie.dto.response.UpdateFeedbackResponse;
+import com.example.booking_movie.dto.response.*;
 import com.example.booking_movie.service.FeedbackService;
 import com.example.booking_movie.service.RoomService;
 import jakarta.validation.Valid;
@@ -15,6 +12,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/feedbacks")
 @CrossOrigin(origins = "http://localhost:3000")
@@ -22,6 +21,14 @@ import org.springframework.web.bind.annotation.*;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class FeedbackController {
     FeedbackService feedbackService;
+
+    @GetMapping("/{movieId}/all")
+    public ApiResponse<List<FeedbackResponse>> getAll(@PathVariable String movieId) {
+        return ApiResponse.<List<FeedbackResponse>>builder()
+                .message("Lấy tất cả bình luận thành công")
+                .result(feedbackService.getAll(movieId))
+                .build();
+    }
 
     @PostMapping("/")
     public ApiResponse<CreateFeedbackResponse> create(@RequestBody @Valid CreateFeedbackRequest createFeedbackRequest) {
@@ -36,6 +43,22 @@ public class FeedbackController {
         return ApiResponse.<UpdateFeedbackResponse>builder()
                 .message("Cập nhật bình luận thành công")
                 .result(feedbackService.update(movieId, updateFeedbackRequest))
+                .build();
+    }
+
+    @DeleteMapping("/{feedbackId}")
+    public ApiResponse<Void> delete(@PathVariable String feedbackId) {
+        feedbackService.delete(feedbackId);
+        return ApiResponse.<Void>builder()
+                .message("Xóa bình luận thành công")
+                .build();
+    }
+
+    @PutMapping("/toggle/{feedbackId}")
+    public ApiResponse<Void> toggleStatus(@PathVariable String feedbackId) {
+        feedbackService.toggleStatus(feedbackId);
+        return ApiResponse.<Void>builder()
+                .message("Cập nhật trạng trái thành công")
                 .build();
     }
 }
