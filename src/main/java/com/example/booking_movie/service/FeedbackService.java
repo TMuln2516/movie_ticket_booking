@@ -24,6 +24,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -76,7 +77,7 @@ public class FeedbackService {
                 .build();
     }
 
-    public List<FeedbackResponse> getAll(String movieId) {
+    public List<FeedbackResponse> getAllByMovie(String movieId) {
         var movieInfo = movieRepository.findById(movieId)
                 .orElseThrow(() -> new MyException(ErrorCode.MOVIE_NOT_EXISTED));
 
@@ -98,6 +99,7 @@ public class FeedbackService {
                             .date(DateUtils.formatDate(feedback.getDate()))
                             .time(DateUtils.formatTime(feedback.getTime()))
                             .byName(feedback.getUser().getFirstName() + " " + feedback.getUser().getLastName())
+                            .movieId(movieId)
                             .status(feedback.getStatus())
                             .build())
                     .collect(Collectors.toList());
@@ -121,6 +123,7 @@ public class FeedbackService {
                             .date(DateUtils.formatDate(feedback.getDate()))
                             .time(DateUtils.formatTime(feedback.getTime()))
                             .byName(feedback.getUser().getFirstName() + " " + feedback.getUser().getLastName())
+                            .movieId(movieId)
                             .status(feedback.getStatus())
                             .build())
                     .collect(Collectors.toList());
@@ -133,6 +136,7 @@ public class FeedbackService {
                             .date(DateUtils.formatDate(feedback.getDate()))
                             .time(DateUtils.formatTime(feedback.getTime()))
                             .byName(feedback.getUser().getFirstName() + " " + feedback.getUser().getLastName())
+                            .movieId(movieId)
                             .status(feedback.getStatus())
                             .build())
                     .collect(Collectors.toList());
@@ -200,5 +204,22 @@ public class FeedbackService {
         BigDecimal roundedRate = new BigDecimal(averageRate).setScale(1, RoundingMode.HALF_UP);
         movieInfo.setRate(roundedRate.doubleValue());
         movieRepository.save(movieInfo);
+    }
+
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
+    public List<FeedbackResponse> getAll() {
+        return feedbackRepository.findAll().stream()
+                .sorted(Comparator.comparing(Feedback::getStatus))
+                .map(feedback -> FeedbackResponse.builder()
+                        .id(feedback.getId())
+                        .content(feedback.getContent())
+                        .rate(feedback.getRate())
+                        .date(DateUtils.formatDate(feedback.getDate()))
+                        .time(DateUtils.formatTime(feedback.getTime()))
+                        .byName(feedback.getUser().getFirstName() + " " + feedback.getUser().getLastName())
+                        .movieId(feedback.getMovie().getId())
+                        .status(feedback.getStatus())
+                        .build())
+                .collect(Collectors.toList());
     }
 }

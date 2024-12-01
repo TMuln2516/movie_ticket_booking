@@ -22,11 +22,19 @@ import java.util.List;
 public class FeedbackController {
     FeedbackService feedbackService;
 
-    @GetMapping("/{movieId}/all")
-    public ApiResponse<List<FeedbackResponse>> getAll(@PathVariable String movieId) {
+    @GetMapping("/")
+    public ApiResponse<List<FeedbackResponse>> getAll() {
         return ApiResponse.<List<FeedbackResponse>>builder()
                 .message("Lấy tất cả bình luận thành công")
-                .result(feedbackService.getAll(movieId))
+                .result(feedbackService.getAll())
+                .build();
+    }
+
+    @GetMapping("/{movieId}/all")
+    public ApiResponse<List<FeedbackResponse>> getAllByMovie(@PathVariable String movieId) {
+        return ApiResponse.<List<FeedbackResponse>>builder()
+                .message("Lấy tất cả bình luận theo Phim thành công")
+                .result(feedbackService.getAllByMovie(movieId))
                 .build();
     }
 

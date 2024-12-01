@@ -149,7 +149,6 @@ public class MovieService {
                             .duration(movie.getDuration())
                             .rate(movie.getRate())
                             .image(movie.getImage())
-                            .canComment(false) // Gán giá trị canComment
                             .genres(movie.getGenres().stream()
                                     .map(genre -> GenreResponse.builder()
                                             .id(genre.getId())
@@ -181,7 +180,6 @@ public class MovieService {
                             .duration(movie.getDuration())
                             .rate(movie.getRate())
                             .image(movie.getImage())
-                            .canComment(canComment) // Gán giá trị canComment
                             .genres(movie.getGenres().stream()
                                     .map(genre -> GenreResponse.builder()
                                             .id(genre.getId())
@@ -224,6 +222,14 @@ public class MovieService {
                         .build())
                 .orElse(null);
 
+        //        get user
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        var userInfo = userRepository.findByUsername(username)
+                .orElseThrow(() -> new MyException(ErrorCode.USER_NOT_EXISTED));
+
+        boolean canComment = ticketRepository.findAllByUserIdAndFinishedTrue(userInfo.getId()).stream()
+                .anyMatch(ticket -> ticket.getShowtime().getMovie().getId().equals(movie.getId()));
+
         return MovieDetailResponse.builder()
                 .id(movie.getId())
                 .name(movie.getName())
@@ -233,6 +239,7 @@ public class MovieService {
                 .content(movie.getContent())
                 .rate(movie.getRate())
                 .image(movie.getImage())
+                .canComment(canComment)
                 .genres(movie.getGenres()
                         .stream()
                         .map(genre -> GenreResponse.builder()
@@ -255,6 +262,37 @@ public class MovieService {
                         .collect(Collectors.toSet()))
                 .build();
     }
+
+//        return MovieDetailResponse.builder()
+//                .id(movie.getId())
+//                .name(movie.getName())
+//                .premiere(DateUtils.formatDate(movie.getPremiere()))
+//                .language(movie.getLanguage())
+//                .duration(movie.getDuration())
+//                .content(movie.getContent())
+//                .rate(movie.getRate())
+//                .image(movie.getImage())
+//                .genres(movie.getGenres()
+//                        .stream()
+//                        .map(genre -> GenreResponse.builder()
+//                                .id(genre.getId())
+//                                .name(genre.getName())
+//                                .build())
+//                        .collect(Collectors.toSet()))
+//                .director(directorResponse)
+//                .actors(actors.stream().map(person -> PersonResponse.builder()
+//                                .id(person.getId())
+//                                .name(person.getName())
+//                                .gender(person.getGender())
+//                                .dateOfBirth(DateUtils.formatDate(person.getDateOfBirth()))
+//                                .image(person.getImage())
+//                                .job(JobResponse.builder()
+//                                        .id(person.getJob().getId())
+//                                        .name(person.getJob().getName())
+//                                        .build())
+//                                .build())
+//                        .collect(Collectors.toSet()))
+//                .build();
 
     //    update movie
     @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")

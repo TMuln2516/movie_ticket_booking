@@ -15,5 +15,6 @@ public class FeedbackResponse {
     String date;
     String time;
     String byName;
+    String movieId;
     Boolean status;
 }
