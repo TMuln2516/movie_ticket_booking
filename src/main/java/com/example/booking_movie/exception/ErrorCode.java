@@ -67,7 +67,7 @@ public enum ErrorCode {
     MISSING_UPPERCASE(HttpStatus.BAD_REQUEST.value(), "Mật khẩu phải chứa ít nhất 1 ký tự viết hoa."),
     MISSING_LOWERCASE(HttpStatus.BAD_REQUEST.value(), "Mật khẩu phải chứa ít nhất 1 ký tự viết thường."),
     MISSING_SPECIAL_CHARACTERS(HttpStatus.BAD_REQUEST.value(), "Mật khẩu phải chứa ít nhất 1 ký tự đặc biệt."),
-    ILLEGAL_NUMERICAL_SEQUENCE(HttpStatus.BAD_REQUEST.value(), "Mật khẩu chứa chuỗi số trái phép '123456'."),
+    ILLEGAL_NUMERICAL_SEQUENCE(HttpStatus.BAD_REQUEST.value(), "Mật khẩu phải chứa ít nhất 1 ký tự số."),
     PASSWORD_LENGTH(HttpStatus.BAD_REQUEST.value(), "Mật khẩu phải có ít nhất 8 ký tự."),
 
     // User

@@ -19,5 +19,6 @@ public class MovieResponse {
     Integer duration;
     Double rate;
     String image;
+    Boolean canComment;
     List<GenreResponse> genres;
 }

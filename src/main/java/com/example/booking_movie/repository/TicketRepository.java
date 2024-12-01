@@ -28,4 +28,6 @@ public interface TicketRepository extends JpaRepository<Ticket, String> {
     @Transactional
     @Query("UPDATE Ticket t SET t.showtime = NULL WHERE t.showtime.id = :showtimeId")
     void setShowtimeToNull(String showtimeId);
+
+    List<Ticket> findAllByUserIdAndFinishedTrue(String userId);
 }

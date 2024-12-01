@@ -18,6 +18,9 @@ public class TicketDetailResponse {
     String endTime;
     String movieName;
     String movieId;
+    String theaterName;
+    String roomName;
+    Boolean canComment;
     Set<SeatResponse> seats;
     Double totalPrice;
 }

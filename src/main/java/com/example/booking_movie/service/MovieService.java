@@ -13,9 +13,7 @@ import com.example.booking_movie.entity.Movie;
 import com.example.booking_movie.entity.Person;
 import com.example.booking_movie.exception.ErrorCode;
 import com.example.booking_movie.exception.MyException;
-import com.example.booking_movie.repository.GenreRepository;
-import com.example.booking_movie.repository.MovieRepository;
-import com.example.booking_movie.repository.PersonRepository;
+import com.example.booking_movie.repository.*;
 import com.example.booking_movie.service.Elastic.ElasticMovieService;
 import com.example.booking_movie.utils.DateUtils;
 import com.example.booking_movie.utils.ValidUtils;
@@ -24,6 +22,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -41,6 +40,8 @@ public class MovieService {
     GenreRepository genreRepository;
     PersonRepository personRepository;
     ElasticMovieService elasticMovieService;
+    UserRepository userRepository;
+    TicketRepository ticketRepository;
 
     ImageService imageService;
 
@@ -130,23 +131,65 @@ public class MovieService {
 
     //        get all movie
     public List<MovieResponse> getAll() {
+        //        check guest
+        var authentication = SecurityContextHolder.getContext().getAuthentication();
+        boolean isGuest = authentication == null ||
+                !authentication.isAuthenticated() ||
+                "anonymousUser".equals(authentication.getName());
+
+        if (isGuest) {
+            return movieRepository.findAll()
+                    .stream()
+                    .map(movie -> MovieResponse.builder()
+                            .id(movie.getId())
+                            .name(movie.getName())
+                            .content(movie.getContent())
+                            .premiere(DateUtils.formatDate(movie.getPremiere()))
+                            .language(movie.getLanguage())
+                            .duration(movie.getDuration())
+                            .rate(movie.getRate())
+                            .image(movie.getImage())
+                            .canComment(false) // Gán giá trị canComment
+                            .genres(movie.getGenres().stream()
+                                    .map(genre -> GenreResponse.builder()
+                                            .id(genre.getId())
+                                            .name(genre.getName())
+                                            .build())
+                                    .collect(Collectors.toList()))
+                            .build()
+                    ).collect(Collectors.toList());
+        }
+
+
+        //        get user
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        var userInfo = userRepository.findByUsername(username)
+                .orElseThrow(() -> new MyException(ErrorCode.USER_NOT_EXISTED));
+
         return movieRepository.findAll()
                 .stream()
-                .map(movie -> MovieResponse.builder()
-                        .id(movie.getId())
-                        .name(movie.getName())
-                        .premiere(DateUtils.formatDate(movie.getPremiere()))
-                        .language(movie.getLanguage())
-                        .duration(movie.getDuration())
-                        .rate(movie.getRate())
-                        .image(movie.getImage())
-                        .genres(movie.getGenres().stream()
-                                .map(genre -> GenreResponse.builder()
-                                        .id(genre.getId())
-                                        .name(genre.getName())
-                                        .build())
-                                .collect(Collectors.toList()))
-                        .build())
+                .map(movie -> {
+                    boolean canComment = ticketRepository.findAllByUserIdAndFinishedTrue(userInfo.getId()).stream()
+                            .anyMatch(ticket -> ticket.getShowtime().getMovie().getId().equals(movie.getId()));
+
+                    return MovieResponse.builder()
+                            .id(movie.getId())
+                            .name(movie.getName())
+                            .content(movie.getContent())
+                            .premiere(DateUtils.formatDate(movie.getPremiere()))
+                            .language(movie.getLanguage())
+                            .duration(movie.getDuration())
+                            .rate(movie.getRate())
+                            .image(movie.getImage())
+                            .canComment(canComment) // Gán giá trị canComment
+                            .genres(movie.getGenres().stream()
+                                    .map(genre -> GenreResponse.builder()
+                                            .id(genre.getId())
+                                            .name(genre.getName())
+                                            .build())
+                                    .collect(Collectors.toList()))
+                            .build();
+                })
                 .collect(Collectors.toList());
     }
 

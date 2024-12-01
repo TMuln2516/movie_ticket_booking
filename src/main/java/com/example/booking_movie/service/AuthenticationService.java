@@ -241,6 +241,7 @@ public class AuthenticationService {
                                 .username(userInfo.getEmail())
                                 .firstName(userInfo.getGivenName())
                                 .lastName(userInfo.getFamilyName())
+                                .email(userInfo.getEmail())
                                 .status(true)
                                 .roles(roles)
                         .build()));

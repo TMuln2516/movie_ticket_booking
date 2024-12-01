@@ -4,8 +4,10 @@ import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch._types.query_dsl.Query;
 import co.elastic.clients.elasticsearch.core.SearchResponse;
 import co.elastic.clients.elasticsearch.core.search.Hit;
+import com.example.booking_movie.dto.response.GenreResponse;
 import com.example.booking_movie.dto.response.MovieResponse;
 import com.example.booking_movie.entity.Elastic.ElasticMovie;
+import com.example.booking_movie.repository.GenreRepository;
 import com.example.booking_movie.utils.DateUtils;
 import com.example.booking_movie.utils.ElasticsearchUtil;
 import lombok.AccessLevel;
@@ -27,6 +29,7 @@ import java.util.stream.Collectors;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class ElasticsearchService {
     ElasticsearchClient elasticsearchClient;
+    GenreRepository genreRepository;
 
 //    @PostConstruct
 //    public void checkAndCreateMovieIndex() {
@@ -119,6 +122,15 @@ public class ElasticsearchService {
                     .content(source.getContent())
                     .rate(source.getRate())
                     .image(source.getImage())
+                    .genres(source.getGenreIds().stream()
+                            .map(genreId -> {
+                                var genreInfo = genreRepository.findById(genreId).orElseThrow();
+                                return GenreResponse.builder()
+                                        .id(genreInfo.getId())
+                                        .name(genreInfo.getName())
+                                        .build();
+                            })
+                            .collect(Collectors.toList()))
                     .build();
         }).collect(Collectors.toList());
     }
