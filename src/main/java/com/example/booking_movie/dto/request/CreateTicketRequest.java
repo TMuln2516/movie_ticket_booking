@@ -18,4 +18,6 @@ public class CreateTicketRequest {
 
     @NotEmpty
     Set<String> seatId;
+
+    String couponId;
 }

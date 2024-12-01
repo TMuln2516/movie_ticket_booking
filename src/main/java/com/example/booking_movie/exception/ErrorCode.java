@@ -6,6 +6,10 @@ import org.springframework.http.HttpStatus;
 
 @Getter
 public enum ErrorCode {
+    //    coupon
+    COUPON_EXISTED(HttpStatus.BAD_REQUEST.value(), "Mã giảm giá đã tồn tại"),
+    COUPON_NOT_EXISTED(HttpStatus.BAD_REQUEST.value(), "Mã giảm giá không tồn tại"),
+
     // feedback
     FEEDBACK_NOT_EXISTED(HttpStatus.BAD_REQUEST.value(), "Bình luận không tồn tại"),
 

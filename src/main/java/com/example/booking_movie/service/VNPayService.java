@@ -130,9 +130,7 @@ public class VNPayService {
         Ticket ticketInfo = ticketRepository.findById(ticketId)
                 .orElseThrow(() -> new MyException(ErrorCode.TICKET_NOT_EXISTED));
 
-        return ticketInfo.getTicketDetails().stream()
-                .mapToLong(td -> td.getPrice().longValue())
-                .sum();
+        return ticketInfo.getAmount().longValue();
     }
 
     public void callBack(String responseCode, String ticketId) {

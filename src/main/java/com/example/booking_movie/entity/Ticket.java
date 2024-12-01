@@ -27,6 +27,7 @@ public class Ticket {
     LocalTime time;
     Boolean status;
     Boolean finished;
+    Double amount;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
@@ -41,4 +42,9 @@ public class Ticket {
     @OneToMany(mappedBy = "ticket")
     @JsonManagedReference
     Set<TicketDetails> ticketDetails;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "coupon_id")
+    @JsonBackReference
+    Coupon coupon;
 }

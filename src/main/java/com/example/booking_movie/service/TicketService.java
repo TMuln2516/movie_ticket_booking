@@ -1,5 +1,6 @@
 package com.example.booking_movie.service;
 
+import com.example.booking_movie.constant.DefinedDiscountType;
 import com.example.booking_movie.dto.request.CreateTicketRequest;
 import com.example.booking_movie.dto.request.SetSeatSessionRequest;
 import com.example.booking_movie.dto.response.CreateTicketResponse;
@@ -25,6 +26,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 @Service
@@ -37,6 +39,7 @@ public class TicketService {
     TicketDetailsRepository ticketDetailsRepository;
     UserRepository userRepository;
     SeatRepository seatRepository;
+    CouponRepository couponRepository;
 
 //    session
 
@@ -114,6 +117,10 @@ public class TicketService {
                 .build();
         ticketRepository.save(ticket);
 
+//        amout
+        Double initialAmount = 0.0;
+        AtomicReference<Double> amount = new AtomicReference<>(initialAmount);
+
 //      create details
         createTicketRequest.getSeatId().forEach(seatId -> {
             Seat seatInfo = seatRepository.findById(seatId).orElseThrow();
@@ -125,12 +132,32 @@ public class TicketService {
                     .price(seatInfo.getPrice())
                     .build();
             ticketDetailsRepository.save(ticketDetails);
+            amount.updateAndGet(v -> v + ticketDetails.getPrice());
         });
+
+        if (createTicketRequest.getCouponId() != null) {
+            var couponInfo = couponRepository.findById(createTicketRequest.getCouponId())
+                    .orElseThrow(() -> new MyException(ErrorCode.COUPON_NOT_EXISTED));
+
+            if (couponInfo.getDiscountType().equals(DefinedDiscountType.PERCENTAGE)) {
+                double discountAmount = (amount.get() * couponInfo.getDiscountValue()) / 100;
+                amount.updateAndGet(v -> v - discountAmount);
+            } else if (couponInfo.getDiscountType().equals(DefinedDiscountType.FIXED)) {
+                amount.updateAndGet(v -> v - couponInfo.getDiscountValue());
+            }
+
+            ticket.setCoupon(couponInfo);
+            ticketRepository.save(ticket);
+        }
+
+        ticket.setAmount(amount.get());
+        ticketRepository.save(ticket);
 
         return CreateTicketResponse.builder()
                 .id(ticket.getId())
                 .date(DateUtils.formatDate(ticket.getDate()))
                 .time(DateUtils.formatTime(ticket.getTime()))
+                .amount(ticket.getAmount())
                 .status(ticket.getStatus())
                 .userId(user.getId())
                 .showtimeId(showtime.getId())
