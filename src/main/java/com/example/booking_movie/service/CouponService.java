@@ -8,6 +8,7 @@ import com.example.booking_movie.dto.request.UpdateFeedbackRequest;
 import com.example.booking_movie.dto.response.*;
 import com.example.booking_movie.entity.Coupon;
 import com.example.booking_movie.entity.Feedback;
+import com.example.booking_movie.entity.User;
 import com.example.booking_movie.exception.ErrorCode;
 import com.example.booking_movie.exception.MyException;
 import com.example.booking_movie.repository.*;
@@ -33,6 +34,7 @@ import java.util.stream.Collectors;
 public class CouponService {
     CouponRepository couponRepository;
     TicketRepository ticketRepository;
+    UserRepository userRepository;
 
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     public CreateCouponResponse create(CreateCouponRequest createCouponRequest) {
@@ -103,7 +105,13 @@ public class CouponService {
 
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'USER')")
     public List<CouponResponse> getAll() {
-        return couponRepository.findAll().stream()
+        //        get user
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        User currentUser = userRepository.findByUsername(username).orElseThrow(() -> new MyException(ErrorCode.USER_NOT_EXISTED));
+
+        List<Coupon> unusedCoupons = couponRepository.findUnusedCouponsByUser(currentUser.getId());
+
+        return unusedCoupons.stream()
                 .map(coupon -> CouponResponse.builder()
                         .id(coupon.getId())
                         .code(coupon.getCode())

@@ -22,6 +22,7 @@ public class ApplicationInitConfig {
     MovieInitializer movieInitializer;
     TheaterInitializer theaterInitializer;
     RoomInitializer roomInitializer;
+    CouponInitializer couponInitializer;
 
     @Bean
     ApplicationRunner applicationRunner() {
@@ -36,6 +37,7 @@ public class ApplicationInitConfig {
 
             theaterInitializer.initializeTheaters();
             roomInitializer.initializeRooms();
+            couponInitializer.initializeCoupons();
             log.info("Application initialization completed");
         };
     }
