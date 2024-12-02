@@ -18,10 +18,4 @@ public class UpdateFeedbackRequest {
 
     @NotNull
     Double rate;
-
-    @NotNull
-    LocalDate date;
-
-    @NotNull
-    LocalTime time;
 }

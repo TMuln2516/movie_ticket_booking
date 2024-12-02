@@ -147,22 +147,27 @@ public class FeedbackService {
     }
 
     @PreAuthorize("hasRole('USER')")
-    public UpdateFeedbackResponse update(String movieId, UpdateFeedbackRequest updateFeedbackRequest) {
+    public UpdateFeedbackResponse update(String feedbackId, UpdateFeedbackRequest updateFeedbackRequest) {
         //        get user
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        var userInfo = userRepository.findByUsername(username)
-                .orElseThrow(() -> new MyException(ErrorCode.USER_NOT_EXISTED));
+//        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+//        var userInfo = userRepository.findByUsername(username)
+//                .orElseThrow(() -> new MyException(ErrorCode.USER_NOT_EXISTED));
 
 //        format date and time
 //        var date = DateUtils.formatStringToLocalDate(updateFeedbackRequest.getDate(), "dd-MM-yyyy");
 //        var time = DateUtils.formatStringToLocalTime(updateFeedbackRequest.getTime(), "HH:mm:ss");
 
-        var feedbackInfo = feedbackRepository.findByMovieIdAndUserIdAndDateAndTime(movieId, userInfo.getId(),
-                updateFeedbackRequest.getDate(), updateFeedbackRequest.getTime())
+//        var feedbackInfo = feedbackRepository.findByMovieIdAndUserIdAndDateAndTime(movieId, userInfo.getId(),
+//                updateFeedbackRequest.getDate(), updateFeedbackRequest.getTime())
+//                .orElseThrow(() -> new MyException(ErrorCode.FEEDBACK_NOT_EXISTED));
+
+        var feedbackInfo = feedbackRepository.findById(feedbackId)
                 .orElseThrow(() -> new MyException(ErrorCode.FEEDBACK_NOT_EXISTED));
 
         feedbackInfo.setContent(updateFeedbackRequest.getContent());
         feedbackInfo.setRate(updateFeedbackRequest.getRate());
+        feedbackInfo.setDate(LocalDate.now());
+        feedbackInfo.setTime(LocalTime.now());
         feedbackRepository.save(feedbackInfo);
 
         return UpdateFeedbackResponse.builder()

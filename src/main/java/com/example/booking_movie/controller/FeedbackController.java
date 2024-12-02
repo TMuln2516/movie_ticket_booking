@@ -46,11 +46,11 @@ public class FeedbackController {
                 .build();
     }
 
-    @PutMapping("/{movieId}")
-    public ApiResponse<UpdateFeedbackResponse> update(@PathVariable String movieId, @RequestBody @Valid UpdateFeedbackRequest updateFeedbackRequest) {
+    @PutMapping("/{feedbackId}")
+    public ApiResponse<UpdateFeedbackResponse> update(@PathVariable String feedbackId, @RequestBody @Valid UpdateFeedbackRequest updateFeedbackRequest) {
         return ApiResponse.<UpdateFeedbackResponse>builder()
                 .message("Cập nhật bình luận thành công")
-                .result(feedbackService.update(movieId, updateFeedbackRequest))
+                .result(feedbackService.update(feedbackId, updateFeedbackRequest))
                 .build();
     }
 
