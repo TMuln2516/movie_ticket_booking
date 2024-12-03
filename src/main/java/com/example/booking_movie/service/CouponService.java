@@ -1,10 +1,7 @@
 package com.example.booking_movie.service;
 
 import com.example.booking_movie.constant.DefinedRole;
-import com.example.booking_movie.dto.request.CreateCouponRequest;
-import com.example.booking_movie.dto.request.CreateFeedbackRequest;
-import com.example.booking_movie.dto.request.UpdateCouponRequest;
-import com.example.booking_movie.dto.request.UpdateFeedbackRequest;
+import com.example.booking_movie.dto.request.*;
 import com.example.booking_movie.dto.response.*;
 import com.example.booking_movie.entity.Coupon;
 import com.example.booking_movie.entity.Feedback;
@@ -127,8 +124,8 @@ public class CouponService {
     }
 
     @PreAuthorize("hasRole('USER')")
-    public CouponResponse getDetails(String couponId) {
-        var couponInfo = couponRepository.findById(couponId)
+    public CouponResponse getDetails(String code) {
+        var couponInfo = couponRepository.findByCode(code)
                 .orElseThrow(() -> new MyException(ErrorCode.COUPON_NOT_EXISTED));
 
         return CouponResponse.builder()

@@ -16,6 +16,8 @@ import java.util.Optional;
 public interface CouponRepository extends JpaRepository<Coupon, String> {
     boolean existsByCode(String code);
 
+    Optional<Coupon> findByCode(String code);
+
     @Query("SELECT c FROM Coupon c WHERE c NOT IN " +
             "(SELECT t.coupon FROM Ticket t WHERE t.user.id = :userId AND t.coupon IS NOT NULL AND t.status = true)")
     List<Coupon> findUnusedCouponsByUser(@Param("userId") String userId);
