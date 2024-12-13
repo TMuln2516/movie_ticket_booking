@@ -12,5 +12,5 @@ import java.util.Optional;
 public interface FeedbackRepository extends JpaRepository<Feedback, String> {
     void deleteAllByUserId(String userId);
 
-    Optional<Feedback> findByMovieIdAndUserIdAndDateAndTime(String movieId, String userId, LocalDate date, LocalTime time);
+    void deleteByMovieId(String movieId);
 }

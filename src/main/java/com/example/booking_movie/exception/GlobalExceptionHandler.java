@@ -24,9 +24,9 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(value = MyException.class)
-    ResponseEntity<ApiResponse<AuthenticationResponse>> handlingMyException(MyException exception) {
+    ResponseEntity<ApiResponse> handlingMyException(MyException exception) {
         return ResponseEntity.status(exception.getErrorCode().getCode()).body(
-                ApiResponse.<AuthenticationResponse>builder()
+                ApiResponse.builder()
                         .code(exception.getErrorCode().getCode())
                         .message(exception.getErrorCode().getMessage())
                         .build());

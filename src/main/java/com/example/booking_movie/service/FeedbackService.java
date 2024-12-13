@@ -32,7 +32,6 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class FeedbackService {
-    FeedbackRepository commentRepository;
     MovieRepository movieRepository;
     UserRepository userRepository;
     FeedbackRepository feedbackRepository;
@@ -60,7 +59,7 @@ public class FeedbackService {
                 .movie(movieInfo)
                 .user(userInfo)
                 .build();
-        commentRepository.save(feedback);
+        feedbackRepository.save(feedback);
 
         movieInfo.getFeedbacks().add(feedback);
         userInfo.getFeedbacks().add(feedback);
