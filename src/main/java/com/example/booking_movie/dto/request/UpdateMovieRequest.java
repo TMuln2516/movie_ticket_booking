@@ -1,12 +1,9 @@
 package com.example.booking_movie.dto.request;
 
-import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDate;
-import java.util.Date;
-import java.util.Set;
 
 @Data
 @NoArgsConstructor

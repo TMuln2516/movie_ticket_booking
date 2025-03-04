@@ -3,7 +3,6 @@ package com.example.booking_movie.entity;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -34,8 +33,8 @@ public class Room {
     @JsonManagedReference
     Set<Seat> seats;
 
-    @ManyToMany(fetch = FetchType.LAZY, mappedBy = "rooms")
-    @JsonBackReference
+    @OneToMany(mappedBy = "room", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
     Set<Showtime> showtimes;
 
 }

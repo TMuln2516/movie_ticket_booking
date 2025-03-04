@@ -4,7 +4,6 @@ import com.example.booking_movie.dto.request.CreateGenreRequest;
 import com.example.booking_movie.dto.request.UpdateGenreRequest;
 import com.example.booking_movie.dto.response.CreateGenreResponse;
 import com.example.booking_movie.dto.response.GenreResponse;
-import com.example.booking_movie.dto.response.MovieResponse;
 import com.example.booking_movie.dto.response.UpdateGenreResponse;
 import com.example.booking_movie.entity.Genre;
 import com.example.booking_movie.exception.ErrorCode;

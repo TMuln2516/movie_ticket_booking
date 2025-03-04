@@ -11,7 +11,6 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -22,8 +21,6 @@ public class SeatService {
     SeatRepository seatRepository;
     RoomRepository roomRepository;
 
-//    create seat
-//    @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
     public void create(String roomId, CreateSeatRequest createSeatRequest) {
         Room room = roomRepository.findById(roomId).orElseThrow(() -> new MyException(ErrorCode.ROOM_NOT_EXISTED));
 

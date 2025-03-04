@@ -19,6 +19,7 @@ public class MovieDetailResponse {
     String content;
     Double rate;
     String image;
+    Boolean canComment;
     Set<GenreResponse> genres;
     PersonResponse director;
     Set<PersonResponse> actors;

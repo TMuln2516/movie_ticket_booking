@@ -3,7 +3,6 @@ package com.example.booking_movie.dto.response;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-import java.util.List;
 import java.util.Set;
 
 @Data

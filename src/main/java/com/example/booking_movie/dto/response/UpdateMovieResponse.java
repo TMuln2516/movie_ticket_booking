@@ -1,7 +1,7 @@
 package com.example.booking_movie.dto.response;
 
-import com.example.booking_movie.entity.Person;
 import com.example.booking_movie.entity.Genre;
+import com.example.booking_movie.entity.Person;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 

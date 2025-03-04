@@ -1,11 +1,7 @@
 package com.example.booking_movie.utils;
 
-import co.elastic.clients.elasticsearch._types.query_dsl.FuzzyQuery;
-import co.elastic.clients.elasticsearch._types.query_dsl.MatchAllQuery;
-import co.elastic.clients.elasticsearch._types.query_dsl.MatchQuery;
-import co.elastic.clients.elasticsearch._types.query_dsl.Query;
+import co.elastic.clients.elasticsearch._types.query_dsl.*;
 import lombok.val;
-import co.elastic.clients.elasticsearch._types.query_dsl.Operator;
 
 import java.util.function.Supplier;
 
@@ -69,6 +65,19 @@ public class ElasticsearchUtil {
                 .replaceAll("[\u0111]", "d")  // Loại bỏ dấu đ
                 .toLowerCase();  // Đảm bảo tất cả chữ cái đều là chữ thường
     }
+
+    public static MatchQuery createAutoSuggestMatchQuery(String name) {
+        return new MatchQuery.Builder()
+                .field("name")
+                .query(name)
+                .analyzer("custom_index")
+                .build();
+    }
+
+    public static Query buildAutoSuggestQuery(String name) {
+        return Query.of(q -> q.match(createAutoSuggestMatchQuery(name)));
+    }
+
 
 //    public static Supplier<Query> fuzzyQueySupplier(String value) {
 //        return () -> Query.of(q -> q.bool(b -> b

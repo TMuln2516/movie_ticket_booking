@@ -1,6 +1,7 @@
 package com.example.booking_movie.controller;
 
-import com.example.booking_movie.dto.response.*;
+import com.example.booking_movie.dto.response.ApiResponse;
+import com.example.booking_movie.dto.response.RevenueResponse;
 import com.example.booking_movie.service.TicketService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -8,7 +9,6 @@ import lombok.experimental.FieldDefaults;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/revenues")

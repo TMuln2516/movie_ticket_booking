@@ -1,14 +1,14 @@
 package com.example.booking_movie.initializer;
 
-import com.example.booking_movie.constant.DefinedJob;
+import com.example.booking_movie.entity.Elastic.ElasticMovie;
 import com.example.booking_movie.entity.Genre;
-import com.example.booking_movie.entity.Job;
 import com.example.booking_movie.entity.Movie;
 import com.example.booking_movie.entity.Person;
+import com.example.booking_movie.repository.Elastic.ElasticMovieRepository;
 import com.example.booking_movie.repository.GenreRepository;
-import com.example.booking_movie.repository.JobRepository;
 import com.example.booking_movie.repository.MovieRepository;
 import com.example.booking_movie.repository.PersonRepository;
+import com.example.booking_movie.utils.DateUtils;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -17,6 +17,7 @@ import org.springframework.stereotype.Component;
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
@@ -25,6 +26,8 @@ public class MovieInitializer {
     MovieRepository movieRepository;
     GenreRepository genreRepository;
     PersonRepository personRepository;
+
+    ElasticMovieRepository elasticMovieRepository;
 
     public void movieInitializer() {
         var drama = genreRepository.findByName("Chính Kịch").orElseThrow();
@@ -59,7 +62,8 @@ public class MovieInitializer {
             personSet.add(Makoto);
             personSet.add(Ryunosuke);
             personSet.add(Mone);
-            movieRepository.save(Movie.builder()
+
+            Movie movieInfo = Movie.builder()
                     .name("Your Name")
                     .content("Bộ phim kể về Mitsuha – một nữ sinh trung học buồn chán với cuộc sống tẻ nhạt ở vùng thôn quê và Taki – một chàng trai Tokyo – vì một lý do nào đó bị hoán đổi cơ thể trong khi sao chổi thiên niên kỉ đang đến gần.")
                     .duration(120)
@@ -70,6 +74,26 @@ public class MovieInitializer {
                     .publicId("MovieImage/h4izbjcrlshmyjzfdrri")
                     .genres(genreSet)
                     .persons(personSet)
+                    .build();
+            movieRepository.save(movieInfo);
+
+//            save elastic
+            elasticMovieRepository.save(ElasticMovie.builder()
+                    .id(movieInfo.getId())
+                    .name(movieInfo.getName())
+                    .premiere(DateUtils.formatDateToEpochMillis(movieInfo.getPremiere()))
+                    .language(movieInfo.getLanguage())
+                    .duration(movieInfo.getDuration())
+                    .content(movieInfo.getContent())
+                    .rate(movieInfo.getRate())
+                    .image(movieInfo.getImage())
+                    .publicId(movieInfo.getPublicId())
+                    .genreIds(movieInfo.getGenres().stream()
+                            .map(Genre::getId)
+                            .collect(Collectors.toSet()))
+                    .personIds(movieInfo.getPersons().stream()
+                            .map(Person::getId)
+                            .collect(Collectors.toSet()))
                     .build());
         }
 
@@ -83,17 +107,38 @@ public class MovieInitializer {
             personSet.add(PhuongAnhDao);
             personSet.add(HongDao);
             personSet.add(TuanTran);
-            movieRepository.save(Movie.builder()
+
+            Movie movieInfo = Movie.builder()
                     .name("Mai")
                     .content("MAI là câu chuyện về cuộc đời của người phụ nữ cùng tên, với ánh nhìn tĩnh lặng, xuyên thấu \" Quá khứ chưa ngủ yên, ngày mai liệu sẽ đến?..\"")
                     .duration(120)
                     .language("Vietnamese")
                     .premiere(LocalDate.of(2024, 11, 15))
                     .rate(9.9)
-                    .image("https://res.cloudinary.com/ddwbopzwt/image/upload/v1732207762/MovieImage/fgtxr5wrvkaeapcsby0k.jpg")
-                    .publicId("MovieImage/fgtxr5wrvkaeapcsby0k")
+                    .image("https://res.cloudinary.com/ddwbopzwt/image/upload/v1732207762/MovieImage/t9rax2ryriomf74bs1yt.jpg")
+                    .publicId("MovieImage/t9rax2ryriomf74bs1yt")
                     .genres(genreSet)
                     .persons(personSet)
+                    .build();
+            movieRepository.save(movieInfo);
+
+            //            save elastic
+            elasticMovieRepository.save(ElasticMovie.builder()
+                    .id(movieInfo.getId())
+                    .name(movieInfo.getName())
+                    .premiere(DateUtils.formatDateToEpochMillis(movieInfo.getPremiere()))
+                    .language(movieInfo.getLanguage())
+                    .duration(movieInfo.getDuration())
+                    .content(movieInfo.getContent())
+                    .rate(movieInfo.getRate())
+                    .image(movieInfo.getImage())
+                    .publicId(movieInfo.getPublicId())
+                    .genreIds(movieInfo.getGenres().stream()
+                            .map(Genre::getId)
+                            .collect(Collectors.toSet()))
+                    .personIds(movieInfo.getPersons().stream()
+                            .map(Person::getId)
+                            .collect(Collectors.toSet()))
                     .build());
         }
 
@@ -108,7 +153,8 @@ public class MovieInitializer {
             personSet.add(DoanQuocDam);
             personSet.add(CaoThiThuyLinh);
             personSet.add(TranLuc);
-            movieRepository.save(Movie.builder()
+
+            Movie movieInfo = Movie.builder()
                     .name("Đào, phở và piano")
                     .content("Lấy bối cảnh trận chiến đông xuân kéo dài 60 ngày đêm từ cuối năm 1946 đến đầu năm 1947 ở Hà Nội, câu chuyện theo chân chàng dân quân Văn Dân và chuyện tình với nàng tiểu thư đam mê dương cầm Thục Hương")
                     .duration(120)
@@ -119,6 +165,26 @@ public class MovieInitializer {
                     .publicId("MovieImage/slfra2itmhuapkyuybeo")
                     .genres(genreSet)
                     .persons(personSet)
+                    .build();
+            movieRepository.save(movieInfo);
+
+            //            save elastic
+            elasticMovieRepository.save(ElasticMovie.builder()
+                    .id(movieInfo.getId())
+                    .name(movieInfo.getName())
+                    .premiere(DateUtils.formatDateToEpochMillis(movieInfo.getPremiere()))
+                    .language(movieInfo.getLanguage())
+                    .duration(movieInfo.getDuration())
+                    .content(movieInfo.getContent())
+                    .rate(movieInfo.getRate())
+                    .image(movieInfo.getImage())
+                    .publicId(movieInfo.getPublicId())
+                    .genreIds(movieInfo.getGenres().stream()
+                            .map(Genre::getId)
+                            .collect(Collectors.toSet()))
+                    .personIds(movieInfo.getPersons().stream()
+                            .map(Person::getId)
+                            .collect(Collectors.toSet()))
                     .build());
         }
 
@@ -131,7 +197,8 @@ public class MovieInitializer {
             personSet.add(LuuThanhLuan);
             personSet.add(HongDao);
             personSet.add(NguyenThucThuyTien);
-            movieRepository.save(Movie.builder()
+
+            Movie movieInfo = Movie.builder()
                     .name("Linh Miêu: Quỷ Nhập Tràng")
                     .content("Nửa đêm, đoàn kiệu rước thây xuất hiện trong không khí ma mị, u ám, kèm tiếng múa chén kinh dị khiến ai nghe qua cũng lạnh người. Có ai chứng kiến cảnh tượng này bao giờ chưa?")
                     .duration(120)
@@ -142,6 +209,26 @@ public class MovieInitializer {
                     .publicId("MovieImage/wzstoenx4cwts9tegj9f")
                     .genres(genreSet)
                     .persons(personSet)
+                    .build();
+            movieRepository.save(movieInfo);
+
+            //            save elastic
+            elasticMovieRepository.save(ElasticMovie.builder()
+                    .id(movieInfo.getId())
+                    .name(movieInfo.getName())
+                    .premiere(DateUtils.formatDateToEpochMillis(movieInfo.getPremiere()))
+                    .language(movieInfo.getLanguage())
+                    .duration(movieInfo.getDuration())
+                    .content(movieInfo.getContent())
+                    .rate(movieInfo.getRate())
+                    .image(movieInfo.getImage())
+                    .publicId(movieInfo.getPublicId())
+                    .genreIds(movieInfo.getGenres().stream()
+                            .map(Genre::getId)
+                            .collect(Collectors.toSet()))
+                    .personIds(movieInfo.getPersons().stream()
+                            .map(Person::getId)
+                            .collect(Collectors.toSet()))
                     .build());
         }
     }

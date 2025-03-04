@@ -20,5 +20,6 @@ public class UserResponse {
     Boolean gender;
     String email;
     String avatar;
+    Boolean status;
     Set<Role> roles;
 }

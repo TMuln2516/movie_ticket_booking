@@ -1,10 +1,7 @@
 package com.example.booking_movie.dto.response;
 
-import com.example.booking_movie.entity.Movie;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-
-import java.util.Set;
 
 @Data
 @NoArgsConstructor

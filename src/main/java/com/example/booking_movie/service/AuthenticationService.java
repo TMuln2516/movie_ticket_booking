@@ -11,9 +11,10 @@ import com.example.booking_movie.exception.ErrorCode;
 import com.example.booking_movie.exception.MyException;
 import com.example.booking_movie.repository.InvalidatedTokenRepository;
 import com.example.booking_movie.repository.RoleRepository;
-import com.example.booking_movie.repository.client.OutboundClient;
 import com.example.booking_movie.repository.UserRepository;
+import com.example.booking_movie.repository.client.OutboundClient;
 import com.example.booking_movie.repository.client.OutboundUserClient;
+import com.example.booking_movie.utils.DateUtils;
 import com.nimbusds.jose.*;
 import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jose.crypto.MACVerifier;
@@ -25,6 +26,7 @@ import lombok.experimental.FieldDefaults;
 import lombok.experimental.NonFinal;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -241,6 +243,7 @@ public class AuthenticationService {
                                 .username(userInfo.getEmail())
                                 .firstName(userInfo.getGivenName())
                                 .lastName(userInfo.getFamilyName())
+                                .email(userInfo.getEmail())
                                 .status(true)
                                 .roles(roles)
                         .build()));

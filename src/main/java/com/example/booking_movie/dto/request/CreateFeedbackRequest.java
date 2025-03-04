@@ -17,5 +17,5 @@ public class CreateFeedbackRequest {
     Double rate;
 
     @NotNull
-    String ticketId;
+    String movieId;
 }

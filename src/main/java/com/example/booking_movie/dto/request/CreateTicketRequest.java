@@ -13,9 +13,11 @@ import java.util.Set;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class CreateTicketRequest {
-    @NotNull(message = "Name must not be null")
+    @NotNull
     String showtimeId;
 
     @NotEmpty
     Set<String> seatId;
+
+    String couponId;
 }

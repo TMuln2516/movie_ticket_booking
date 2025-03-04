@@ -24,12 +24,16 @@ import org.springframework.security.web.SecurityFilterChain;
 public class SecurityConfig {
 
     final String[] PUBLIC_ENDPOINTS = {
-            //            movie
+//            feedback
+            "/api/feedbacks/*/all",
+
+//            movie
             "/api/movies/",
 
 //            search
             "/api/movies/search",
             "/api/movies/genre",
+            "api/movies/suggest",
 
 //            outbound
             "/api/auth/outbound/authentication",

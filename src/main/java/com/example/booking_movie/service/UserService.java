@@ -3,15 +3,15 @@ package com.example.booking_movie.service;
 import com.example.booking_movie.constant.DefinedRole;
 import com.example.booking_movie.dto.request.*;
 import com.example.booking_movie.dto.response.*;
-import com.example.booking_movie.entity.*;
+import com.example.booking_movie.entity.Feedback;
+import com.example.booking_movie.entity.Role;
+import com.example.booking_movie.entity.TicketDetails;
+import com.example.booking_movie.entity.User;
 import com.example.booking_movie.exception.ErrorCode;
 import com.example.booking_movie.exception.MyException;
 import com.example.booking_movie.repository.*;
 import com.example.booking_movie.utils.DateUtils;
-import com.example.booking_movie.utils.SecurityUtils;
 import com.example.booking_movie.utils.ValidUtils;
-import jakarta.mail.MessagingException;
-import jakarta.validation.constraints.Email;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -27,11 +27,11 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.*;
-import java.util.function.Consumer;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -186,6 +186,10 @@ public class UserService {
                         .startTime(DateUtils.formatTime(ticket.getShowtime().getStartTime()))
                         .endTime(DateUtils.formatTime(ticket.getShowtime().getEndTime()))
                         .movieName(ticket.getShowtime().getMovie().getName())
+                        .movieId(ticket.getShowtime().getMovie().getId())
+                        .theaterName(ticket.getShowtime().getRoom().getTheater().getName())
+                        .roomName(ticket.getShowtime().getRoom().getName())
+                        .canComment(ticket.getFinished() != null && ticket.getFinished())
                         .totalPrice(ticket.getTicketDetails().stream()
                                 .mapToDouble(TicketDetails::getPrice)
                                 .sum())
@@ -271,6 +275,7 @@ public class UserService {
                             .dateOfBirth(user.getDateOfBirth() != null ? DateUtils.formatDate(user.getDateOfBirth()) : null)
                             .gender(user.getGender())
                             .email(user.getEmail())
+                            .status(user.getStatus())
                             .avatar(user.getAvatar())
                             .roles(user.getRoles())
                             .build())

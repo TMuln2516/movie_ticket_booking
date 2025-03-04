@@ -1,12 +1,7 @@
 package com.example.booking_movie.controller;
 
-import com.example.booking_movie.dto.request.AuthenticationRequest;
-import com.example.booking_movie.dto.request.IntrospectRequest;
-import com.example.booking_movie.dto.request.LogoutRequest;
-import com.example.booking_movie.dto.request.RefreshRequest;
-import com.example.booking_movie.dto.response.ApiResponse;
-import com.example.booking_movie.dto.response.AuthenticationResponse;
-import com.example.booking_movie.dto.response.IntrospectResponse;
+import com.example.booking_movie.dto.request.*;
+import com.example.booking_movie.dto.response.*;
 import com.example.booking_movie.service.AuthenticationService;
 import com.nimbusds.jose.JOSEException;
 import lombok.AccessLevel;

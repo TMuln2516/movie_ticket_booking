@@ -1,8 +1,6 @@
 package com.example.booking_movie.repository;
 
-import com.example.booking_movie.entity.Genre;
 import com.example.booking_movie.entity.Ticket;
-import org.springframework.cglib.core.Local;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -30,4 +28,6 @@ public interface TicketRepository extends JpaRepository<Ticket, String> {
     @Transactional
     @Query("UPDATE Ticket t SET t.showtime = NULL WHERE t.showtime.id = :showtimeId")
     void setShowtimeToNull(String showtimeId);
+
+    List<Ticket> findAllByUserIdAndFinishedTrue(String userId);
 }

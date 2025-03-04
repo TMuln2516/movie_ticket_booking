@@ -7,7 +7,6 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Set;
 
@@ -28,6 +27,7 @@ public class Ticket {
     LocalTime time;
     Boolean status;
     Boolean finished;
+    Double amount;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
@@ -42,4 +42,9 @@ public class Ticket {
     @OneToMany(mappedBy = "ticket")
     @JsonManagedReference
     Set<TicketDetails> ticketDetails;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "coupon_id")
+    @JsonBackReference
+    Coupon coupon;
 }

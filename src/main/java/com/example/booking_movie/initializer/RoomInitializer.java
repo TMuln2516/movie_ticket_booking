@@ -1,15 +1,10 @@
 package com.example.booking_movie.initializer;
 
-import com.example.booking_movie.constant.DefinedJob;
 import com.example.booking_movie.dto.request.CreateSeatRequest;
-import com.example.booking_movie.entity.Job;
 import com.example.booking_movie.entity.Room;
-import com.example.booking_movie.entity.Seat;
 import com.example.booking_movie.exception.ErrorCode;
 import com.example.booking_movie.exception.MyException;
-import com.example.booking_movie.repository.JobRepository;
 import com.example.booking_movie.repository.RoomRepository;
-import com.example.booking_movie.repository.SeatRepository;
 import com.example.booking_movie.repository.TheaterRepository;
 import com.example.booking_movie.service.SeatService;
 import lombok.AccessLevel;

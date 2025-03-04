@@ -3,7 +3,6 @@ package com.example.booking_movie.dto.response;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-import java.util.List;
 import java.util.Set;
 
 @Data
@@ -18,6 +17,10 @@ public class TicketDetailResponse {
     String startTime;
     String endTime;
     String movieName;
+    String movieId;
+    String theaterName;
+    String roomName;
+    Boolean canComment;
     Set<SeatResponse> seats;
     Double totalPrice;
 }

@@ -1,12 +1,10 @@
 package com.example.booking_movie.utils;
 
-import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.Date;
 
 public class DateUtils {
     public static String formatDate(LocalDate date) {
@@ -26,5 +24,17 @@ public class DateUtils {
     }
     public static Long formatDateToEpochMillis(LocalDate date) {
         return date.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli();
+    }
+
+    // Hàm chuyển đổi từ String sang LocalDate
+    public static LocalDate formatStringToLocalDate(String dateStr, String pattern) {
+        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern(pattern);
+        return LocalDate.parse(dateStr, dateFormatter);
+    }
+
+    // Hàm chuyển đổi từ String sang LocalTime
+    public static LocalTime formatStringToLocalTime(String timeStr, String pattern) {
+        DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern(pattern);
+        return LocalTime.parse(timeStr, timeFormatter);
     }
 }

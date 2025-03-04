@@ -1,9 +1,7 @@
 package com.example.booking_movie.initializer;
 
 import com.example.booking_movie.constant.DefinedJob;
-import com.example.booking_movie.entity.Genre;
 import com.example.booking_movie.entity.Person;
-import com.example.booking_movie.repository.GenreRepository;
 import com.example.booking_movie.repository.JobRepository;
 import com.example.booking_movie.repository.PersonRepository;
 import lombok.AccessLevel;

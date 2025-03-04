@@ -10,7 +10,6 @@ import com.example.booking_movie.repository.ScheduleSeatRepository;
 import com.example.booking_movie.repository.ShowtimeRepository;
 import com.example.booking_movie.repository.TicketDetailsRepository;
 import com.example.booking_movie.repository.TicketRepository;
-//import com.example.booking_movie.service.Elastic.ElasticTicketService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -25,7 +24,6 @@ import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReference;
 
 @Service
 @RequiredArgsConstructor
@@ -132,9 +130,7 @@ public class VNPayService {
         Ticket ticketInfo = ticketRepository.findById(ticketId)
                 .orElseThrow(() -> new MyException(ErrorCode.TICKET_NOT_EXISTED));
 
-        return ticketInfo.getTicketDetails().stream()
-                .mapToLong(td -> td.getPrice().longValue())
-                .sum();
+        return ticketInfo.getAmount().longValue();
     }
 
     public void callBack(String responseCode, String ticketId) {
