@@ -16,7 +16,9 @@ import lombok.experimental.FieldDefaults;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
@@ -32,12 +34,21 @@ public class CouponService {
     CouponRepository couponRepository;
     TicketRepository ticketRepository;
     UserRepository userRepository;
+    ImageService imageService;
 
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
-    public CreateCouponResponse create(CreateCouponRequest createCouponRequest) {
+    public CreateCouponResponse create(CreateCouponRequest createCouponRequest, MultipartFile file) throws IOException {
+        //        check file null
+        if (file.isEmpty()) {
+            throw new MyException(ErrorCode.MOVIE_IMAGE_NOT_NULL);
+        }
+
         if (couponRepository.existsByCode(createCouponRequest.getCode())) {
             throw new MyException(ErrorCode.COUPON_EXISTED);
         }
+
+        //        upload image
+        var imageResponse = imageService.uploadImage(file, "voucher");
 
         var couponInfo = Coupon.builder()
                 .code(createCouponRequest.getCode())
@@ -47,6 +58,8 @@ public class CouponService {
                 .endDate(createCouponRequest.getEndDate())
                 .minValue(createCouponRequest.getMinValue())
                 .description(createCouponRequest.getDescription())
+                .image(imageResponse.getImageUrl())
+                .publicId(imageResponse.getPublicId())
                 .status(false)
                 .build();
         couponRepository.save(couponInfo);
@@ -61,6 +74,8 @@ public class CouponService {
                 .minValue(couponInfo.getMinValue())
                 .description(couponInfo.getDescription())
                 .status(couponInfo.getStatus())
+                .image(couponInfo.getImage())
+                .publicId(couponInfo.getPublicId())
                 .build();
     }
 
@@ -138,6 +153,8 @@ public class CouponService {
                 .minValue(couponInfo.getMinValue())
                 .description(couponInfo.getDescription())
                 .status(couponInfo.getStatus())
+                .image(couponInfo.getImage())
+                .publicId(couponInfo.getPublicId())
                 .build();
     }
 

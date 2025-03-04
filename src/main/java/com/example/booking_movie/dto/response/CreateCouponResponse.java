@@ -19,5 +19,7 @@ public class CreateCouponResponse {
     LocalDate endDate;
     Double minValue;
     String description;
+    String image;
+    String publicId;
     Boolean status;
 }

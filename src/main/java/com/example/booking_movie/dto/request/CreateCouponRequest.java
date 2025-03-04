@@ -3,6 +3,7 @@ package com.example.booking_movie.dto.request;
 import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.PositiveOrZero;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -21,7 +22,7 @@ public class CreateCouponRequest {
     String discountType;
 
     @NotNull
-    @Positive(message = "Giảm giá phải là số dương")
+    @PositiveOrZero(message = "Giảm giá phải là số dương")
     Integer discountValue;
 
     @Future(message = "Ngày không hợp lệ")

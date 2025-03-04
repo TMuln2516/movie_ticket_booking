@@ -74,7 +74,8 @@ public class TicketService {
 //        seatIdsFromSession.forEach(seatId -> {
 //            Seat seatInfo = seatRepository.findById(seatId).orElseThrow();
 //
-////         builder
+
+    /// /         builder
 //            TicketDetails ticketDetails = TicketDetails.builder()
 //                    .seat(seatInfo)
 //                    .ticket(ticket)
@@ -95,7 +96,6 @@ public class TicketService {
 //                .showtimeId(showtime.getId())
 //                .build();
 //    }
-
     @PreAuthorize("hasRole('USER')")
     @Transactional
     public CreateTicketResponse create(CreateTicketRequest createTicketRequest) {
@@ -144,7 +144,11 @@ public class TicketService {
                 amount.updateAndGet(v -> v - discountAmount);
             } else if (couponInfo.getDiscountType().equals(DefinedDiscountType.FIXED)) {
                 amount.updateAndGet(v -> v - couponInfo.getDiscountValue());
+            } else {
+//                Nếu giá theo giá trị mặt định thì lấy giá trị mặt định
+                amount.set(Double.valueOf(couponInfo.getDiscountValue()));
             }
+
 
             ticket.setCoupon(couponInfo);
             ticketRepository.save(ticket);

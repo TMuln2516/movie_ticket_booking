@@ -1,36 +1,26 @@
 package com.example.booking_movie.config;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.elasticsearch.client.ClientConfiguration;
 import org.springframework.data.elasticsearch.client.elc.ElasticsearchConfiguration;
 
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.X509Certificate;
+
 @Configuration
 public class ElasticSearchConfig extends ElasticsearchConfiguration {
+    @Value("${spring.elasticsearch.uris}")
+    protected String elasticUri;
+
     @Override
     public ClientConfiguration clientConfiguration() {
         return ClientConfiguration.builder()
-                .connectedTo("localhost:9200")
+                .connectedTo(elasticUri)
                 .build();
     }
-
-//    @Bean
-//    public RestHighLevelClient client() {
-//        RestClientBuilder builder = RestClient.builder("http://localhost:9200");
-//        return new RestHighLevelClient(builder);
-//    }
-//
-//    @Bean
-//    public RestClient getRestClient() {
-//        return RestClient.builder(new HttpHost("localhost", 9200)).build();
-//    }
-//
-//    @Bean
-//    public ElasticsearchTransport getElasticsearchTransport() {
-//        return new RestClientTransport(getRestClient(), new JacksonJsonpMapper());
-//    }
-//
-//    @Bean
-//    public ElasticsearchClient getElasticsearchClient() {
-//        return new ElasticsearchClient(getElasticsearchTransport());
-//    }
 }

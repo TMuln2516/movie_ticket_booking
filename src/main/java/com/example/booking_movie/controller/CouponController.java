@@ -1,9 +1,6 @@
 package com.example.booking_movie.controller;
 
-import com.example.booking_movie.dto.request.CreateCouponRequest;
-import com.example.booking_movie.dto.request.CreateGenreRequest;
-import com.example.booking_movie.dto.request.UpdateCouponRequest;
-import com.example.booking_movie.dto.request.UpdateGenreRequest;
+import com.example.booking_movie.dto.request.*;
 import com.example.booking_movie.dto.response.*;
 import com.example.booking_movie.service.CouponService;
 import com.example.booking_movie.service.GenreService;
@@ -12,7 +9,9 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -40,10 +39,12 @@ public class CouponController {
     }
 
     @PostMapping("/")
-    public ApiResponse<CreateCouponResponse> create(@RequestBody CreateCouponRequest createCouponRequest) {
+    public ApiResponse<CreateCouponResponse> create(
+            @RequestPart("createCouponRequest") @Valid CreateCouponRequest createCouponRequest,
+            @RequestPart("file") MultipartFile file) throws IOException {
         return ApiResponse.<CreateCouponResponse>builder()
                 .message("Tạo phiếu giảm giá thành công")
-                .result(couponService.create(createCouponRequest))
+                .result(couponService.create(createCouponRequest, file))
                 .build();
     }
 

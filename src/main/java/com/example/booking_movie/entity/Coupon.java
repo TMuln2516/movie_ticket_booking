@@ -29,6 +29,8 @@ public class Coupon {
     String description;
     Double minValue;
     Boolean status;
+    String image;
+    String publicId;
 
     @OneToMany(mappedBy = "coupon")
     @JsonManagedReference

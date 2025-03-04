@@ -115,8 +115,8 @@ public class MovieInitializer {
                     .language("Vietnamese")
                     .premiere(LocalDate.of(2024, 11, 15))
                     .rate(9.9)
-                    .image("https://res.cloudinary.com/ddwbopzwt/image/upload/v1732207762/MovieImage/fgtxr5wrvkaeapcsby0k.jpg")
-                    .publicId("MovieImage/fgtxr5wrvkaeapcsby0k")
+                    .image("https://res.cloudinary.com/ddwbopzwt/image/upload/v1732207762/MovieImage/t9rax2ryriomf74bs1yt.jpg")
+                    .publicId("MovieImage/t9rax2ryriomf74bs1yt")
                     .genres(genreSet)
                     .persons(personSet)
                     .build();
