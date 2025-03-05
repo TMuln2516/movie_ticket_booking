@@ -20,4 +20,6 @@ public class UpdateCouponResponse {
     Double minValue;
     String description;
     Boolean status;
+    String image;
+    String publicId;
 }

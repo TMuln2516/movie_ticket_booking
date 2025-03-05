@@ -103,6 +103,9 @@ public class CouponService {
                 .minValue(couponInfo.getMinValue())
                 .description(couponInfo.getDescription())
                 .status(couponInfo.getStatus())
+                .image(couponInfo.getImage())
+                .publicId(couponInfo.getPublicId())
+                .status(false)
                 .build();
     }
 
@@ -134,6 +137,9 @@ public class CouponService {
                         .minValue(coupon.getMinValue())
                         .description(coupon.getDescription())
                         .status(coupon.getStatus())
+                        .image(coupon.getImage())
+                        .publicId(coupon.getPublicId())
+                        .status(false)
                         .build())
                 .collect(Collectors.toList());
     }

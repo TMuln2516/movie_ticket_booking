@@ -4,18 +4,14 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class CreateTicketResponse {
+public class CreateFoodResponse {
     String id;
-    String date;
-    String time;
-    Boolean status;
-    String userId;
-    Double ticketAmount;
-    Double foodAmount;
-    Double amount;
-    String showtimeId;
+    String name;
+    Double price;
+    String image;
+    String publicId;
 }

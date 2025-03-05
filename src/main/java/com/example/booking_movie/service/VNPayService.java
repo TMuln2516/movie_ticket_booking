@@ -149,7 +149,7 @@ public class VNPayService {
                 countSeat.incrementAndGet();
             });
 
-//            update empty seat
+//            update lượng ghế còn lại
             Showtime showtimeInfo = ticketInfo.getShowtime();
             showtimeInfo.setEmptySeat(showtimeInfo.getEmptySeat() - countSeat.get());
             showtimeRepository.save(showtimeInfo);
