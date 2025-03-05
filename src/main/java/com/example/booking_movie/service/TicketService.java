@@ -40,6 +40,8 @@ public class TicketService {
     UserRepository userRepository;
     SeatRepository seatRepository;
     CouponRepository couponRepository;
+    FoodRepository foodRepository;
+    TicketFoodRepository ticketFoodRepository;
 
 //    session
 
@@ -118,10 +120,16 @@ public class TicketService {
         ticketRepository.save(ticket);
 
 //        amout
-        Double initialAmount = 0.0;
-        AtomicReference<Double> amount = new AtomicReference<>(initialAmount);
+        Double amount = 0.0;
+
+        Double initialTicketAmount = 0.0;
+        AtomicReference<Double> ticketAmount = new AtomicReference<>(initialTicketAmount);
+
+        Double initialFoodAmount = 0.0;
+        AtomicReference<Double> foodAmount = new AtomicReference<>(initialFoodAmount);
 
 //      create details
+//        tính tiền ghế
         createTicketRequest.getSeatId().forEach(seatId -> {
             Seat seatInfo = seatRepository.findById(seatId).orElseThrow();
 
@@ -132,21 +140,25 @@ public class TicketService {
                     .price(seatInfo.getPrice())
                     .build();
             ticketDetailsRepository.save(ticketDetails);
-            amount.updateAndGet(v -> v + ticketDetails.getPrice());
+            ticketAmount.updateAndGet(v -> v + ticketDetails.getPrice());
         });
 
+//        áp dụng mã giảm giá
         if (createTicketRequest.getCouponId() != null) {
             var couponInfo = couponRepository.findById(createTicketRequest.getCouponId())
                     .orElseThrow(() -> new MyException(ErrorCode.COUPON_NOT_EXISTED));
 
             if (couponInfo.getDiscountType().equals(DefinedDiscountType.PERCENTAGE)) {
-                double discountAmount = (amount.get() * couponInfo.getDiscountValue()) / 100;
-                amount.updateAndGet(v -> v - discountAmount);
+                double discountAmount = (ticketAmount.get() * couponInfo.getDiscountValue()) / 100;
+                ticketAmount.updateAndGet(v -> v - discountAmount);
             } else if (couponInfo.getDiscountType().equals(DefinedDiscountType.FIXED)) {
-                amount.updateAndGet(v -> v - couponInfo.getDiscountValue());
+                ticketAmount.updateAndGet(v -> v - couponInfo.getDiscountValue());
             } else {
 //                Nếu giá theo giá trị mặt định thì lấy giá trị mặt định
-                amount.set(Double.valueOf(couponInfo.getDiscountValue()));
+                ticketAmount.set(0.0);
+                createTicketRequest.getSeatId().forEach(seatId -> {
+                    ticketAmount.updateAndGet(value -> value + couponInfo.getDiscountValue());
+                });
             }
 
 
@@ -154,13 +166,32 @@ public class TicketService {
             ticketRepository.save(ticket);
         }
 
-        ticket.setAmount(amount.get());
+//        tính tiền đồ ăn
+        createTicketRequest.getOrderRequests().forEach(order -> {
+            Food foodInfo = foodRepository.findById(order.getFoodId()).orElseThrow();
+
+//            tính tiền đồ ăn
+            foodAmount.updateAndGet(value -> foodInfo.getPrice() * order.getQuantity());
+
+//            init trong bảng ticket_food
+            TicketFood ticketFood = TicketFood.builder()
+                    .quantity(order.getQuantity())
+                    .food(foodInfo)
+                    .ticket(ticket)
+                    .build();
+            ticketFoodRepository.save(ticketFood);
+        });
+
+        amount = ticketAmount.get() + foodAmount.get();
+        ticket.setAmount(amount);
         ticketRepository.save(ticket);
 
         return CreateTicketResponse.builder()
                 .id(ticket.getId())
                 .date(DateUtils.formatDate(ticket.getDate()))
                 .time(DateUtils.formatTime(ticket.getTime()))
+                .ticketAmount(ticketAmount.get())
+                .foodAmount(foodAmount.get())
                 .amount(ticket.getAmount())
                 .status(ticket.getStatus())
                 .userId(user.getId())

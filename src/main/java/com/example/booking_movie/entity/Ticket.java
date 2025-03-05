@@ -47,4 +47,8 @@ public class Ticket {
     @JoinColumn(name = "coupon_id")
     @JsonBackReference
     Coupon coupon;
+
+    @OneToMany(mappedBy = "ticket")
+    @JsonManagedReference
+    Set<TicketFood> ticketFoods;
 }
