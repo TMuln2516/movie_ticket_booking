@@ -63,7 +63,7 @@ public class UserService {
 
 //       set roles
         Set<Role> roles = new HashSet<>();
-        roles.add(roleRepository.findById(DefinedRole.USER_ROLE).orElseThrow());
+        roles.add(roleRepository.findById(createUserRequest.getRole().toUpperCase()).orElseThrow());
 
 //        set feedback
         Set<Feedback> feedbacks = new HashSet<>();
@@ -205,7 +205,7 @@ public class UserService {
                 .collect(Collectors.toList());
     }
 
-    public void uploadAvatar(MultipartFile file) throws IOException {
+    public ImageResponse uploadAvatar(MultipartFile file) throws IOException {
         //        get user
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         User user = userRepository.findByUsername(username).orElseThrow(() -> new MyException(ErrorCode.USER_NOT_EXISTED));
@@ -217,6 +217,11 @@ public class UserService {
         user.setAvatar(imageResponse.getImageUrl());
         user.setPublicId(imageResponse.getPublicId());
         userRepository.save(user);
+
+        return ImageResponse.builder()
+                .imageUrl(imageResponse.getImageUrl())
+                .publicId(imageResponse.getPublicId())
+                .build();
     }
 
     public void changePassword(ChangePasswordRequest changePasswordRequest) {
@@ -258,8 +263,8 @@ public class UserService {
 
         boolean isAdmin = currentUser.getRoles().stream()
                 .anyMatch(role -> role.getName().equals(DefinedRole.ADMIN_ROLE));
-        boolean isManager = currentUser.getRoles().stream()
-                .anyMatch(role -> role.getName().equals(DefinedRole.MANAGER_ROLE));
+//        boolean isManager = currentUser.getRoles().stream()
+//                .anyMatch(role -> role.getName().equals(DefinedRole.MANAGER_ROLE));
 
         List<User> users = userRepository.findAll().stream()
                 .filter(user -> !user.getUsername().equals(username))
@@ -282,64 +287,64 @@ public class UserService {
                     .collect(Collectors.toList());
         }
 
-        if (isManager) {
-            return users.stream()
-                    .filter(user -> user.getRoles().stream()
-                            .anyMatch(role -> role.getName().equals(DefinedRole.USER_ROLE)))
-                    .map(user -> UserResponse.builder()
-                            .id(user.getId())
-                            .username(user.getUsername())
-                            .firstName(user.getFirstName())
-                            .lastName(user.getLastName())
-                            .dateOfBirth(user.getDateOfBirth() != null ? DateUtils.formatDate(user.getDateOfBirth()) : null)
-                            .gender(user.getGender())
-                            .email(user.getEmail())
-                            .avatar(user.getAvatar())
-                            .roles(user.getRoles())
-                            .build())
-                    .collect(Collectors.toList());
-        }
+//        if (isManager) {
+//            return users.stream()
+//                    .filter(user -> user.getRoles().stream()
+//                            .anyMatch(role -> role.getName().equals(DefinedRole.USER_ROLE)))
+//                    .map(user -> UserResponse.builder()
+//                            .id(user.getId())
+//                            .username(user.getUsername())
+//                            .firstName(user.getFirstName())
+//                            .lastName(user.getLastName())
+//                            .dateOfBirth(user.getDateOfBirth() != null ? DateUtils.formatDate(user.getDateOfBirth()) : null)
+//                            .gender(user.getGender())
+//                            .email(user.getEmail())
+//                            .avatar(user.getAvatar())
+//                            .roles(user.getRoles())
+//                            .build())
+//                    .collect(Collectors.toList());
+//        }
 
         return Collections.emptyList();
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
-    public CreateManagerResponse createManager(CreateManagerRequest createManagerRequest) {
-        //        check user existed
-        if (userRepository.existsByUsername(createManagerRequest.getUsername())) {
-            throw new MyException(ErrorCode.MANAGER_EXISTED);
-        }
-
-//       set roles
-        Set<Role> roles = new HashSet<>();
-        roles.add(roleRepository.findById(DefinedRole.MANAGER_ROLE).orElseThrow());
-
-        User newManager = User.builder()
-                .username(createManagerRequest.getUsername())
-                .password(encoder.encode(createManagerRequest.getPassword()))
-                .firstName(createManagerRequest.getFirstName())
-                .lastName(createManagerRequest.getLastName())
-                .dateOfBirth(LocalDate.of(2003, 1, 1))
-                .gender(true)
-                .email("manager@gmail.com")
-                .avatar("avatar")
-                .status(true)
-                .roles(roles)
-                .build();
-        userRepository.save(newManager);
-
-        return CreateManagerResponse.builder()
-                .id(newManager.getId())
-                .username(newManager.getUsername())
-                .password(encoder.encode(newManager.getPassword()))
-                .firstName(newManager.getFirstName())
-                .lastName(newManager.getLastName())
-                .dateOfBirth(newManager.getDateOfBirth() != null ? DateUtils.formatDate(newManager.getDateOfBirth()) : null)
-                .gender(newManager.getGender())
-                .email(newManager.getEmail())
-                .avatar(newManager.getAvatar())
-                .build();
-    }
+//    @PreAuthorize("hasRole('ADMIN')")
+//    public CreateManagerResponse createManager(CreateManagerRequest createManagerRequest) {
+//        //        check user existed
+//        if (userRepository.existsByUsername(createManagerRequest.getUsername())) {
+//            throw new MyException(ErrorCode.MANAGER_EXISTED);
+//        }
+//
+////       set roles
+////        Set<Role> roles = new HashSet<>();
+////        roles.add(roleRepository.findById(DefinedRole.MANAGER_ROLE).orElseThrow());
+//
+//        User newManager = User.builder()
+//                .username(createManagerRequest.getUsername())
+//                .password(encoder.encode(createManagerRequest.getPassword()))
+//                .firstName(createManagerRequest.getFirstName())
+//                .lastName(createManagerRequest.getLastName())
+//                .dateOfBirth(LocalDate.of(2003, 1, 1))
+//                .gender(true)
+//                .email("manager@gmail.com")
+//                .avatar("avatar")
+//                .status(true)
+//                .roles(roles)
+//                .build();
+//        userRepository.save(newManager);
+//
+//        return CreateManagerResponse.builder()
+//                .id(newManager.getId())
+//                .username(newManager.getUsername())
+//                .password(encoder.encode(newManager.getPassword()))
+//                .firstName(newManager.getFirstName())
+//                .lastName(newManager.getLastName())
+//                .dateOfBirth(newManager.getDateOfBirth() != null ? DateUtils.formatDate(newManager.getDateOfBirth()) : null)
+//                .gender(newManager.getGender())
+//                .email(newManager.getEmail())
+//                .avatar(newManager.getAvatar())
+//                .build();
+//    }
 
     @Transactional
     @PreAuthorize("hasAnyRole('MANAGER','ADMIN')")

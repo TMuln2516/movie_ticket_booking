@@ -28,6 +28,7 @@ public class SeatService {
                         .locateColumn(createSeatRequest.getLocateColumn())
                         .locateRow(createSeatRequest.getLocateRow())
                         .price(createSeatRequest.getPrice())
+                        .isCouple(createSeatRequest.getIsCouple())
                         .room(room)
                 .build());
     }

@@ -8,14 +8,7 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class CreateMovieResponse {
-    String id;
-    String name;
-    String premiere;
-    String language;
-    Integer duration;
-    String content;
-    Double rate;
-    String image;
-    String createAt;
+public class MatchingResponse {
+    String status;
+    MatchingInfo matchingInfo;
 }

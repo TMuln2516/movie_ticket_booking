@@ -4,6 +4,8 @@ import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.util.Set;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -18,4 +20,6 @@ public class CreateRoomRequest {
 
     @NotNull(message = "Number of column must not be null")
     Integer columns;
+
+    Set<String> coupleRows;
 }

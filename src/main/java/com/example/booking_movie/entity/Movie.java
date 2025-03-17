@@ -28,9 +28,11 @@ public class Movie {
     @Lob
     @Column(columnDefinition = "LONGTEXT")
     String content;
+
     Double rate;
     String image;
     String publicId;
+    LocalDate createAt;
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "movie_genre", joinColumns = {
