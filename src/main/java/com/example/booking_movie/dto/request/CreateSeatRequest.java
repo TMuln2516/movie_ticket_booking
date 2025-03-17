@@ -18,4 +18,7 @@ public class CreateSeatRequest {
 
     @NotNull(message = "Price must not be null")
     Double price;
+
+    @NotNull(message = "Trạng thái của ghế không được để trống")
+    Boolean isCouple;
 }

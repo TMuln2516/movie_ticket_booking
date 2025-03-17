@@ -69,10 +69,10 @@ public class UserController {
     }
 
     @PutMapping("/avatar")
-    public ApiResponse<Void> uploadAvatar(@RequestPart("file") MultipartFile file) throws IOException {
-        userService.uploadAvatar(file);
-        return ApiResponse.<Void>builder()
+    public ApiResponse<ImageResponse> uploadAvatar(@RequestPart("file") MultipartFile file) throws IOException {
+        return ApiResponse.<ImageResponse>builder()
                 .message("Tải lên Avatar thành công")
+                .result(userService.uploadAvatar(file))
                 .build();
     }
 
@@ -104,13 +104,13 @@ public class UserController {
     }
 
 //    ROLE ADMIN
-    @PostMapping("/createManager")
-    public ApiResponse<CreateManagerResponse> createManager(@RequestBody @Valid CreateManagerRequest createManagerRequest) {
-        return ApiResponse.<CreateManagerResponse>builder()
-                .message("Tạo tài khoản Manager thành công")
-                .result(userService.createManager(createManagerRequest))
-                .build();
-    }
+//    @PostMapping("/createManager")
+//    public ApiResponse<CreateManagerResponse> createManager(@RequestBody @Valid CreateManagerRequest createManagerRequest) {
+//        return ApiResponse.<CreateManagerResponse>builder()
+//                .message("Tạo tài khoản Manager thành công")
+//                .result(userService.createManager(createManagerRequest))
+//                .build();
+//    }
 
     @DeleteMapping("/{accountId}")
     public ApiResponse<Void> deleteAccount(@PathVariable String accountId) {

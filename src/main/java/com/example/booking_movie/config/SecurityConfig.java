@@ -59,7 +59,11 @@ public class SecurityConfig {
             "/api/auth/introspect",
 
 //            verify
-            "/api/verify/*"
+            "/api/verify/*",
+
+//            websocket
+            "/ws/**",
+            "/matching"
     };
 
     CustomJWTDecoder customJWTDecoder;

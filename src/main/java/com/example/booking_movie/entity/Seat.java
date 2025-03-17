@@ -24,6 +24,7 @@ public class Seat {
     Character locateRow;
     Integer locateColumn;
     Double price;
+    Boolean isCouple;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "room_id")

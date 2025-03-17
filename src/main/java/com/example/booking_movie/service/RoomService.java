@@ -59,11 +59,18 @@ public class RoomService {
 
 //        create seat
         for (int row = 1; row <= createRoomRequest.getRows(); row++) {
+//            Chuyển số thành chữ cho hàng
+            char rowChar = (char) ('A' + (row - 1));
+//            Kiểm tra có phải là hàng dành cho ghế đôi không
+            boolean isCouple = createRoomRequest.getCoupleRows() != null && createRoomRequest.getCoupleRows()
+                    .contains(String.valueOf(rowChar));
+
             for (int column = 1; column <= createRoomRequest.getColumns(); column++) {
 //                init request
                 CreateSeatRequest createSeatRequest = CreateSeatRequest.builder()
                         .locateColumn(column)
                         .locateRow((char) ('A' + (row - 1)))
+                        .isCouple(isCouple)
                         .price(100000.0)
                         .build();
                 seatService.create(room.getId(), createSeatRequest);

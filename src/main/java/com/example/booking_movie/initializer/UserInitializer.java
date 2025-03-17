@@ -54,19 +54,19 @@ public class UserInitializer {
                     .build());
         }
 
-        if (!userRepository.existsByUsername(MANAGER_USERNAME)) {
-            Set<Role> roles = new HashSet<>();
-            roles.add(roleRepository.findById(DefinedRole.MANAGER_ROLE).orElseThrow());
-            userRepository.save(User.builder()
-                    .username(MANAGER_USERNAME)
-                    .password(passwordEncoder.encode(MANAGER_PASSWORD))
-                    .firstName(MANAGER_FIRSTNAME)
-                    .lastName(MANAGER_LASTNAME)
-                    .email(MANAGER_EMAIL)
-                    .gender(MANAGER_GENDER)
-                    .status(MANAGER_STATUS)
-                    .roles(roles)
-                    .build());
-        }
+//        if (!userRepository.existsByUsername(MANAGER_USERNAME)) {
+//            Set<Role> roles = new HashSet<>();
+//            roles.add(roleRepository.findById(DefinedRole.MANAGER_ROLE).orElseThrow());
+//            userRepository.save(User.builder()
+//                    .username(MANAGER_USERNAME)
+//                    .password(passwordEncoder.encode(MANAGER_PASSWORD))
+//                    .firstName(MANAGER_FIRSTNAME)
+//                    .lastName(MANAGER_LASTNAME)
+//                    .email(MANAGER_EMAIL)
+//                    .gender(MANAGER_GENDER)
+//                    .status(MANAGER_STATUS)
+//                    .roles(roles)
+//                    .build());
+//        }
     }
 }

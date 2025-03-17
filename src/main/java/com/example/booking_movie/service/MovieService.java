@@ -26,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
@@ -94,6 +95,7 @@ public class MovieService {
                 .duration(createMovieRequest.getDuration())
                 .content(createMovieRequest.getContent())
                 .rate(createMovieRequest.getRate())
+                .createAt(LocalDate.now())
                 .image(imageResponse.getImageUrl())
                 .publicId(imageResponse.getPublicId())
                 .genres(genres)
@@ -111,6 +113,7 @@ public class MovieService {
                 .duration(newMovie.getDuration())
                 .content(newMovie.getContent())
                 .rate(newMovie.getRate())
+                .createAt(DateUtils.formatDateToEpochMillis(newMovie.getCreateAt()))
                 .image(newMovie.getImage())
                 .publicId(newMovie.getPublicId())
                 .genreIds(newMovie.getGenres().stream()

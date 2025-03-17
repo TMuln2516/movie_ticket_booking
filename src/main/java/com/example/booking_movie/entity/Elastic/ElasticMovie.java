@@ -33,6 +33,7 @@ public class ElasticMovie {
     Double rate;
     String image;
     String publicId;
+    Long createAt;
 
     Set<String> genreIds;
     Set<String> personIds;
