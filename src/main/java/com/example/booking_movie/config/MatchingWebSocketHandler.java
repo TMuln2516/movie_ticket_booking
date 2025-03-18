@@ -1,22 +1,22 @@
 package com.example.booking_movie.config;
 
 import com.example.booking_movie.dto.response.MatchingInfo;
-import com.example.booking_movie.entity.MatchingRequest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import org.springframework.web.socket.*;
+import org.springframework.web.socket.CloseStatus;
+import org.springframework.web.socket.TextMessage;
+import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
 import java.io.IOException;
 import java.net.URI;
+import java.util.HashMap;
 import java.util.Map;
-import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentLinkedQueue;
 
 @Component
 @Slf4j
@@ -54,14 +54,14 @@ public class MatchingWebSocketHandler extends TextWebSocketHandler {
 //        }
 //    }
 
-    public void notifyUserMatched(String userId, MatchingInfo matchingInfo) {
+    public void notifyUser(String userId, String message, MatchingInfo matchingInfo) {
         WebSocketSession session = userSessions.get(userId);
         if (session != null && session.isOpen()) {
             try {
                 ObjectMapper objectMapper = new ObjectMapper();
                 String jsonMessage = objectMapper.writeValueAsString(Map.of(
-                        "status", "MATCHED",
-                        "matchingInfo", matchingInfo
+                        "message", message,
+                        "matchingInfo", matchingInfo != null ? matchingInfo : new HashMap<>()
                 ));
                 session.sendMessage(new TextMessage(jsonMessage));
                 System.out.println("📩 Đã gửi JSON đến " + userId + ": " + jsonMessage);
@@ -87,5 +87,4 @@ public class MatchingWebSocketHandler extends TextWebSocketHandler {
         }
         return null;
     }
-
 }

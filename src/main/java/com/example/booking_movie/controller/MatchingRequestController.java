@@ -25,9 +25,10 @@ public class MatchingRequestController {
     MatchingRequestService matchingRequestService;
 
     @PostMapping("/")
-    public ApiResponse<MatchingResponse> create(@RequestBody @Valid CreateMatchingRequest createMatchingRequest) {
-        return ApiResponse.<MatchingResponse>builder()
-                .result(matchingRequestService.create(createMatchingRequest))
+    public ApiResponse<Void> create(@RequestBody @Valid CreateMatchingRequest createMatchingRequest) {
+        matchingRequestService.create(createMatchingRequest);
+        return ApiResponse.<Void>builder()
+                .message("Gửi yêu cầu ghép đôi thành công")
                 .build();
     }
 }
