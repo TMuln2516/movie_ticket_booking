@@ -6,7 +6,6 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.Set;
 
 @Entity
@@ -16,19 +15,14 @@ import java.util.Set;
 @AllArgsConstructor
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-@Table(name = "matching_request")
-public class MatchingRequest {
+@Table(name = "notifications")
+public class Notification {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     String id;
 
     String userId;
-    String movieName;
-    String showtimeId;
-    String theaterName;
-    Boolean isMatched;
-    Integer minAge;
-    Integer maxAge;
-    Boolean genderMatch;
-    LocalDateTime createAt;
+    String message;
+    String data;
+    Boolean isRead;
 }

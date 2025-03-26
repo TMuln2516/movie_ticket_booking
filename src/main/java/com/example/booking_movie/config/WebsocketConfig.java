@@ -17,7 +17,7 @@ import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class WebsocketConfig implements WebSocketConfigurer {
-    MatchingWebSocketHandler matchingHandler = new MatchingWebSocketHandler();
+    final MatchingWebSocketHandler matchingHandler;
 
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {

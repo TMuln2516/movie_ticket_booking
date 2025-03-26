@@ -13,27 +13,39 @@ import java.util.List;
 public interface MatchingRequestRepository extends JpaRepository<MatchingRequest, String> {
     @Query("SELECT m FROM MatchingRequest m WHERE " +
             "m.movieName = :movieName " +
-            "AND m.showtime = :showtime " +
+            "AND m.showtimeId = :showtimeId " +
             "AND m.theaterName = :theaterName " +
             "AND m.isMatched = false " +
+            "AND (:minAge <= m.maxAge AND :maxAge >= m.minAge) " +
+            "AND m.genderMatch = :currentUserGender " +
             "AND m.userId <> :userId")
     List<MatchingRequest> findMatchingRequests(
             @Param("movieName") String movieName,
-            @Param("showtime") LocalDateTime showtime,
+            @Param("showtimeId") String showtimeId,
             @Param("theaterName") String theaterName,
+            @Param("minAge") Integer minAge,
+            @Param("maxAge") Integer maxAge,
+            @Param("currentUserGender") Boolean currentUserGender,
             @Param("userId") String userId
     );
 
+
     @Query("SELECT COUNT(m)>0 FROM MatchingRequest m WHERE " +
             "m.movieName = :movieName " +
-            "AND m.showtime = :showtime " +
+            "AND m.showtimeId = :showtimeId " +
             "AND m.theaterName = :theaterName " +
             "AND m.isMatched = false " +
+            "AND m.minAge >= :minAge " +
+            "AND m.maxAge <= :maxAge " +
+            "AND m.genderMatch = :genderMatch " +
             "AND m.userId = :userId")
     Boolean existMatchingRequests(
             @Param("movieName") String movieName,
-            @Param("showtime") LocalDateTime showtime,
+            @Param("showtimeId") String showtimeId,
             @Param("theaterName") String theaterName,
+            @Param("minAge") Integer minAge,
+            @Param("maxAge") Integer maxAge,
+            @Param("genderMatch") Boolean genderMatch,
             @Param("userId") String userId
     );
 }

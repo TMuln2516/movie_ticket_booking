@@ -6,6 +6,7 @@ import com.example.booking_movie.dto.request.UpdateCouponRequest;
 import com.example.booking_movie.dto.response.*;
 import com.example.booking_movie.service.CouponService;
 import com.example.booking_movie.service.MatchingRequestService;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -25,7 +26,7 @@ public class MatchingRequestController {
     MatchingRequestService matchingRequestService;
 
     @PostMapping("/")
-    public ApiResponse<Void> create(@RequestBody @Valid CreateMatchingRequest createMatchingRequest) {
+    public ApiResponse<Void> create(@RequestBody @Valid CreateMatchingRequest createMatchingRequest) throws JsonProcessingException {
         matchingRequestService.create(createMatchingRequest);
         return ApiResponse.<Void>builder()
                 .message("Gửi yêu cầu ghép đôi thành công")
