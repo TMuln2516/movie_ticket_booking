@@ -7,6 +7,7 @@ import com.example.booking_movie.dto.request.UpdateMovieRequest;
 import com.example.booking_movie.dto.response.*;
 import com.example.booking_movie.service.ElasticsearchService;
 import com.example.booking_movie.service.MovieService;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -30,7 +31,7 @@ public class MovieController {
     //    ROLE MANAGER & USER
 //    get all movie
     @GetMapping("/")
-    public ApiResponse<List<MovieResponse>> getAll() {
+    public ApiResponse<List<MovieResponse>> getAll() throws JsonProcessingException {
         return ApiResponse.<List<MovieResponse>>builder()
                 .message("Get All Movie Success")
                 .result(movieService.getAll())

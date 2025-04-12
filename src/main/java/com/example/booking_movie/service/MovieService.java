@@ -15,10 +15,13 @@ import com.example.booking_movie.repository.Elastic.ElasticMovieRepository;
 import com.example.booking_movie.service.Elastic.ElasticMovieService;
 import com.example.booking_movie.utils.DateUtils;
 import com.example.booking_movie.utils.ValidUtils;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -28,6 +31,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
@@ -46,8 +50,10 @@ public class MovieService {
     ShowtimeRepository showtimeRepository;
 
     ElasticMovieService elasticMovieService;
-
     ImageService imageService;
+
+    RedisTemplate<String, Object> redisTemplate;
+    ObjectMapper objectMapper;
 
     //    create movie
     @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
@@ -137,65 +143,96 @@ public class MovieService {
     }
 
     //        get all movie
-    public List<MovieResponse> getAll() {
-        //        check guest
+    public List<MovieResponse> getAll() throws JsonProcessingException {
+        List<MovieCacheResponse> movies;
+        // Kiểm tra cache trước
+        String jsonMovies = (String) redisTemplate.opsForValue().get("ListMovie");
+
+        if (jsonMovies != null) {
+            movies = objectMapper.readValue(jsonMovies,
+                    objectMapper.getTypeFactory().constructCollectionType(List.class, MovieCacheResponse.class));
+        } else {
+            // Nếu không có trong cache, lấy từ database sau đó lưu vào cache
+            movies = movieRepository.findAll().stream()
+                    .map(movie -> MovieCacheResponse.builder()
+                            .id(movie.getId())
+                            .name(movie.getName())
+                            .premiere(DateUtils.formatDate(movie.getPremiere()))
+                            .language(movie.getLanguage())
+                            .duration(movie.getDuration())
+                            .content(movie.getContent())
+                            .rate(movie.getRate())
+                            .image(movie.getImage())
+                            .publicId(movie.getPublicId())
+                            .createAt(movie.getCreateAt())
+                            .genreIds(movie.getGenres().stream().map(Genre::getId).collect(Collectors.toSet()))
+                            .personIds(movie.getPersons().stream().map(Person::getId).collect(Collectors.toSet()))
+                            .showtimeIds(movie.getShowtimes().stream().map(Showtime::getId).collect(Collectors.toSet()))
+                            .feedbackIds(movie.getFeedbacks().stream().map(Feedback::getId).collect(Collectors.toSet()))
+                            .build())
+                    .collect(Collectors.toList());
+            if (!movies.isEmpty()) {
+                redisTemplate.opsForValue().set("ListMovie", objectMapper.writeValueAsString(movies), 1, TimeUnit.HOURS);
+            }
+        }
+
+        List<MovieResponse> movieResponses;
+        // Kiểm tra guest
         var authentication = SecurityContextHolder.getContext().getAuthentication();
         boolean isGuest = authentication == null ||
                 !authentication.isAuthenticated() ||
                 "anonymousUser".equals(authentication.getName());
 
-        if (isGuest) {
-            return movieRepository.findAll()
-                    .stream()
-                    .map(movie -> MovieResponse.builder()
-                            .id(movie.getId())
-                            .name(movie.getName())
-                            .content(movie.getContent())
-                            .premiere(DateUtils.formatDate(movie.getPremiere()))
-                            .language(movie.getLanguage())
-                            .duration(movie.getDuration())
-                            .rate(movie.getRate())
-                            .image(movie.getImage())
-                            .genres(movie.getGenres().stream()
-                                    .map(genre -> GenreResponse.builder()
-                                            .id(genre.getId())
-                                            .name(genre.getName())
-                                            .build())
-                                    .collect(Collectors.toList()))
-                            .build()
-                    ).collect(Collectors.toList());
+        // Lấy tất cả genreIds trước
+        Set<String> allGenreIds = movies.stream()
+                .flatMap(movie -> movie.getGenreIds().stream())
+                .collect(Collectors.toSet());
+        Map<String, Genre> genreMap = genreRepository.findAllById(allGenreIds).stream()
+                .collect(Collectors.toMap(Genre::getId, genre -> genre));
+
+        // Nếu authenticated, lấy tickets trước
+        Map<String, Boolean> canCommentMap;
+        if (!isGuest) {
+            var userInfo = userRepository.findByUsername(authentication.getName())
+                    .orElseThrow(() -> new MyException(ErrorCode.USER_NOT_EXISTED));
+            var tickets = ticketRepository.findAllByUserIdAndFinishedTrue(userInfo.getId());
+            canCommentMap = tickets.stream()
+                    .collect(Collectors.toMap(
+                            ticket -> ticket.getShowtime().getMovie().getId(),
+                            ticket -> true,
+                            (v1, v2) -> v1));
+        } else {
+            canCommentMap = new HashMap<>();
         }
 
-
-        //        get user
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        var userInfo = userRepository.findByUsername(username)
-                .orElseThrow(() -> new MyException(ErrorCode.USER_NOT_EXISTED));
-
-        return movieRepository.findAll()
-                .stream()
+        // Xử lý movieResponses
+        movieResponses = movies.stream()
                 .map(movie -> {
-                    boolean canComment = ticketRepository.findAllByUserIdAndFinishedTrue(userInfo.getId()).stream()
-                            .anyMatch(ticket -> ticket.getShowtime().getMovie().getId().equals(movie.getId()));
+                    List<GenreResponse> genres = movie.getGenreIds().stream()
+                            .map(id -> GenreResponse.builder()
+                                    .id(id)
+                                    .name(genreMap.get(id).getName())
+                                    .build())
+                            .collect(Collectors.toList());
+
+                    boolean canComment = !isGuest && canCommentMap.containsKey(movie.getId());
 
                     return MovieResponse.builder()
                             .id(movie.getId())
                             .name(movie.getName())
                             .content(movie.getContent())
-                            .premiere(DateUtils.formatDate(movie.getPremiere()))
+                            .premiere(movie.getPremiere())
                             .language(movie.getLanguage())
                             .duration(movie.getDuration())
                             .rate(movie.getRate())
                             .image(movie.getImage())
-                            .genres(movie.getGenres().stream()
-                                    .map(genre -> GenreResponse.builder()
-                                            .id(genre.getId())
-                                            .name(genre.getName())
-                                            .build())
-                                    .collect(Collectors.toList()))
+                            .genres(genres)
+                            .canComment(canComment)
                             .build();
                 })
                 .collect(Collectors.toList());
+
+        return movieResponses;
     }
 
     @PreAuthorize("hasAnyRole('MANAGER', 'USER', 'ADMIN')")

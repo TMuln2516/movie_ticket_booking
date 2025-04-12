@@ -61,10 +61,6 @@ public class UserService {
             throw new MyException(ErrorCode.USER_EXISTED);
         }
 
-//       set roles
-        Set<Role> roles = new HashSet<>();
-        roles.add(roleRepository.findById(createUserRequest.getRole().toUpperCase()).orElseThrow());
-
 //        set feedback
         Set<Feedback> feedbacks = new HashSet<>();
 
@@ -79,7 +75,6 @@ public class UserService {
                 .email(createUserRequest.getEmail())
                 .avatar(createUserRequest.getAvatar())
                 .status(true)
-                .roles(roles)
                 .feedbacks(feedbacks)
                 .build();
 

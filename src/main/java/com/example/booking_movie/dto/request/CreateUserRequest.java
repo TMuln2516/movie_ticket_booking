@@ -37,9 +37,6 @@ public class CreateUserRequest {
     @EmailConstrain
     String email;
 
-    @NotNull(message = "Quyền của người dùng không được để trống")
-    String role;
-
     String avatar;
 
     String otp;

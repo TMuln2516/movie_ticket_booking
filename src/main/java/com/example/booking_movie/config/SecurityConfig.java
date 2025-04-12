@@ -61,6 +61,9 @@ public class SecurityConfig {
 //            verify
             "/api/verify/*",
 
+//            seat
+            "/api/seats/*",
+
 //            websocket
             "/ws/**",
             "/matching"

@@ -13,4 +13,5 @@ public class SeatResponse {
     Character locateRow;
     Integer locateColumn;
     Double price;
+    Boolean isCouple;
 }

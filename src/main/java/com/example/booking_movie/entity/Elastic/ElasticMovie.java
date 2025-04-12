@@ -17,13 +17,13 @@ import java.util.Set;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Document(indexName = "movies")
-@Setting(settingPath = "static/MovieSettings.json")
+//@Setting(settingPath = "static/MovieSettings.json")
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ElasticMovie {
     @Id
     String id;
 
-    @Field(type = FieldType.Text, analyzer = "custom_analyzer", searchAnalyzer = "custom_search")
+//    @Field(type = FieldType.Text, analyzer = "vietnamese_analyzer", searchAnalyzer = "vietnamese_search_analyzer")
     String name;
 
     Long premiere;

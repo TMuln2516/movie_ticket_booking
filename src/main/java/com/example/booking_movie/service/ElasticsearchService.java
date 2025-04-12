@@ -135,6 +135,7 @@ public class ElasticsearchService {
         }).collect(Collectors.toList());
     }
 
+
     public Set<String> findSuggestedByMovieNames(String name) throws IOException {
         Query autoSuggestQuery = ElasticsearchUtil.buildAutoSuggestQuery(name);
         log.info("Elasticsearch query: {}", autoSuggestQuery.toString());
