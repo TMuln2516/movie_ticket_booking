@@ -15,6 +15,7 @@ public class TicketDetailResponse {
     String date;
     String time;
     String startTime;
+    String dateScreenTime;
     String endTime;
     String movieName;
     String movieId;

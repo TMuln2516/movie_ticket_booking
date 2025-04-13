@@ -177,6 +177,7 @@ public class UserService {
                 .map(ticket -> TicketDetailResponse.builder()
                         .id(ticket.getId())
                         .date(DateUtils.formatDate(ticket.getDate()))
+                        .dateScreenTime(DateUtils.formatDate(ticket.getShowtime().getDate()))
                         .time(DateUtils.formatTime(ticket.getTime()))
                         .startTime(DateUtils.formatTime(ticket.getShowtime().getStartTime()))
                         .endTime(DateUtils.formatTime(ticket.getShowtime().getEndTime()))
