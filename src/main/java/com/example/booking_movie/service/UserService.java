@@ -61,6 +61,10 @@ public class UserService {
             throw new MyException(ErrorCode.USER_EXISTED);
         }
 
+//       set roles
+        Set<Role> roles = new HashSet<>();
+        roles.add(roleRepository.findById(DefinedRole.USER_ROLE).orElseThrow());
+
 //        set feedback
         Set<Feedback> feedbacks = new HashSet<>();
 
@@ -311,9 +315,10 @@ public class UserService {
 //            throw new MyException(ErrorCode.MANAGER_EXISTED);
 //        }
 //
-////       set roles
-////        Set<Role> roles = new HashSet<>();
-////        roles.add(roleRepository.findById(DefinedRole.MANAGER_ROLE).orElseThrow());
+
+    /// /       set roles
+    /// /        Set<Role> roles = new HashSet<>();
+    /// /        roles.add(roleRepository.findById(DefinedRole.MANAGER_ROLE).orElseThrow());
 //
 //        User newManager = User.builder()
 //                .username(createManagerRequest.getUsername())
@@ -341,7 +346,6 @@ public class UserService {
 //                .avatar(newManager.getAvatar())
 //                .build();
 //    }
-
     @Transactional
     @PreAuthorize("hasAnyRole('MANAGER','ADMIN')")
     public void deleteAccount(String accountId) {

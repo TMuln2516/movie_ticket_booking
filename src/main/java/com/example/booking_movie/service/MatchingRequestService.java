@@ -129,17 +129,23 @@ public class MatchingRequestService {
                 }
             }
 
-//            random ghế
-            Random random = new Random();
-            AbstractMap.SimpleEntry<Seat, Seat> selectedPair = couplePairs.get(random.nextInt(couplePairs.size()));
+            if (!couplePairs.isEmpty()) {
+                Random random = new Random();
+                AbstractMap.SimpleEntry<Seat, Seat> selectedPair = couplePairs.get(random.nextInt(couplePairs.size()));
 
-//            đặt vé cho user đang đăng nhập
-            matchingWebSocketHandler.notifyUser(currentUser.getId(), "Tạo vé thành công",
-                    createTicketForUser(currentUser.getId(), createMatchingRequest.getShowtimeId(), selectedPair.getKey().getId()));
+                // Đặt vé cho user đang đăng nhập
+                matchingWebSocketHandler.notifyUser(currentUser.getId(), "Tạo vé thành công",
+                        createTicketForUser(currentUser.getId(), createMatchingRequest.getShowtimeId(), selectedPair.getKey().getId()));
 
-//            đặt vé cho user được ghép đôi
-            matchingWebSocketHandler.notifyUser(matchedUser.getId(), "Tạo vé thành công",
-                    createTicketForUser(matchedUser.getId(), createMatchingRequest.getShowtimeId(), selectedPair.getValue().getId()));
+                // Đặt vé cho user được ghép đôi
+                matchingWebSocketHandler.notifyUser(matchedUser.getId(), "Tạo vé thành công",
+                        createTicketForUser(matchedUser.getId(), createMatchingRequest.getShowtimeId(), selectedPair.getValue().getId()));
+            } else {
+                // Trường hợp không có ghế đôi khả dụng
+                matchingWebSocketHandler.notifyUser(currentUser.getId(), "Không còn ghế đôi khả dụng cho suất chiếu này", null);
+                matchingWebSocketHandler.notifyUser(matchedUser.getId(), "Không còn ghế đôi khả dụng cho suất chiếu này", null);
+            }
+
 
         } else {
 //            nếu người dùng chưa gửi request thì tạo record mới
