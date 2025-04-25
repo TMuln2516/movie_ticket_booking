@@ -99,15 +99,21 @@ public class MatchingRequestService {
             matchingRequestRepository.save(newMatchingRequest);
 
 //            tạo json cho phản hồi từ server cho websocket
-            MatchingInfo matchingInfo = MatchingInfo.builder()
+            MatchingInfo matchingUserInfo = MatchingInfo.builder()
                     .name(matchedUser.getFirstName() + " " + matchedUser.getLastName())
                     .dateOfBirth(DateUtils.formatDate(matchedUser.getDateOfBirth()))
                     .gender(matchedUser.getGender())
                     .build();
 
+            MatchingInfo currentUserInfo = MatchingInfo.builder()
+                    .name(currentUser.getFirstName() + " " + currentUser.getLastName())
+                    .dateOfBirth(DateUtils.formatDate(matchedUser.getDateOfBirth()))
+                    .gender(currentUser.getGender())
+                    .build();
+
             // Gửi thông báo WebSocket đến cả hai người
-            matchingWebSocketHandler.notifyUser(currentUser.getId(), "Ghép đôi thành công", matchingInfo);
-            matchingWebSocketHandler.notifyUser(matchedUser.getId(), "Ghép đôi thành công", matchingInfo);
+            matchingWebSocketHandler.notifyUser(currentUser.getId(), "Ghép đôi thành công", matchingUserInfo);
+            matchingWebSocketHandler.notifyUser(matchedUser.getId(), "Ghép đôi thành công", currentUserInfo);
 
 //            lấy danh sách ghế đôi chưa được đặt
             List<Seat> availableCoupleSeats = scheduleSeatRepository.findAvailableCoupleSeats(createMatchingRequest.getShowtimeId());
