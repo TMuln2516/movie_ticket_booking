@@ -18,6 +18,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -206,21 +207,18 @@ public class TicketService {
     }
 
     @Transactional
-//    @Scheduled(cron = "0 * * * * ?")
+    @Scheduled(cron = "0 * * * * ?")
     public void updateFinishedStatus() {
-        var tickets = ticketRepository.findAllByFinished(false);
-
         LocalDateTime now = LocalDateTime.now();
 
-        tickets.forEach(ticket -> {
-            LocalDateTime showtimeEnd = LocalDateTime.of(ticket.getShowtime().getDate(), ticket.getShowtime().getEndTime());
+        // Chỉ lấy những vé đã hết suất chiếu
+        List<Ticket> tickets = ticketRepository.findAllByFinishedFalseAndShowtimeBefore(now);
 
-            if (now.isAfter(showtimeEnd)) {
-                ticket.setFinished(true);
-                ticketRepository.save(ticket);
-            }
-        });
+        tickets.forEach(ticket -> ticket.setFinished(true));
+
+        ticketRepository.saveAll(tickets); // Một lần duy nhất
     }
+
 
     @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
     public RevenueResponse getRevenueByDate(LocalDate date) {

@@ -107,7 +107,7 @@ public class MatchingRequestService {
 
             MatchingInfo currentUserInfo = MatchingInfo.builder()
                     .name(currentUser.getFirstName() + " " + currentUser.getLastName())
-                    .dateOfBirth(DateUtils.formatDate(matchedUser.getDateOfBirth()))
+                    .dateOfBirth(DateUtils.formatDate(currentUser.getDateOfBirth()))
                     .gender(currentUser.getGender())
                     .build();
 

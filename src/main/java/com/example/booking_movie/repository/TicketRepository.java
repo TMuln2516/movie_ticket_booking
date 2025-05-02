@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
@@ -30,4 +31,9 @@ public interface TicketRepository extends JpaRepository<Ticket, String> {
     void setShowtimeToNull(String showtimeId);
 
     List<Ticket> findAllByUserIdAndFinishedTrue(String userId);
+
+    @Query("SELECT t FROM Ticket t WHERE t.finished = false AND " +
+            "FUNCTION('TIMESTAMP', t.showtime.date, t.showtime.endTime) < :now")
+    List<Ticket> findAllByFinishedFalseAndShowtimeBefore(@Param("now") LocalDateTime now);
+
 }

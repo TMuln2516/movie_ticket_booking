@@ -110,6 +110,9 @@ public class MovieService {
                 .build();
         movieRepository.save(newMovie);
 
+        // Xóa cache ListMovie
+        redisTemplate.delete("ListMovie");
+
 //        elastic
         elasticMovieService.createOrUpdate(ElasticMovie.builder()
                 .id(newMovie.getId())
@@ -421,6 +424,9 @@ public class MovieService {
 
 //        delete
         movieRepository.delete(movie);
+
+        // Xóa cache ListMovie
+        redisTemplate.delete("ListMovie");
 
 //        elastic
         elasticMovieRepository.deleteById(movieId);

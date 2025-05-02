@@ -50,12 +50,22 @@ public class FeedbackService {
         var localDate = LocalDate.now();
         var localTime = LocalTime.now();
 
+//        Feedback feedback = Feedback.builder()
+//                .content(createCommentRequest.getContent())
+//                .rate(createCommentRequest.getRate())
+//                .date(localDate)
+//                .time(localTime)
+//                .status(false)
+//                .movie(movieInfo)
+//                .user(userInfo)
+//                .build();
+
         Feedback feedback = Feedback.builder()
                 .content(createCommentRequest.getContent())
                 .rate(createCommentRequest.getRate())
                 .date(localDate)
                 .time(localTime)
-                .status(false)
+                .status(true)
                 .movie(movieInfo)
                 .user(userInfo)
                 .build();

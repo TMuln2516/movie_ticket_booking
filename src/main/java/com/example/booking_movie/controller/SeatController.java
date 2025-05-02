@@ -24,7 +24,7 @@ import java.util.List;
 public class SeatController {
     SeatService seatService;
 
-    @GetMapping("/")
+    @PostMapping("/")
     public ApiResponse<List<SeatResponse>> getInfoById(@RequestBody @Valid GetSeatInfoRequest getSeatInfoRequest) {
         return ApiResponse.<List<SeatResponse>>builder()
                 .message("Lấy thông tin ghế thành công")
