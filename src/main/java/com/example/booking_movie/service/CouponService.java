@@ -124,9 +124,28 @@ public class CouponService {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         User currentUser = userRepository.findByUsername(username).orElseThrow(() -> new MyException(ErrorCode.USER_NOT_EXISTED));
 
-        List<Coupon> unusedCoupons = couponRepository.findUnusedCouponsByUser(currentUser.getId());
+//        List<Coupon> unusedCoupons = couponRepository.findUnusedCouponsByUser(currentUser.getId());
+//
+//        return unusedCoupons.stream()
+//                .map(coupon -> CouponResponse.builder()
+//                        .id(coupon.getId())
+//                        .code(coupon.getCode())
+//                        .discountType(coupon.getDiscountType())
+//                        .discountValue(coupon.getDiscountValue())
+//                        .startDate(coupon.getStartDate())
+//                        .endDate(coupon.getEndDate())
+//                        .minValue(coupon.getMinValue())
+//                        .description(coupon.getDescription())
+//                        .status(coupon.getStatus())
+//                        .image(coupon.getImage())
+//                        .publicId(coupon.getPublicId())
+//                        .status(false)
+//                        .build())
+//                .collect(Collectors.toList());
 
-        return unusedCoupons.stream()
+        List<Coupon> coupons = couponRepository.findAll();
+
+        return coupons.stream()
                 .map(coupon -> CouponResponse.builder()
                         .id(coupon.getId())
                         .code(coupon.getCode())
