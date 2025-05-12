@@ -39,10 +39,18 @@ public class MovieController {
     }
 
     @GetMapping("/genre")
-    public ApiResponse<List<MovieResponse>> getAllByGenre(@RequestParam String genreId) {
-        return ApiResponse.<List<MovieResponse>>builder()
+    public ApiResponse<List<MovieDetailResponse>> getAllByGenre(@RequestParam String genreId) throws JsonProcessingException {
+        return ApiResponse.<List<MovieDetailResponse>>builder()
                 .message("Lấy thông tin phim theo thể loại thành công")
                 .result(movieService.getAllByGenre(genreId))
+                .build();
+    }
+
+    @GetMapping("/person")
+    public ApiResponse<List<MovieDetailResponse>> getAllByPerson(@RequestParam String personId) throws JsonProcessingException {
+        return ApiResponse.<List<MovieDetailResponse>>builder()
+                .message("Lấy thông tin phim thành công")
+                .result(movieService.getAllByPerson(personId))
                 .build();
     }
 

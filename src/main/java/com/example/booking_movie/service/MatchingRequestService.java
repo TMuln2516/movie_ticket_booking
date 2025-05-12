@@ -12,6 +12,7 @@ import com.example.booking_movie.exception.MyException;
 import com.example.booking_movie.repository.*;
 import com.example.booking_movie.utils.DateUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -234,5 +235,24 @@ public class MatchingRequestService {
                 .userId(userId)
                 .showtimeId(showtime.getId())
                 .build();
+    }
+
+    @Transactional
+    @PreAuthorize("hasRole('USER')")
+    public void delete() {
+        // Lấy thông tin người dùng từ SecurityContextHolder
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        var userInfo = userRepository.findByUsername(username)
+                .orElseThrow(() -> new MyException(ErrorCode.USER_NOT_EXISTED));
+
+        // Lấy yêu cầu matching gần nhất của người dùng theo thời gian tạo (createAt)
+        Optional<MatchingRequest> latestRequest = matchingRequestRepository.findTopByUserIdOrderByCreateAtDesc(userInfo.getId());
+
+        if (latestRequest.isEmpty()) {
+            throw new MyException(ErrorCode.REQUEST_NOT_EXISTED);
+        }
+
+        // Xóa yêu cầu matching gần nhất
+        matchingRequestRepository.delete(latestRequest.get());
     }
 }

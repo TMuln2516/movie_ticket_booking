@@ -13,6 +13,6 @@ public class UpdatePersonResponse {
     String name;
     Boolean gender;
     String dateOfBirth;
-    String job;
-    String description;
+    String image;
+    JobResponse job;
 }

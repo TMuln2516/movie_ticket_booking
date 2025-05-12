@@ -14,4 +14,5 @@ public class CreatePersonResponse {
     Boolean gender;
     String dateOfBirth;
     String image;
+    JobResponse job;
 }

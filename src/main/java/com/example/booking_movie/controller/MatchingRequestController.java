@@ -32,4 +32,12 @@ public class MatchingRequestController {
                 .message("Gửi yêu cầu ghép đôi thành công")
                 .build();
     }
+
+    @DeleteMapping("/")
+    public ApiResponse<Void> delete() {
+        matchingRequestService.delete();
+        return ApiResponse.<Void>builder()
+                .message("Hủy yêu cầu ghép đôi thành công")
+                .build();
+    }
 }

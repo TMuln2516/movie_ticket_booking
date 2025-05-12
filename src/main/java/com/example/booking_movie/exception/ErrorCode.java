@@ -6,6 +6,9 @@ import org.springframework.http.HttpStatus;
 
 @Getter
 public enum ErrorCode {
+    //    request matching
+    REQUEST_NOT_EXISTED(HttpStatus.BAD_REQUEST.value(), "Request not exist"),
+
     //    food
     FOOD_IMAGE_NOT_NULL(HttpStatus.BAD_REQUEST.value(), "Hình ảnh của món ăn không được để trống"),
     FOOD_EXISTED(HttpStatus.BAD_REQUEST.value(), "Món ăn đã tồn tại"),

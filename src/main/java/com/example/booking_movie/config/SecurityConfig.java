@@ -28,7 +28,7 @@ public class SecurityConfig {
             "/api/feedbacks/*/all",
 
 //            movie
-            "/api/movies/",
+            "/api/movies/*",
 
 //            search
             "/api/movies/search",

@@ -15,5 +15,4 @@ public class UpdatePersonRequest {
     Boolean gender;
     LocalDate dateOfBirth;
     String job;
-    String image;
 }

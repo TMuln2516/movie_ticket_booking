@@ -82,6 +82,10 @@ public class PersonService {
                 .gender(newPerson.getGender())
                 .dateOfBirth(newPerson.getDateOfBirth() != null ? DateUtils.formatDate(newPerson.getDateOfBirth()) : null)
                 .image(newPerson.getImage())
+                .job(JobResponse.builder()
+                        .id(newPerson.getJob().getId())
+                        .name(newPerson.getJob().getName())
+                        .build())
                 .build();
     }
 
@@ -120,7 +124,6 @@ public class PersonService {
         ValidUtils.updateFieldIfNotEmpty(person::setName, updatePersonRequest.getName());
         ValidUtils.updateFieldIfNotEmpty(person::setGender, updatePersonRequest.getGender());
         ValidUtils.updateFieldIfNotEmpty(person::setDateOfBirth, updatePersonRequest.getDateOfBirth());
-        ValidUtils.updateFieldIfNotEmpty(person::setImage, updatePersonRequest.getImage());
 
         //        set image
         if (!file.isEmpty()) {
@@ -138,7 +141,11 @@ public class PersonService {
                 .name(person.getName())
                 .gender(person.getGender())
                 .dateOfBirth(person.getDateOfBirth() != null ? DateUtils.formatDate(person.getDateOfBirth()) : null)
-                .description(person.getImage())
+                .image(person.getImage())
+                .job(JobResponse.builder()
+                        .id(person.getJob().getId())
+                        .name(person.getJob().getName())
+                        .build())
                 .build();
     }
 

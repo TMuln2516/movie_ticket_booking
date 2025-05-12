@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface MatchingRequestRepository extends JpaRepository<MatchingRequest, String> {
@@ -48,4 +49,6 @@ public interface MatchingRequestRepository extends JpaRepository<MatchingRequest
             @Param("genderMatch") Boolean genderMatch,
             @Param("userId") String userId
     );
+
+    Optional<MatchingRequest> findTopByUserIdOrderByCreateAtDesc(String userId);
 }

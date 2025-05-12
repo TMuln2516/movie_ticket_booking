@@ -23,6 +23,7 @@ import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -145,18 +146,14 @@ public class MovieService {
                 .build();
     }
 
-    //        get all movie
-    public List<MovieResponse> getAll() throws JsonProcessingException {
-        List<MovieCacheResponse> movies;
-        // Kiểm tra cache trước
+    private List<MovieCacheResponse> getCachedMovies() throws JsonProcessingException {
         String jsonMovies = (String) redisTemplate.opsForValue().get("ListMovie");
 
         if (jsonMovies != null) {
-            movies = objectMapper.readValue(jsonMovies,
+            return objectMapper.readValue(jsonMovies,
                     objectMapper.getTypeFactory().constructCollectionType(List.class, MovieCacheResponse.class));
         } else {
-            // Nếu không có trong cache, lấy từ database sau đó lưu vào cache
-            movies = movieRepository.findAll().stream()
+            List<MovieCacheResponse> movies = movieRepository.findAll().stream()
                     .map(movie -> MovieCacheResponse.builder()
                             .id(movie.getId())
                             .name(movie.getName())
@@ -174,10 +171,20 @@ public class MovieService {
                             .feedbackIds(movie.getFeedbacks().stream().map(Feedback::getId).collect(Collectors.toSet()))
                             .build())
                     .collect(Collectors.toList());
+
             if (!movies.isEmpty()) {
                 redisTemplate.opsForValue().set("ListMovie", objectMapper.writeValueAsString(movies), 1, TimeUnit.HOURS);
             }
+            return movies;
         }
+    }
+
+
+    //        get all movie
+    public List<MovieResponse> getAll() throws JsonProcessingException {
+
+//        Kiểm tra và lấy thông tin movie từ cache
+        List<MovieCacheResponse> movies = getCachedMovies();
 
         List<MovieResponse> movieResponses;
         // Kiểm tra guest
@@ -551,23 +558,243 @@ public class MovieService {
         elasticMovieRepository.save(elasticMovie);
     }
 
-    public List<MovieResponse> getAllByGenre(String genreId) {
-        return movieRepository.findAllByGenresId(genreId).stream()
-                .map(movie -> MovieResponse.builder()
-                        .id(movie.getId())
-                        .name(movie.getName())
-                        .premiere(DateUtils.formatDate(movie.getPremiere()))
-                        .language(movie.getLanguage())
-                        .duration(movie.getDuration())
-                        .rate(movie.getRate())
-                        .image(movie.getImage())
-                        .genres(movie.getGenres().stream()
-                                .map(genre -> GenreResponse.builder()
-                                        .id(genre.getId())
-                                        .name(genre.getName())
-                                        .build())
-                                .collect(Collectors.toList()))
-                        .build())
+    public List<MovieDetailResponse> getAllByGenre(String genreId) throws JsonProcessingException {
+        List<MovieCacheResponse> movies = getCachedMovies(); // dùng cache
+
+        // Lọc phim theo genreId
+        List<MovieCacheResponse> filteredMovies = movies.stream()
+                .filter(movie -> movie.getGenreIds().contains(genreId))
+                .collect(Collectors.toList());
+
+        // Lấy tất cả person liên quan đến các movie
+        Set<String> allPersonIds = filteredMovies.stream()
+                .flatMap(movie -> movie.getPersonIds().stream())
+                .collect(Collectors.toSet());
+        Map<String, Person> personMap = personRepository.findAllById(allPersonIds).stream()
+                .collect(Collectors.toMap(Person::getId, p -> p));
+
+        // Lấy tất cả genre liên quan để convert sang GenreResponse
+        Set<String> allGenreIds = filteredMovies.stream()
+                .flatMap(movie -> movie.getGenreIds().stream())
+                .collect(Collectors.toSet());
+        Map<String, Genre> genreMap = genreRepository.findAllById(allGenreIds).stream()
+                .collect(Collectors.toMap(Genre::getId, g -> g));
+
+        // Xác định người dùng (nếu có) và quyền bình luận
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        boolean isGuest = (authentication == null || !authentication.isAuthenticated() || authentication.getName().equals("anonymousUser"));
+
+        Map<String, Boolean> canCommentMap;
+        if (!isGuest) {
+            var userInfo = userRepository.findByUsername(authentication.getName())
+                    .orElseThrow(() -> new MyException(ErrorCode.USER_NOT_EXISTED));
+
+            var tickets = ticketRepository.findAllByUserIdAndFinishedTrue(userInfo.getId());
+            canCommentMap = tickets.stream()
+                    .collect(Collectors.toMap(
+                            ticket -> ticket.getShowtime().getMovie().getId(),
+                            ticket -> true,
+                            (v1, v2) -> v1));
+        } else {
+            canCommentMap = new HashMap<>();
+        }
+
+        // Trả về kết quả
+        return filteredMovies.stream()
+                .map(movie -> {
+                    Set<Person> persons = movie.getPersonIds().stream()
+                            .map(personMap::get)
+                            .filter(Objects::nonNull)
+                            .collect(Collectors.toSet());
+
+                    // Tách director và actor
+                    AtomicReference<Person> director = new AtomicReference<>();
+                    Set<Person> actors = new HashSet<>();
+                    persons.forEach(person -> {
+                        if (DefinedJob.DIRECTOR.equalsIgnoreCase(person.getJob().getName())) {
+                            director.set(person);
+                        } else {
+                            actors.add(person);
+                        }
+                    });
+
+                    // Convert director
+                    PersonResponse directorResponse = Optional.ofNullable(director.get())
+                            .map(d -> PersonResponse.builder()
+                                    .id(d.getId())
+                                    .name(d.getName())
+                                    .gender(d.getGender())
+                                    .dateOfBirth(DateUtils.formatDate(d.getDateOfBirth()))
+                                    .image(d.getImage())
+                                    .job(JobResponse.builder()
+                                            .id(d.getJob().getId())
+                                            .name(d.getJob().getName())
+                                            .build())
+                                    .build())
+                            .orElse(null);
+
+                    // Convert actors
+                    Set<PersonResponse> actorResponses = actors.stream()
+                            .map(a -> PersonResponse.builder()
+                                    .id(a.getId())
+                                    .name(a.getName())
+                                    .gender(a.getGender())
+                                    .dateOfBirth(DateUtils.formatDate(a.getDateOfBirth()))
+                                    .image(a.getImage())
+                                    .job(JobResponse.builder()
+                                            .id(a.getJob().getId())
+                                            .name(a.getJob().getName())
+                                            .build())
+                                    .build())
+                            .collect(Collectors.toSet());
+
+                    // Convert genres
+                    Set<GenreResponse> genreResponses = movie.getGenreIds().stream()
+                            .map(id -> genreMap.get(id))
+                            .filter(Objects::nonNull)
+                            .map(g -> GenreResponse.builder()
+                                    .id(g.getId())
+                                    .name(g.getName())
+                                    .build())
+                            .collect(Collectors.toSet());
+
+                    boolean canComment = !isGuest && canCommentMap.containsKey(movie.getId());
+
+                    return MovieDetailResponse.builder()
+                            .id(movie.getId())
+                            .name(movie.getName())
+                            .premiere(movie.getPremiere())
+                            .language(movie.getLanguage())
+                            .duration(movie.getDuration())
+                            .content(movie.getContent())
+                            .rate(movie.getRate())
+                            .image(movie.getImage())
+                            .canComment(canComment)
+                            .genres(genreResponses)
+                            .director(directorResponse)
+                            .actors(actorResponses)
+                            .build();
+                })
+                .collect(Collectors.toList());
+    }
+
+    public List<MovieDetailResponse> getAllByPerson(String personId) throws JsonProcessingException {
+        List<MovieCacheResponse> movies = getCachedMovies(); // sử dụng cache
+
+        // Lọc các phim có chứa personId
+        List<MovieCacheResponse> filteredMovies = movies.stream()
+                .filter(movie -> movie.getPersonIds().contains(personId))
+                .toList();
+
+        // Lấy tất cả person liên quan
+        Set<String> allPersonIds = filteredMovies.stream()
+                .flatMap(movie -> movie.getPersonIds().stream())
+                .collect(Collectors.toSet());
+        Map<String, Person> personMap = personRepository.findAllById(allPersonIds).stream()
+                .collect(Collectors.toMap(Person::getId, p -> p));
+
+        // Lấy tất cả genre liên quan
+        Set<String> allGenreIds = filteredMovies.stream()
+                .flatMap(movie -> movie.getGenreIds().stream())
+                .collect(Collectors.toSet());
+        Map<String, Genre> genreMap = genreRepository.findAllById(allGenreIds).stream()
+                .collect(Collectors.toMap(Genre::getId, g -> g));
+
+        // Xác định user và canComment
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        boolean isGuest = (authentication == null || !authentication.isAuthenticated() || authentication.getName().equals("anonymousUser"));
+
+        Map<String, Boolean> canCommentMap;
+        if (!isGuest) {
+            var userInfo = userRepository.findByUsername(authentication.getName())
+                    .orElseThrow(() -> new MyException(ErrorCode.USER_NOT_EXISTED));
+
+            var tickets = ticketRepository.findAllByUserIdAndFinishedTrue(userInfo.getId());
+            canCommentMap = tickets.stream()
+                    .collect(Collectors.toMap(
+                            ticket -> ticket.getShowtime().getMovie().getId(),
+                            ticket -> true,
+                            (v1, v2) -> v1));
+        } else {
+            canCommentMap = new HashMap<>();
+        }
+
+        // Xử lý kết quả
+        return filteredMovies.stream()
+                .map(movie -> {
+                    Set<Person> persons = movie.getPersonIds().stream()
+                            .map(personMap::get)
+                            .filter(Objects::nonNull)
+                            .collect(Collectors.toSet());
+
+                    // Phân loại director và actor
+                    AtomicReference<Person> director = new AtomicReference<>();
+                    Set<Person> actors = new HashSet<>();
+                    persons.forEach(person -> {
+                        if (DefinedJob.DIRECTOR.equalsIgnoreCase(person.getJob().getName())) {
+                            director.set(person);
+                        } else {
+                            actors.add(person);
+                        }
+                    });
+
+                    // Director response
+                    PersonResponse directorResponse = Optional.ofNullable(director.get())
+                            .map(d -> PersonResponse.builder()
+                                    .id(d.getId())
+                                    .name(d.getName())
+                                    .gender(d.getGender())
+                                    .dateOfBirth(DateUtils.formatDate(d.getDateOfBirth()))
+                                    .image(d.getImage())
+                                    .job(JobResponse.builder()
+                                            .id(d.getJob().getId())
+                                            .name(d.getJob().getName())
+                                            .build())
+                                    .build())
+                            .orElse(null);
+
+                    // Actor responses
+                    Set<PersonResponse> actorResponses = actors.stream()
+                            .map(a -> PersonResponse.builder()
+                                    .id(a.getId())
+                                    .name(a.getName())
+                                    .gender(a.getGender())
+                                    .dateOfBirth(DateUtils.formatDate(a.getDateOfBirth()))
+                                    .image(a.getImage())
+                                    .job(JobResponse.builder()
+                                            .id(a.getJob().getId())
+                                            .name(a.getJob().getName())
+                                            .build())
+                                    .build())
+                            .collect(Collectors.toSet());
+
+                    // Genre responses
+                    Set<GenreResponse> genreResponses = movie.getGenreIds().stream()
+                            .map(genreMap::get)
+                            .filter(Objects::nonNull)
+                            .map(g -> GenreResponse.builder()
+                                    .id(g.getId())
+                                    .name(g.getName())
+                                    .build())
+                            .collect(Collectors.toSet());
+
+                    boolean canComment = !isGuest && canCommentMap.containsKey(movie.getId());
+
+                    return MovieDetailResponse.builder()
+                            .id(movie.getId())
+                            .name(movie.getName())
+                            .premiere(movie.getPremiere())
+                            .language(movie.getLanguage())
+                            .duration(movie.getDuration())
+                            .content(movie.getContent())
+                            .rate(movie.getRate())
+                            .image(movie.getImage())
+                            .canComment(canComment)
+                            .genres(genreResponses)
+                            .director(directorResponse)
+                            .actors(actorResponses)
+                            .build();
+                })
                 .collect(Collectors.toList());
     }
 }
