@@ -558,13 +558,13 @@ public class MovieService {
         elasticMovieRepository.save(elasticMovie);
     }
 
-    public List<MovieDetailResponse> getAllByGenre(String genreId) throws JsonProcessingException {
+    public GetMovieByGenreResponse getAllByGenre(String genreId) throws JsonProcessingException {
         List<MovieCacheResponse> movies = getCachedMovies(); // dùng cache
 
         // Lọc phim theo genreId
         List<MovieCacheResponse> filteredMovies = movies.stream()
                 .filter(movie -> movie.getGenreIds().contains(genreId))
-                .collect(Collectors.toList());
+                .toList();
 
         // Lấy tất cả person liên quan đến các movie
         Set<String> allPersonIds = filteredMovies.stream()
@@ -580,7 +580,13 @@ public class MovieService {
         Map<String, Genre> genreMap = genreRepository.findAllById(allGenreIds).stream()
                 .collect(Collectors.toMap(Genre::getId, g -> g));
 
-        // Xác định người dùng (nếu có) và quyền bình luận
+        // Lấy thông tin genre tương ứng
+        Genre genre = genreMap.get(genreId);
+        if (genre == null) {
+            throw new MyException(ErrorCode.GENRE_NOT_EXISTED); // hoặc trả về null, tùy xử lý
+        }
+
+        // Xác định người dùng và quyền bình luận
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         boolean isGuest = (authentication == null || !authentication.isAuthenticated() || authentication.getName().equals("anonymousUser"));
 
@@ -599,8 +605,7 @@ public class MovieService {
             canCommentMap = new HashMap<>();
         }
 
-        // Trả về kết quả
-        return filteredMovies.stream()
+        List<MovieDetailResponse> movieDetails = filteredMovies.stream()
                 .map(movie -> {
                     Set<Person> persons = movie.getPersonIds().stream()
                             .map(personMap::get)
@@ -618,7 +623,6 @@ public class MovieService {
                         }
                     });
 
-                    // Convert director
                     PersonResponse directorResponse = Optional.ofNullable(director.get())
                             .map(d -> PersonResponse.builder()
                                     .id(d.getId())
@@ -633,7 +637,6 @@ public class MovieService {
                                     .build())
                             .orElse(null);
 
-                    // Convert actors
                     Set<PersonResponse> actorResponses = actors.stream()
                             .map(a -> PersonResponse.builder()
                                     .id(a.getId())
@@ -648,9 +651,8 @@ public class MovieService {
                                     .build())
                             .collect(Collectors.toSet());
 
-                    // Convert genres
                     Set<GenreResponse> genreResponses = movie.getGenreIds().stream()
-                            .map(id -> genreMap.get(id))
+                            .map(genreMap::get)
                             .filter(Objects::nonNull)
                             .map(g -> GenreResponse.builder()
                                     .id(g.getId())
@@ -676,15 +678,25 @@ public class MovieService {
                             .build();
                 })
                 .collect(Collectors.toList());
+
+        return GetMovieByGenreResponse.builder()
+                .id(genre.getId())
+                .name(genre.getName())
+                .listMovies(movieDetails)
+                .build();
     }
 
-    public List<MovieDetailResponse> getAllByPerson(String personId) throws JsonProcessingException {
-        List<MovieCacheResponse> movies = getCachedMovies(); // sử dụng cache
+    public GetMovieByPersonResponse getAllByPerson(String personId) throws JsonProcessingException {
+        List<MovieCacheResponse> movies = getCachedMovies(); // cache
 
-        // Lọc các phim có chứa personId
+        // Lọc phim có chứa personId
         List<MovieCacheResponse> filteredMovies = movies.stream()
                 .filter(movie -> movie.getPersonIds().contains(personId))
                 .toList();
+
+        // Lấy thông tin person chính
+        Person person = personRepository.findById(personId)
+                .orElseThrow(() -> new MyException(ErrorCode.PERSON_NOT_EXISTED));
 
         // Lấy tất cả person liên quan
         Set<String> allPersonIds = filteredMovies.stream()
@@ -719,26 +731,25 @@ public class MovieService {
             canCommentMap = new HashMap<>();
         }
 
-        // Xử lý kết quả
-        return filteredMovies.stream()
+        // Xử lý danh sách MovieDetailResponse
+        List<MovieDetailResponse> movieDetails = filteredMovies.stream()
                 .map(movie -> {
                     Set<Person> persons = movie.getPersonIds().stream()
                             .map(personMap::get)
                             .filter(Objects::nonNull)
                             .collect(Collectors.toSet());
 
-                    // Phân loại director và actor
+                    // Phân loại đạo diễn / diễn viên
                     AtomicReference<Person> director = new AtomicReference<>();
                     Set<Person> actors = new HashSet<>();
-                    persons.forEach(person -> {
-                        if (DefinedJob.DIRECTOR.equalsIgnoreCase(person.getJob().getName())) {
-                            director.set(person);
+                    persons.forEach(p -> {
+                        if (DefinedJob.DIRECTOR.equalsIgnoreCase(p.getJob().getName())) {
+                            director.set(p);
                         } else {
-                            actors.add(person);
+                            actors.add(p);
                         }
                     });
 
-                    // Director response
                     PersonResponse directorResponse = Optional.ofNullable(director.get())
                             .map(d -> PersonResponse.builder()
                                     .id(d.getId())
@@ -753,7 +764,6 @@ public class MovieService {
                                     .build())
                             .orElse(null);
 
-                    // Actor responses
                     Set<PersonResponse> actorResponses = actors.stream()
                             .map(a -> PersonResponse.builder()
                                     .id(a.getId())
@@ -768,7 +778,6 @@ public class MovieService {
                                     .build())
                             .collect(Collectors.toSet());
 
-                    // Genre responses
                     Set<GenreResponse> genreResponses = movie.getGenreIds().stream()
                             .map(genreMap::get)
                             .filter(Objects::nonNull)
@@ -796,5 +805,19 @@ public class MovieService {
                             .build();
                 })
                 .collect(Collectors.toList());
+
+        // Trả kết quả
+        return GetMovieByPersonResponse.builder()
+                .id(person.getId())
+                .name(person.getName())
+                .gender(person.getGender())
+                .dateOfBirth(DateUtils.formatDate(person.getDateOfBirth()))
+                .image(person.getImage())
+                .job(JobResponse.builder()
+                        .id(person.getJob().getId())
+                        .name(person.getJob().getName())
+                        .build())
+                .listMovies(movieDetails)
+                .build();
     }
 }
