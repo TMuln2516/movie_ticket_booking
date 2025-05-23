@@ -377,6 +377,7 @@ public class MovieService {
         ValidUtils.updateFieldIfNotEmpty(movie::setRate, updateMovieRequest.getRate());
         movieRepository.save(movie);
 
+
 //        elastic
         elasticMovie.setName(movie.getName());
         elasticMovie.setPremiere(DateUtils.formatDateToEpochMillis(movie.getPremiere()));

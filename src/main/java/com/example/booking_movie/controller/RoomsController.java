@@ -6,10 +6,7 @@ import com.example.booking_movie.service.RoomService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -29,4 +26,11 @@ public class RoomsController {
                 .build();
     }
 
+    @GetMapping("/getAll/{theaterId}")
+    public ApiResponse<List<RoomResponse>> getAllByTheater(@PathVariable String theaterId) {
+        return ApiResponse.<List<RoomResponse>>builder()
+                .message("Lấy danh sách phòng thành công")
+                .result(roomService.getAllRoomByTheater(theaterId))
+                .build();
+    }
 }

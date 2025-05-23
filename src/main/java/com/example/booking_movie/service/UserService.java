@@ -138,6 +138,24 @@ public class UserService {
                 .build();
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
+    public BioResponse getOneUser(String userId) {
+        User userInfo = userRepository.findById(userId).orElseThrow(() -> new MyException(ErrorCode.USER_NOT_EXISTED));
+
+        return BioResponse.builder()
+                .id(userInfo.getId())
+                .username(userInfo.getUsername())
+                .password(userInfo.getPassword())
+                .firstName(userInfo.getFirstName())
+                .lastName(userInfo.getLastName())
+                .dateOfBirth(userInfo.getDateOfBirth() != null ? DateUtils.formatDate(userInfo.getDateOfBirth()) : null)
+                .gender(userInfo.getGender())
+                .email(userInfo.getEmail())
+                .avatar(userInfo.getAvatar())
+                .hasPassword(StringUtils.hasText(userInfo.getPassword()))
+                .build();
+    }
+
     //    update my bio
     @PostAuthorize("returnObject.username == authentication.name")
     public BioResponse updateBio(UpdateBioRequest updateBioRequest) {

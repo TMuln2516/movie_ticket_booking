@@ -33,6 +33,15 @@ public class UserController {
                 .build();
     }
 
+    //    get bio
+    @GetMapping("/{userId}")
+    public ApiResponse<BioResponse> getOneUser(@PathVariable String userId) {
+        return ApiResponse.<BioResponse>builder()
+                .message("Get One User Success")
+                .result(userService.getOneUser(userId))
+                .build();
+    }
+
 //    get ticket
     @GetMapping("/ticket")
     public ApiResponse<List<TicketDetailResponse>> myTicket() {

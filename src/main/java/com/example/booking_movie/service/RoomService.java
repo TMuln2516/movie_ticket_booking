@@ -82,6 +82,15 @@ public class RoomService {
                 .name(room.getName())
                 .columns(room.getColumnCount())
                 .rows(room.getRowCount())
+                .seats(room.getSeats().stream().map(
+                                seat -> SeatResponse.builder()
+                                        .id(seat.getId())
+                                        .locateRow(seat.getLocateRow())
+                                        .locateColumn(seat.getLocateColumn())
+                                        .price(seat.getPrice())
+                                        .isCouple(seat.getIsCouple())
+                                        .build())
+                        .collect(Collectors.toSet()))
                 .build();
     }
 
@@ -106,6 +115,28 @@ public class RoomService {
                                                 .locateRow(seat.getLocateRow())
                                                 .locateColumn(seat.getLocateColumn())
                                                 .price(seat.getPrice())
+                                                .isCouple(seat.getIsCouple())
+                                                .build())
+                                .collect(Collectors.toSet()))
+                        .build())
+                .collect(Collectors.toList());
+    }
+
+    @PreAuthorize("hasAnyRole('USER', 'MANAGER', 'ADMIN')")
+    public List<RoomResponse> getAllRoomByTheater(String theaterId) {
+        return roomRepository.findAllByTheaterId(theaterId).stream()
+                .map(room -> RoomResponse.builder()
+                        .id(room.getId())
+                        .name(room.getName())
+                        .rows(room.getRowCount())
+                        .columns(room.getColumnCount())
+                        .seats(room.getSeats().stream().map(
+                                        seat -> SeatResponse.builder()
+                                                .id(seat.getId())
+                                                .locateRow(seat.getLocateRow())
+                                                .locateColumn(seat.getLocateColumn())
+                                                .price(seat.getPrice())
+                                                .isCouple(seat.getIsCouple())
                                                 .build())
                                 .collect(Collectors.toSet()))
                         .build())

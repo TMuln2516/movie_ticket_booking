@@ -3,10 +3,7 @@ package com.example.booking_movie.service;
 import com.example.booking_movie.constant.DefinedDiscountType;
 import com.example.booking_movie.dto.request.CreateTicketRequest;
 import com.example.booking_movie.dto.request.SetSeatSessionRequest;
-import com.example.booking_movie.dto.response.CreateTicketResponse;
-import com.example.booking_movie.dto.response.RevenueResponse;
-import com.example.booking_movie.dto.response.SeatResponse;
-import com.example.booking_movie.dto.response.TicketDetailResponse;
+import com.example.booking_movie.dto.response.*;
 import com.example.booking_movie.entity.*;
 import com.example.booking_movie.exception.ErrorCode;
 import com.example.booking_movie.exception.MyException;
@@ -334,4 +331,119 @@ public class TicketService {
                 .ticketDetails(ticketDetailResponses)
                 .build();
     }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    public List<GetAllTicketResponse> getAllTicket() {
+        List<Ticket> tickets = ticketRepository.findAll();
+
+        return tickets.stream()
+                .map(ticket -> {
+                    // Lấy TicketFood theo ticketId
+                    TicketFood ticketFood = ticketFoodRepository.findByTicketId(ticket.getId());
+
+                    // Nếu không có food thì để food = null
+                    FoodDetailResponse food = ticketFood == null ? null :
+                            FoodDetailResponse.builder()
+                                    .id(ticketFood.getFood().getId())
+                                    .name(ticketFood.getFood().getName())
+                                    .price(ticketFood.getFood().getPrice())
+                                    .image(ticketFood.getFood().getImage())
+                                    .quantity(ticketFood.getQuantity())
+                                    .build();
+
+                    return GetAllTicketResponse.builder()
+                            .id(ticket.getId())
+                            .date(DateUtils.formatDate(ticket.getDate()))
+                            .time(DateUtils.formatTime(ticket.getTime()))
+                            .status(ticket.getStatus())
+                            .amount(ticket.getAmount())
+                            .food(food) // đã xử lý null
+                            .showtime(GetAllShowtimeResponses.builder()
+                                    .id(ticket.getShowtime().getId())
+                                    .date(DateUtils.formatDate(ticket.getShowtime().getDate()))
+                                    .startTime(DateUtils.formatTime(ticket.getShowtime().getStartTime()))
+                                    .endTime(DateUtils.formatTime(ticket.getShowtime().getEndTime()))
+                                    .totalSeat(ticket.getShowtime().getTotalSeat())
+                                    .emptySeat(ticket.getShowtime().getEmptySeat())
+                                    .status(ticket.getShowtime().getStatus())
+                                    .theater(TheaterResponse.builder()
+                                            .id(ticket.getShowtime().getRoom().getTheater().getId())
+                                            .name(ticket.getShowtime().getRoom().getTheater().getName())
+                                            .location(ticket.getShowtime().getRoom().getTheater().getLocation())
+                                            .build())
+                                    .movie(MovieDetailResponse.builder()
+                                            .id(ticket.getShowtime().getMovie().getId())
+                                            .name(ticket.getShowtime().getMovie().getName())
+                                            .premiere(DateUtils.formatDate(ticket.getShowtime().getMovie().getPremiere()))
+                                            .language(ticket.getShowtime().getMovie().getLanguage())
+                                            .duration(ticket.getShowtime().getMovie().getDuration())
+                                            .content(ticket.getShowtime().getMovie().getContent())
+                                            .rate(ticket.getShowtime().getMovie().getRate())
+                                            .image(ticket.getShowtime().getMovie().getImage())
+                                            .canComment(true)
+                                            .genres(null)
+                                            .director(null)
+                                            .actors(null)
+                                            .build())
+                                    .room(RoomResponse.builder()
+                                            .id(ticket.getShowtime().getRoom().getId())
+                                            .name(ticket.getShowtime().getRoom().getName())
+                                            .rows(ticket.getShowtime().getRoom().getRowCount())
+                                            .columns(ticket.getShowtime().getRoom().getColumnCount())
+                                            .seats(null)
+                                            .build())
+                                    .build())
+                            .user(UserResponse.builder()
+                                    .id(ticket.getUser().getId())
+                                    .username(ticket.getUser().getUsername())
+                                    .firstName(ticket.getUser().getFirstName())
+                                    .lastName(ticket.getUser().getLastName())
+                                    .dateOfBirth(ticket.getUser().getDateOfBirth() != null ? DateUtils.formatDate(ticket.getUser().getDateOfBirth()) : null)
+                                    .gender(ticket.getUser().getGender())
+                                    .email(ticket.getUser().getEmail())
+                                    .status(ticket.getUser().getStatus())
+                                    .avatar(ticket.getUser().getAvatar())
+                                    .roles(ticket.getUser().getRoles())
+                                    .build())
+                            .coupon(ticket.getCoupon() != null ?
+                                    CouponResponse.builder()
+                                            .id(ticket.getCoupon().getId())
+                                            .code(ticket.getCoupon().getCode())
+                                            .discountType(ticket.getCoupon().getDiscountType())
+                                            .discountValue(ticket.getCoupon().getDiscountValue())
+                                            .startDate(ticket.getCoupon().getStartDate())
+                                            .endDate(ticket.getCoupon().getEndDate())
+                                            .minValue(ticket.getCoupon().getMinValue())
+                                            .description(ticket.getCoupon().getDescription())
+                                            .status(ticket.getCoupon().getStatus())
+                                            .image(ticket.getCoupon().getImage())
+                                            .publicId(ticket.getCoupon().getPublicId())
+                                            .build()
+                                    : null)
+                            .build();
+                })
+                .collect(Collectors.toList());
+    }
+
+
+    @PreAuthorize("hasRole('ADMIN')")
+    public List<GetTicketDetailResponse> getTicketById(String ticketId) {
+        List<TicketDetails> tickets = ticketDetailsRepository.findAllByTicketId(ticketId);
+
+        return tickets.stream()
+                .map(ticketDetails -> GetTicketDetailResponse.builder()
+                        .id(ticketDetails.getId())
+                        .price(ticketDetails.getPrice())
+                        .ticketId(ticketDetails.getTicket().getId())
+                        .seat(SeatResponse.builder()
+                                .id(ticketDetails.getSeat().getId())
+                                .locateRow(ticketDetails.getSeat().getLocateRow())
+                                .locateColumn(ticketDetails.getSeat().getLocateColumn())
+                                .price(ticketDetails.getSeat().getPrice())
+                                .isCouple(ticketDetails.getSeat().getIsCouple())
+                                .build())
+                        .build())
+                .collect(Collectors.toList());
+    }
+
 }

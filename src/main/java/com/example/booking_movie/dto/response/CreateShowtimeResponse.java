@@ -16,4 +16,7 @@ public class CreateShowtimeResponse {
     Integer totalSeat;
     Integer emptySeat;
     String status;
+    TheaterResponse theater;
+    MovieDetailResponse movie;
+    RoomResponse room;
 }

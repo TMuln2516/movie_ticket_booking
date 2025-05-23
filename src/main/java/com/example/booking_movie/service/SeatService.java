@@ -16,6 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -30,13 +31,20 @@ public class SeatService {
     public void create(String roomId, CreateSeatRequest createSeatRequest) {
         Room room = roomRepository.findById(roomId).orElseThrow(() -> new MyException(ErrorCode.ROOM_NOT_EXISTED));
 
-        seatRepository.save(Seat.builder()
+        Seat seat = Seat.builder()
                 .locateColumn(createSeatRequest.getLocateColumn())
                 .locateRow(createSeatRequest.getLocateRow())
                 .price(createSeatRequest.getPrice())
                 .isCouple(createSeatRequest.getIsCouple())
                 .room(room)
-                .build());
+                .build();
+
+        seatRepository.save(seat);
+
+        if (room.getSeats() == null) {
+            room.setSeats(new HashSet<>());
+        }
+        room.getSeats().add(seat);
     }
 
     public List<SeatResponse> getSeatInfoByListId(GetSeatInfoRequest getSeatInfoRequest) {

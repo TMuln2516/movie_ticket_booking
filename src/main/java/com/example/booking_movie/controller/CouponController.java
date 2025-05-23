@@ -49,10 +49,13 @@ public class CouponController {
     }
 
     @PutMapping("/{couponId}")
-    public ApiResponse<UpdateCouponResponse> update(@PathVariable String couponId, @RequestBody UpdateCouponRequest updateCouponRequest) {
+    public ApiResponse<UpdateCouponResponse> update(
+            @PathVariable String couponId,
+            @RequestPart("updateCouponRequest") @Valid UpdateCouponRequest updateCouponRequest,
+            @RequestPart("file") MultipartFile file) throws IOException {
         return ApiResponse.<UpdateCouponResponse>builder()
                 .message("Cập nhật phiếu giảm giá thành công")
-                .result(couponService.update(couponId, updateCouponRequest))
+                .result(couponService.update(couponId, updateCouponRequest, file))
                 .build();
     }
 

@@ -23,7 +23,7 @@ public class ShowtimeController {
     ShowtimeService showtimeService;
     ScheduleSeatService scheduleSeatService;
 
-//    get all
+    //    get all
     @PostMapping("/all")
     public ApiResponse<List<GetAllShowtimeResponse>> getAll(@RequestBody @Valid GetAllShowTimeRequest getAllShowTimeRequest) {
         return ApiResponse.<List<GetAllShowtimeResponse>>builder()
@@ -32,7 +32,24 @@ public class ShowtimeController {
                 .build();
     }
 
-//    get all by movie
+    //    get one
+    @GetMapping("/info/{showtimeId}")
+    public ApiResponse<GetOneShowtimeResponses> getAll(@PathVariable String showtimeId) {
+        return ApiResponse.<GetOneShowtimeResponses>builder()
+                .message("Lấy tất cả suất chiếu thành công")
+                .result(showtimeService.getOneShowtime(showtimeId))
+                .build();
+    }
+
+    @GetMapping("/")
+    public ApiResponse<List<GetAllShowtimeResponses>> get() {
+        return ApiResponse.<List<GetAllShowtimeResponses>>builder()
+                .message("Lấy tất cả suất chiếu thành công")
+                .result(showtimeService.getAllShowtimes())
+                .build();
+    }
+
+    //    get all by movie
     @GetMapping("{movieId}/all")
     public ApiResponse<List<GetAllShowtimeResponse>> getAllByMovie(@PathVariable String movieId) {
         return ApiResponse.<List<GetAllShowtimeResponse>>builder()
@@ -41,7 +58,7 @@ public class ShowtimeController {
                 .build();
     }
 
-//    create
+    //    create
     @PostMapping("/")
     public ApiResponse<CreateShowtimeResponse> create(@RequestBody @Valid CreateShowtimeRequest createShowtimeRequest) {
         return ApiResponse.<CreateShowtimeResponse>builder()
@@ -50,7 +67,7 @@ public class ShowtimeController {
                 .build();
     }
 
-//    update
+    //    update
     @PutMapping("/{showtimeId}")
     public ApiResponse<UpdateShowtimeResponse> update(@PathVariable String showtimeId, @RequestBody @Valid UpdateShowtimeRequest updateShowtimeRequest) {
         return ApiResponse.<UpdateShowtimeResponse>builder()
@@ -59,7 +76,7 @@ public class ShowtimeController {
                 .build();
     }
 
-//    get seat
+    //    get seat
     @GetMapping("/{showtimeId}")
     public ApiResponse<List<ScheduleSeatResponse>> getAllSeat(@PathVariable String showtimeId) {
         return ApiResponse.<List<ScheduleSeatResponse>>builder()

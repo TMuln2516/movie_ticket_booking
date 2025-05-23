@@ -1,16 +1,12 @@
 package com.example.booking_movie.service;
 
+import com.example.booking_movie.constant.DefinedJob;
 import com.example.booking_movie.constant.DefinedStatus;
 import com.example.booking_movie.dto.request.CreateShowtimeRequest;
 import com.example.booking_movie.dto.request.GetAllShowTimeRequest;
 import com.example.booking_movie.dto.request.UpdateShowtimeRequest;
-import com.example.booking_movie.dto.response.CreateShowtimeResponse;
-import com.example.booking_movie.dto.response.GetAllShowtimeResponse;
-import com.example.booking_movie.dto.response.TheaterResponse;
-import com.example.booking_movie.dto.response.UpdateShowtimeResponse;
-import com.example.booking_movie.entity.Room;
-import com.example.booking_movie.entity.ScheduleSeat;
-import com.example.booking_movie.entity.Showtime;
+import com.example.booking_movie.dto.response.*;
+import com.example.booking_movie.entity.*;
 import com.example.booking_movie.exception.ErrorCode;
 import com.example.booking_movie.exception.MyException;
 import com.example.booking_movie.repository.*;
@@ -24,8 +20,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalTime;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 @Service
@@ -110,6 +106,44 @@ public class ShowtimeService {
                 .totalSeat(newShowtime.getTotalSeat())
                 .emptySeat(newShowtime.getEmptySeat())
                 .status(newShowtime.getStatus())
+                .theater(TheaterResponse.builder()
+                        .id(room.getTheater().getId())
+                        .name(room.getTheater().getName())
+                        .location(room.getTheater().getLocation())
+                        .build())
+                .movie(MovieDetailResponse.builder()
+                        .id(movie.getId())
+                        .name(movie.getName())
+                        .premiere(DateUtils.formatDate(movie.getPremiere()))
+                        .language(movie.getLanguage())
+                        .duration(movie.getDuration())
+                        .content(movie.getContent())
+                        .rate(movie.getRate())
+                        .image(movie.getImage())
+                        .canComment(true)
+                        .genres(movie.getGenres().stream()
+                                .map(genre -> GenreResponse.builder()
+                                        .id(genre.getId())
+                                        .name(genre.getName())
+                                        .build())
+                                .collect(Collectors.toSet()))
+                        .director(null)
+                        .actors(null)
+                        .build())
+                .room(RoomResponse.builder()
+                        .id(newShowtime.getRoom().getId())
+                        .name(newShowtime.getRoom().getName())
+                        .rows(newShowtime.getRoom().getRowCount())
+                        .columns(newShowtime.getRoom().getColumnCount())
+                        .seats(newShowtime.getRoom().getSeats().stream().map(
+                                        seat -> SeatResponse.builder()
+                                                .id(seat.getId())
+                                                .locateRow(seat.getLocateRow())
+                                                .locateColumn(seat.getLocateColumn())
+                                                .price(seat.getPrice())
+                                                .build())
+                                .collect(Collectors.toSet()))
+                        .build())
                 .build();
     }
 
@@ -122,7 +156,7 @@ public class ShowtimeService {
 // Lấy tất cả các phòng của rạp
         List<Room> listRoom = new ArrayList<>();
         listTheater.forEach(theater -> {
-         listRoom.addAll(theater.getRooms());
+            listRoom.addAll(theater.getRooms());
         });
 
 //        log.info("List Room: {}", listRoom);
@@ -164,13 +198,106 @@ public class ShowtimeService {
                 .collect(Collectors.toList());
     }
 
+    @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
+    public List<GetAllShowtimeResponses> getAllShowtimes() {
+        List<Showtime> showtimes = showtimeRepository.findAll();
+
+        return showtimes.stream()
+                .map(showtime -> {
+                    Movie movie = showtime.getMovie();
+                    Theater theater = showtime.getRoom().getTheater();
+
+                    return GetAllShowtimeResponses.builder()
+                            .id(showtime.getId())
+                            .date(DateUtils.formatDate(showtime.getDate()))
+                            .startTime(DateUtils.formatTime(showtime.getStartTime()))
+                            .endTime(DateUtils.formatTime(showtime.getEndTime()))
+                            .totalSeat(showtime.getTotalSeat())
+                            .emptySeat(showtime.getEmptySeat())
+                            .status(showtime.getStatus())
+                            .theater(TheaterResponse.builder()
+                                    .id(theater.getId())
+                                    .name(theater.getName())
+                                    .location(theater.getLocation())
+                                    .build())
+                            .movie(MovieDetailResponse.builder()
+                                    .id(movie.getId())
+                                    .name(movie.getName())
+                                    .premiere(DateUtils.formatDate(movie.getPremiere()))
+                                    .language(movie.getLanguage())
+                                    .duration(movie.getDuration())
+                                    .content(movie.getContent())
+                                    .rate(movie.getRate())
+                                    .image(movie.getImage())
+                                    .canComment(true)
+                                    .genres(null)
+                                    .director(null)
+                                    .actors(null)
+                                    .build())
+                            .room(RoomResponse.builder()
+                                    .id(showtime.getRoom().getId())
+                                    .name(showtime.getRoom().getName())
+                                    .rows(showtime.getRoom().getRowCount())
+                                    .columns(showtime.getRoom().getColumnCount())
+                                    .seats(null)
+                                    .build())
+                            .build();
+                })
+                .collect(Collectors.toList());
+    }
+
+    @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
+    public GetOneShowtimeResponses getOneShowtime(String showtimeId) {
+        Showtime showtime = showtimeRepository.findById(showtimeId)
+                .orElseThrow(() -> new MyException(ErrorCode.SHOWTIME_NOT_EXISTED));
+
+        Movie movie = showtime.getMovie();
+        Theater theater = showtime.getRoom().getTheater();
+
+        return GetOneShowtimeResponses.builder()
+                .id(showtime.getId())
+                .date(DateUtils.formatDate(showtime.getDate()))
+                .startTime(DateUtils.formatTime(showtime.getStartTime()))
+                .endTime(DateUtils.formatTime(showtime.getEndTime()))
+                .totalSeat(showtime.getTotalSeat())
+                .emptySeat(showtime.getEmptySeat())
+                .status(showtime.getStatus())
+                .theater(TheaterResponse.builder()
+                        .id(theater.getId())
+                        .name(theater.getName())
+                        .location(theater.getLocation())
+                        .build())
+                .movie(MovieDetailResponse.builder()
+                        .id(movie.getId())
+                        .name(movie.getName())
+                        .premiere(DateUtils.formatDate(movie.getPremiere()))
+                        .language(movie.getLanguage())
+                        .duration(movie.getDuration())
+                        .content(movie.getContent())
+                        .rate(movie.getRate())
+                        .image(movie.getImage())
+                        .canComment(true)
+                        .genres(null)   // bạn có thể set danh sách genre ở đây nếu cần
+                        .director(null) // hoặc map đầy đủ đạo diễn
+                        .actors(null)   // hoặc map danh sách diễn viên
+                        .build())
+                .room(RoomResponse.builder()
+                        .id(showtime.getRoom().getId())
+                        .name(showtime.getRoom().getName())
+                        .rows(showtime.getRoom().getRowCount())
+                        .columns(showtime.getRoom().getColumnCount())
+                        .seats(null)
+                        .build())
+                .build();
+    }
+
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     public UpdateShowtimeResponse update(String showtimeId, UpdateShowtimeRequest updateShowtimeRequest) {
         var showtimeInfo = showtimeRepository.findById(showtimeId)
                 .orElseThrow(() -> new MyException(ErrorCode.SHOWTIME_NOT_EXISTED));
 
         var roomInfo = roomRepository.findById(updateShowtimeRequest.getRoomId())
-                        .orElseThrow(() -> new MyException(ErrorCode.ROOM_NOT_EXISTED));
+                .orElseThrow(() -> new MyException(ErrorCode.ROOM_NOT_EXISTED));
 
         showtimeInfo.setStartTime(updateShowtimeRequest.getStartTime());
 //        update endTime
@@ -191,6 +318,39 @@ public class ShowtimeService {
                 .totalSeat(showtimeInfo.getTotalSeat())
                 .emptySeat(showtimeInfo.getEmptySeat())
                 .status(showtimeInfo.getStatus())
+                .theater(TheaterResponse.builder()
+                        .id(showtimeInfo.getRoom().getTheater().getId())
+                        .name(showtimeInfo.getRoom().getTheater().getName())
+                        .location(showtimeInfo.getRoom().getTheater().getLocation())
+                        .build())
+                .movie(MovieDetailResponse.builder()
+                        .id(showtimeInfo.getMovie().getId())
+                        .name(showtimeInfo.getMovie().getName())
+                        .premiere(DateUtils.formatDate(showtimeInfo.getMovie().getPremiere()))
+                        .language(showtimeInfo.getMovie().getLanguage())
+                        .duration(showtimeInfo.getMovie().getDuration())
+                        .content(showtimeInfo.getMovie().getContent())
+                        .rate(showtimeInfo.getMovie().getRate())
+                        .image(showtimeInfo.getMovie().getImage())
+                        .canComment(true)
+                        .genres(null)
+                        .director(null)
+                        .actors(null)
+                        .build())
+                .room(RoomResponse.builder()
+                        .id(showtimeInfo.getRoom().getId())
+                        .name(showtimeInfo.getRoom().getName())
+                        .rows(showtimeInfo.getRoom().getRowCount())
+                        .columns(showtimeInfo.getRoom().getColumnCount())
+                        .seats(showtimeInfo.getRoom().getSeats().stream().map(
+                                        seat -> SeatResponse.builder()
+                                                .id(seat.getId())
+                                                .locateRow(seat.getLocateRow())
+                                                .locateColumn(seat.getLocateColumn())
+                                                .price(seat.getPrice())
+                                                .build())
+                                .collect(Collectors.toSet()))
+                        .build())
                 .build();
     }
 

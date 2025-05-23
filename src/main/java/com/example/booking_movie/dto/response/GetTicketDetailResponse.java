@@ -3,17 +3,14 @@ package com.example.booking_movie.dto.response;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-import java.util.Set;
-
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class CreateRoomResponse {
+public class GetTicketDetailResponse {
     String id;
-    String name;
-    Integer columns;
-    Integer rows;
-    Set<SeatResponse> seats;
+    Double price;
+    String ticketId;
+    SeatResponse seat;
 }

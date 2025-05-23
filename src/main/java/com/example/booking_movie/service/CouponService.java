@@ -80,9 +80,19 @@ public class CouponService {
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
-    public UpdateCouponResponse update(String couponId, UpdateCouponRequest updateCouponRequest) {
+    public UpdateCouponResponse update(String couponId, UpdateCouponRequest updateCouponRequest, MultipartFile file) throws IOException {
         var couponInfo = couponRepository.findById(couponId)
                 .orElseThrow(() -> new MyException(ErrorCode.COUPON_NOT_EXISTED));
+
+        if (!file.isEmpty()) {
+//            delete image
+            imageService.deleteImage(couponInfo.getPublicId());
+//        upload image
+            var imageResponse = imageService.uploadImage(file, "voucher");
+            couponInfo.setImage(imageResponse.getImageUrl());
+            couponInfo.setPublicId(imageResponse.getPublicId());
+            couponRepository.save(couponInfo);
+        }
 
         couponInfo.setCode(updateCouponRequest.getCode());
         couponInfo.setDiscountType(updateCouponRequest.getDiscountType());
@@ -105,7 +115,7 @@ public class CouponService {
                 .status(couponInfo.getStatus())
                 .image(couponInfo.getImage())
                 .publicId(couponInfo.getPublicId())
-                .status(false)
+                .status(couponInfo.getStatus())
                 .build();
     }
 
@@ -158,7 +168,7 @@ public class CouponService {
                         .status(coupon.getStatus())
                         .image(coupon.getImage())
                         .publicId(coupon.getPublicId())
-                        .status(false)
+                        .status(coupon.getStatus())
                         .build())
                 .collect(Collectors.toList());
     }
