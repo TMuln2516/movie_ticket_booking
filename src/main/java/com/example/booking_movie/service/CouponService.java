@@ -128,7 +128,7 @@ public class CouponService {
         couponRepository.save(couponInfo);
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'USER')")
+//    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'USER')")
     public List<CouponResponse> getAll() {
         //        get user
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
