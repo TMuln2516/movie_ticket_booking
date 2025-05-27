@@ -246,7 +246,7 @@ public class ShowtimeService {
                 .collect(Collectors.toList());
     }
 
-    @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     public GetOneShowtimeResponses getOneShowtime(String showtimeId) {
         Showtime showtime = showtimeRepository.findById(showtimeId)
                 .orElseThrow(() -> new MyException(ErrorCode.SHOWTIME_NOT_EXISTED));
