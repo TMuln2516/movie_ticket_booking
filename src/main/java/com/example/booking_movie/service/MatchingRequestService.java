@@ -4,6 +4,7 @@ import com.example.booking_movie.config.MatchingWebSocketHandler;
 import com.example.booking_movie.constant.DefinedDiscountType;
 import com.example.booking_movie.dto.request.CreateMatchingRequest;
 import com.example.booking_movie.dto.request.CreateTicketRequest;
+import com.example.booking_movie.dto.response.CheckUserSendMatchingResponse;
 import com.example.booking_movie.dto.response.CreateTicketResponse;
 import com.example.booking_movie.dto.response.MatchingInfo;
 import com.example.booking_movie.entity.*;
@@ -147,6 +148,10 @@ public class MatchingRequestService {
                 // Đặt vé cho user được ghép đôi
                 matchingWebSocketHandler.notifyUser(matchedUser.getId(), "Tạo vé thành công",
                         createTicketForUser(matchedUser.getId(), createMatchingRequest.getShowtimeId(), selectedPair.getValue().getId()));
+
+                //            delete request sau khi matching thành công
+                matchingRequestRepository.delete(matchingRequest);
+                matchingRequestRepository.delete(newMatchingRequest);
             } else {
                 // Trường hợp không có ghế đôi khả dụng
                 matchingWebSocketHandler.notifyUser(currentUser.getId(), "Không còn ghế đôi khả dụng cho suất chiếu này", null);
@@ -234,6 +239,19 @@ public class MatchingRequestService {
                 .status(ticket.getStatus())
                 .userId(userId)
                 .showtimeId(showtime.getId())
+                .build();
+    }
+
+    @PreAuthorize("hasRole('USER')")
+    public CheckUserSendMatchingResponse checkUserSendMatching() {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        User userInfo = userRepository.findByUsername(username).orElseThrow(() -> new MyException(ErrorCode.USER_NOT_EXISTED));
+
+//        get all request of user
+        List<MatchingRequest> matchingRequests = matchingRequestRepository.findAllByUserId(userInfo.getId());
+
+        return CheckUserSendMatchingResponse.builder()
+                .isSendMatchingRequest(!matchingRequests.isEmpty())
                 .build();
     }
 

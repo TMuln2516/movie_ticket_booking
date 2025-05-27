@@ -23,6 +23,9 @@ public class Notification {
 
     String userId;
     String message;
+
+    @Lob
+    @Column(columnDefinition = "TEXT")
     String data;
     Boolean isRead;
 }

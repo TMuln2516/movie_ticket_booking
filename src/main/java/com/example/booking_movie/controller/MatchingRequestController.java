@@ -25,6 +25,14 @@ import java.util.List;
 public class MatchingRequestController {
     MatchingRequestService matchingRequestService;
 
+    @GetMapping("/check")
+    public ApiResponse<CheckUserSendMatchingResponse> checkUserSendMatchingResponse() {
+        return ApiResponse.<CheckUserSendMatchingResponse>builder()
+                .message("Kiểm tra thành công")
+                .result(matchingRequestService.checkUserSendMatching())
+                .build();
+    }
+
     @PostMapping("/")
     public ApiResponse<Void> create(@RequestBody @Valid CreateMatchingRequest createMatchingRequest) throws JsonProcessingException {
         matchingRequestService.create(createMatchingRequest);

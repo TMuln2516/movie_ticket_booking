@@ -51,4 +51,6 @@ public interface MatchingRequestRepository extends JpaRepository<MatchingRequest
     );
 
     Optional<MatchingRequest> findTopByUserIdOrderByCreateAtDesc(String userId);
+
+    List<MatchingRequest> findAllByUserId(String userId);
 }
