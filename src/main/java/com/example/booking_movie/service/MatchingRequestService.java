@@ -148,10 +148,6 @@ public class MatchingRequestService {
                 // Đặt vé cho user được ghép đôi
                 matchingWebSocketHandler.notifyUser(matchedUser.getId(), "Tạo vé thành công",
                         createTicketForUser(matchedUser.getId(), createMatchingRequest.getShowtimeId(), selectedPair.getValue().getId()));
-
-                //            delete request sau khi matching thành công
-                matchingRequestRepository.delete(matchingRequest);
-                matchingRequestRepository.delete(newMatchingRequest);
             } else {
                 // Trường hợp không có ghế đôi khả dụng
                 matchingWebSocketHandler.notifyUser(currentUser.getId(), "Không còn ghế đôi khả dụng cho suất chiếu này", null);
