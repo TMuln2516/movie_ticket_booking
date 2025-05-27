@@ -387,6 +387,9 @@ public class MovieService {
         elasticMovie.setRate(movie.getRate());
         elasticMovieService.createOrUpdate(elasticMovie);
 
+        // Xóa cache ListMovie
+        redisTemplate.delete("ListMovie");
+
         return UpdateMovieResponse.builder()
                 .id(movie.getId())
                 .name(movie.getName())

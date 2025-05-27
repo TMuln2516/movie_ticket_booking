@@ -339,17 +339,19 @@ public class TicketService {
         return tickets.stream()
                 .map(ticket -> {
                     // Lấy TicketFood theo ticketId
-                    TicketFood ticketFood = ticketFoodRepository.findByTicketId(ticket.getId());
+                    List<TicketFood> ticketFoods = ticketFoodRepository.findAllByTicketId(ticket.getId());
 
                     // Nếu không có food thì để food = null
-                    FoodDetailResponse food = ticketFood == null ? null :
-                            FoodDetailResponse.builder()
+                    List<FoodDetailResponse> foodDetailResponses = ticketFoods.stream()
+                            .map(ticketFood -> FoodDetailResponse.builder()
                                     .id(ticketFood.getFood().getId())
                                     .name(ticketFood.getFood().getName())
                                     .price(ticketFood.getFood().getPrice())
                                     .image(ticketFood.getFood().getImage())
                                     .quantity(ticketFood.getQuantity())
-                                    .build();
+                                    .build()
+                            )
+                            .toList();
 
                     // Kiểm tra null cho showtime
                     Showtime showtime = ticket.getShowtime();
@@ -398,7 +400,7 @@ public class TicketService {
                             .time(DateUtils.formatTime(ticket.getTime()))
                             .status(ticket.getStatus())
                             .amount(ticket.getAmount())
-                            .food(food)
+                            .foods(foodDetailResponses.isEmpty() ? null : foodDetailResponses)
                             .showtime(showtimeResponse)
                             .user(UserResponse.builder()
                                     .id(ticket.getUser().getId())

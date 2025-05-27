@@ -17,5 +17,5 @@ public interface TicketFoodRepository extends JpaRepository<TicketFood, String> 
     @Query("DELETE FROM TicketFood tf WHERE tf.food.id = :foodId")
     void deleteAllByFoodId(@Param("foodId") String foodId);
 
-    TicketFood findByTicketId(String ticketId);
+    List<TicketFood> findAllByTicketId(String ticketId);
 }

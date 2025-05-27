@@ -18,6 +18,6 @@ public class GetAllTicketResponse {
     Double amount;
     UserResponse user;
     GetAllShowtimeResponses showtime;
-    FoodDetailResponse food;
+    List<FoodDetailResponse> foods;
     CouponResponse coupon;
 }
