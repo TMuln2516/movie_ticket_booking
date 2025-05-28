@@ -131,8 +131,8 @@ public class CouponService {
 //    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'USER')")
     public List<CouponResponse> getAll() {
         //        get user
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        User currentUser = userRepository.findByUsername(username).orElseThrow(() -> new MyException(ErrorCode.USER_NOT_EXISTED));
+//        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+//        User currentUser = userRepository.findByUsername(username).orElseThrow(() -> new MyException(ErrorCode.USER_NOT_EXISTED));
 
 //        List<Coupon> unusedCoupons = couponRepository.findUnusedCouponsByUser(currentUser.getId());
 //

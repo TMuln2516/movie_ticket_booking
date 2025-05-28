@@ -66,7 +66,10 @@ public class SecurityConfig {
 
 //            websocket
             "/ws/**",
-            "/matching"
+            "/matching",
+
+//            coupon
+            "/api/coupons/**",
     };
 
     CustomJWTDecoder customJWTDecoder;
