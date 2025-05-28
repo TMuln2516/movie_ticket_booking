@@ -52,17 +52,17 @@ public class MatchingRequestService {
         User currentUser = userRepository.findByUsername(username)
                 .orElseThrow(() -> new MyException(ErrorCode.USER_NOT_EXISTED));
 
-        if (matchingRequestRepository.existMatchingRequests(
-                createMatchingRequest.getMovieName(),
-                createMatchingRequest.getShowtimeId(),
-                createMatchingRequest.getTheaterName(),
-                createMatchingRequest.getMinAge(),
-                createMatchingRequest.getMaxAge(),
-                createMatchingRequest.getGender(),
-                currentUser.getId())) {
-            matchingWebSocketHandler.notifyUser(currentUser.getId(), "Bạn đã có lịch hẹn. Xin vui lòng kiểm tra lại", null);
-            return;
-        }
+//        if (matchingRequestRepository.existMatchingRequests(
+//                createMatchingRequest.getMovieName(),
+//                createMatchingRequest.getShowtimeId(),
+//                createMatchingRequest.getTheaterName(),
+//                createMatchingRequest.getMinAge(),
+//                createMatchingRequest.getMaxAge(),
+//                createMatchingRequest.getGender(),
+//                currentUser.getId())) {
+//            matchingWebSocketHandler.notifyUser(currentUser.getId(), "Bạn đã có lịch hẹn. Xin vui lòng kiểm tra lại", null);
+//            return;
+//        }
 
 //        lấy ra danh sách các request matching phù hợp với yêu cầu của người gửi
         List<MatchingRequest> matchingRequests = matchingRequestRepository.findMatchingRequests(

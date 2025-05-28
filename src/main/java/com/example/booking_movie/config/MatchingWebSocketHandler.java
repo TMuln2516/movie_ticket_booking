@@ -45,11 +45,13 @@ public class MatchingWebSocketHandler extends TextWebSocketHandler {
                                     ? new ObjectMapper().readValue(notification.getData(), Object.class)
                                     : null;
 
+                            String message = notification.getMessage() != null ? notification.getMessage() : null;
+
 //                            gửi thông báo
-                            notifyUser(userId, "Ghép đôi thành công", result);
+                            notifyUser(userId, message, result);
 
 //                            cập nhật trạng thái đã đọc
-                            notification.setIsRead(true);
+//                            notification.setIsRead(true);
                             notificationRepository.save(notification);
                         } catch (JsonProcessingException e) {
                             throw new RuntimeException(e);
