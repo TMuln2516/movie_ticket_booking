@@ -46,9 +46,10 @@ public class MatchingWebSocketHandler extends TextWebSocketHandler {
                                     : null;
 
                             String message = notification.getMessage() != null ? notification.getMessage() : null;
+                            Integer code = notification.getCode() != null ? notification.getCode() : null;
 
 //                            gửi thông báo
-                            notifyUser(userId, message, result);
+                            notifyUser(userId, code, message, result);
 
 //                            cập nhật trạng thái đã đọc
 //                            notification.setIsRead(true);
@@ -69,13 +70,14 @@ public class MatchingWebSocketHandler extends TextWebSocketHandler {
     }
 
 
-//    hàm gửi thông báo đến user
-    public void notifyUser(String userId, String message, Object result) throws JsonProcessingException {
+    //    hàm gửi thông báo đến user
+    public void notifyUser(String userId, Integer code, String message, Object result) throws JsonProcessingException {
         WebSocketSession session = userSessions.get(userId);
         if (session != null && session.isOpen()) {
             try {
                 ObjectMapper objectMapper = new ObjectMapper();
                 String jsonMessage = objectMapper.writeValueAsString(Map.of(
+                        "code", code,
                         "message", message,
                         "result", result != null ? result : new HashMap<>()
                 ));
@@ -90,6 +92,7 @@ public class MatchingWebSocketHandler extends TextWebSocketHandler {
 //            lưu lại thông báo vào db
             Notification newNotification = Notification.builder()
                     .userId(userId)
+                    .code(code)
                     .message(message)
                     .data(result != null ? new ObjectMapper().writeValueAsString(result) : null)
                     .isRead(false)

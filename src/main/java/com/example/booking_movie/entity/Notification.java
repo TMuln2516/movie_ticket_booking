@@ -23,6 +23,7 @@ public class Notification {
 
     String userId;
     String message;
+    Integer code;
 
     @Lob
     @Column(columnDefinition = "TEXT")

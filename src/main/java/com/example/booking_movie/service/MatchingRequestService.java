@@ -114,8 +114,8 @@ public class MatchingRequestService {
                     .build();
 
             // Gửi thông báo WebSocket đến cả hai người
-            matchingWebSocketHandler.notifyUser(currentUser.getId(), "Ghép đôi thành công", matchingUserInfo);
-            matchingWebSocketHandler.notifyUser(matchedUser.getId(), "Ghép đôi thành công", currentUserInfo);
+            matchingWebSocketHandler.notifyUser(currentUser.getId(), 200, "Ghép đôi thành công", matchingUserInfo);
+            matchingWebSocketHandler.notifyUser(matchedUser.getId(), 200, "Ghép đôi thành công", currentUserInfo);
 
 //            lấy danh sách ghế đôi chưa được đặt
             List<Seat> availableCoupleSeats = scheduleSeatRepository.findAvailableCoupleSeats(createMatchingRequest.getShowtimeId());
@@ -142,16 +142,16 @@ public class MatchingRequestService {
                 AbstractMap.SimpleEntry<Seat, Seat> selectedPair = couplePairs.get(random.nextInt(couplePairs.size()));
 
                 // Đặt vé cho user đang đăng nhập
-                matchingWebSocketHandler.notifyUser(currentUser.getId(), "Tạo vé thành công",
+                matchingWebSocketHandler.notifyUser(currentUser.getId(), 201, "Tạo vé thành công",
                         createTicketForUser(currentUser.getId(), createMatchingRequest.getShowtimeId(), selectedPair.getKey().getId()));
 
                 // Đặt vé cho user được ghép đôi
-                matchingWebSocketHandler.notifyUser(matchedUser.getId(), "Tạo vé thành công",
+                matchingWebSocketHandler.notifyUser(matchedUser.getId(), 201, "Tạo vé thành công",
                         createTicketForUser(matchedUser.getId(), createMatchingRequest.getShowtimeId(), selectedPair.getValue().getId()));
             } else {
                 // Trường hợp không có ghế đôi khả dụng
-                matchingWebSocketHandler.notifyUser(currentUser.getId(), "Không còn ghế đôi khả dụng cho suất chiếu này", null);
-                matchingWebSocketHandler.notifyUser(matchedUser.getId(), "Không còn ghế đôi khả dụng cho suất chiếu này", null);
+                matchingWebSocketHandler.notifyUser(currentUser.getId(), 400, "Không còn ghế đôi khả dụng cho suất chiếu này", null);
+                matchingWebSocketHandler.notifyUser(matchedUser.getId(), 400,"Không còn ghế đôi khả dụng cho suất chiếu này", null);
             }
 
 
@@ -180,7 +180,7 @@ public class MatchingRequestService {
                 matchingRequestRepository.save(newMatchingRequest);
             }
 //            // Gửi thông báo WebSocket khi không tìm được người phù hợp
-            matchingWebSocketHandler.notifyUser(currentUser.getId(), "Hệ thống vẫn chưa tìm được người phù hợp", null);
+            matchingWebSocketHandler.notifyUser(currentUser.getId(), 400,"Hệ thống vẫn chưa tìm được người phù hợp", null);
         }
     }
 
