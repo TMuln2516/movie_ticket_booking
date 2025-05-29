@@ -6,6 +6,8 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.Set;
 
 @Entity
@@ -24,6 +26,7 @@ public class Notification {
     String userId;
     String message;
     Integer code;
+    LocalDateTime createdAt;
 
     @Lob
     @Column(columnDefinition = "TEXT")

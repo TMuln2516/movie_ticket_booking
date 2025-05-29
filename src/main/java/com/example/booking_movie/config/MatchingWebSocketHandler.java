@@ -17,6 +17,7 @@ import org.springframework.web.socket.handler.TextWebSocketHandler;
 
 import java.io.IOException;
 import java.net.URI;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -38,7 +39,7 @@ public class MatchingWebSocketHandler extends TextWebSocketHandler {
             userSessions.put(userId, session);
 
 //            kiểm tra xem có thông báo nào chưa gửi không
-            notificationRepository.findByUserIdAndIsReadFalse(userId)
+            notificationRepository.findByUserIdOrderByCreatedAtAsc(userId)
                     .forEach(notification -> {
                         try {
                             Object result = notification.getData() != null
@@ -49,7 +50,7 @@ public class MatchingWebSocketHandler extends TextWebSocketHandler {
                             Integer code = notification.getCode() != null ? notification.getCode() : null;
 
 //                            gửi thông báo
-                            notifyUser(userId, code, message, result);
+                            notifyUser(userId, code, message, result, false);
 
 //                            cập nhật trạng thái đã đọc
 //                            notification.setIsRead(true);
@@ -71,8 +72,9 @@ public class MatchingWebSocketHandler extends TextWebSocketHandler {
 
 
     //    hàm gửi thông báo đến user
-    public void notifyUser(String userId, Integer code, String message, Object result) throws JsonProcessingException {
+    public void notifyUser(String userId, Integer code, String message, Object result, boolean isSaveToDatabase) throws JsonProcessingException {
         WebSocketSession session = userSessions.get(userId);
+
         if (session != null && session.isOpen()) {
             try {
                 ObjectMapper objectMapper = new ObjectMapper();
@@ -88,18 +90,22 @@ public class MatchingWebSocketHandler extends TextWebSocketHandler {
             }
         } else {
             System.out.println("⚠️ Không tìm thấy kết nối WebSocket cho user: " + userId);
+        }
 
-//            lưu lại thông báo vào db
+        // Chỉ lưu vào DB
+        if (isSaveToDatabase) {
             Notification newNotification = Notification.builder()
                     .userId(userId)
                     .code(code)
                     .message(message)
                     .data(result != null ? new ObjectMapper().writeValueAsString(result) : null)
                     .isRead(false)
+                    .createdAt(LocalDateTime.now())
                     .build();
             notificationRepository.save(newNotification);
         }
     }
+
 
     // Lấy userId từ query params khi kết nối WebSocket
     private String extractUserId(WebSocketSession session) {
