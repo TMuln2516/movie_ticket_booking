@@ -7,6 +7,7 @@ import com.example.booking_movie.dto.request.CreateTicketRequest;
 import com.example.booking_movie.dto.response.CheckUserSendMatchingResponse;
 import com.example.booking_movie.dto.response.CreateTicketResponse;
 import com.example.booking_movie.dto.response.MatchingInfo;
+import com.example.booking_movie.dto.response.NotifyResponse;
 import com.example.booking_movie.entity.*;
 import com.example.booking_movie.exception.ErrorCode;
 import com.example.booking_movie.exception.MyException;
@@ -114,8 +115,19 @@ public class MatchingRequestService {
                     .build();
 
             // Gửi thông báo WebSocket đến cả hai người
-            matchingWebSocketHandler.notifyUser(currentUser.getId(), 200, "Ghép đôi thành công", matchingUserInfo, true);
-            matchingWebSocketHandler.notifyUser(matchedUser.getId(), 200, "Ghép đôi thành công", currentUserInfo, true);
+            // Gửi thông báo WebSocket đến cả hai người
+            NotifyResponse currentUserResponse = NotifyResponse.builder()
+                    .code(200)
+                    .message("Ghép đôi thành công")
+                    .data(matchingUserInfo)
+                    .build();
+            NotifyResponse matchedUserResponse = NotifyResponse.builder()
+                    .code(200)
+                    .message("Ghép đôi thành công")
+                    .data(currentUserInfo)
+                    .build();
+            matchingWebSocketHandler.notifyUser(currentUser.getId(), currentUserResponse, true);
+            matchingWebSocketHandler.notifyUser(matchedUser.getId(), matchedUserResponse, true);
 
 //            lấy danh sách ghế đôi chưa được đặt
             List<Seat> availableCoupleSeats = scheduleSeatRepository.findAvailableCoupleSeats(createMatchingRequest.getShowtimeId());
@@ -142,20 +154,31 @@ public class MatchingRequestService {
                 AbstractMap.SimpleEntry<Seat, Seat> selectedPair = couplePairs.get(random.nextInt(couplePairs.size()));
 
                 // Đặt vé cho user đang đăng nhập
-                matchingWebSocketHandler.notifyUser(currentUser.getId(), 201, "Tạo vé thành công",
-                        createTicketForUser(currentUser.getId(), createMatchingRequest.getShowtimeId(),
-                                selectedPair.getKey().getId()), true);
+                NotifyResponse ticketResponseCurrent = NotifyResponse.builder()
+                        .code(201)
+                        .message("Tạo vé thành công")
+                        .data(createTicketForUser(currentUser.getId(), createMatchingRequest.getShowtimeId(),
+                                selectedPair.getKey().getId()))
+                        .build();
+                matchingWebSocketHandler.notifyUser(currentUser.getId(), ticketResponseCurrent, true);
 
                 // Đặt vé cho user được ghép đôi
-                matchingWebSocketHandler.notifyUser(matchedUser.getId(), 201, "Tạo vé thành công",
-                        createTicketForUser(matchedUser.getId(), createMatchingRequest.getShowtimeId(),
-                                selectedPair.getValue().getId()), true);
+                NotifyResponse ticketResponseMatched = NotifyResponse.builder()
+                        .code(201)
+                        .message("Tạo vé thành công")
+                        .data(createTicketForUser(matchedUser.getId(), createMatchingRequest.getShowtimeId(),
+                                selectedPair.getValue().getId()))
+                        .build();
+                matchingWebSocketHandler.notifyUser(matchedUser.getId(), ticketResponseMatched, true);
             } else {
                 // Trường hợp không có ghế đôi khả dụng
-                matchingWebSocketHandler.notifyUser(currentUser.getId(), 400,
-                        "Không còn ghế đôi khả dụng cho suất chiếu này", null, true);
-                matchingWebSocketHandler.notifyUser(matchedUser.getId(), 400,
-                        "Không còn ghế đôi khả dụng cho suất chiếu này", null, true);
+                NotifyResponse noSeatResponse = NotifyResponse.builder()
+                        .code(400)
+                        .message("Không còn ghế đôi khả dụng cho suất chiếu này")
+                        .data(null)
+                        .build();
+                matchingWebSocketHandler.notifyUser(currentUser.getId(), noSeatResponse, true);
+                matchingWebSocketHandler.notifyUser(matchedUser.getId(), noSeatResponse, true);
             }
 
 
@@ -184,8 +207,12 @@ public class MatchingRequestService {
                 matchingRequestRepository.save(newMatchingRequest);
             }
 //            // Gửi thông báo WebSocket khi không tìm được người phù hợp
-            matchingWebSocketHandler.notifyUser(currentUser.getId(), 400,
-                    "Hệ thống vẫn chưa tìm được người phù hợp", null, true);
+            NotifyResponse noMatchResponse = NotifyResponse.builder()
+                    .code(400)
+                    .message("Hệ thống vẫn chưa tìm được người phù hợp")
+                    .data(null)
+                    .build();
+            matchingWebSocketHandler.notifyUser(currentUser.getId(), noMatchResponse, true);
         }
     }
 

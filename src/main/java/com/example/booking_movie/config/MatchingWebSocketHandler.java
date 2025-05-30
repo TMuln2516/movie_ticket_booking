@@ -1,10 +1,13 @@
 package com.example.booking_movie.config;
 
 import com.example.booking_movie.dto.response.MatchingInfo;
+import com.example.booking_movie.dto.response.NotifyResponse;
 import com.example.booking_movie.entity.Notification;
 import com.example.booking_movie.repository.NotificationRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -42,19 +45,18 @@ public class MatchingWebSocketHandler extends TextWebSocketHandler {
             notificationRepository.findByUserIdOrderByCreatedAtAsc(userId)
                     .forEach(notification -> {
                         try {
-                            Object result = notification.getData() != null
-                                    ? new ObjectMapper().readValue(notification.getData(), Object.class)
-                                    : null;
-
-                            String message = notification.getMessage() != null ? notification.getMessage() : null;
-                            Integer code = notification.getCode() != null ? notification.getCode() : null;
-
 //                            gửi thông báo
-                            notifyUser(userId, code, message, result, false);
-
-//                            cập nhật trạng thái đã đọc
-//                            notification.setIsRead(true);
-                            notificationRepository.save(notification);
+                            notifyUser(userId,
+                                    NotifyResponse.builder()
+                                            .id(notification.getId() != null ? notification.getId() : null)
+                                            .code(notification.getCode() != null ? notification.getCode() : null)
+                                            .message(notification.getMessage() != null ? notification.getMessage() : null)
+                                            .data(notification.getData() != null
+                                                    ? new ObjectMapper().readValue(notification.getData(), Object.class)
+                                                    : null)
+                                            .createdAt(notification.getCreatedAt() != null ? notification.getCreatedAt() : null)
+                                            .build(),
+                                    false);
                         } catch (JsonProcessingException e) {
                             throw new RuntimeException(e);
                         }
@@ -72,16 +74,38 @@ public class MatchingWebSocketHandler extends TextWebSocketHandler {
 
 
     //    hàm gửi thông báo đến user
-    public void notifyUser(String userId, Integer code, String message, Object result, boolean isSaveToDatabase) throws JsonProcessingException {
-        WebSocketSession session = userSessions.get(userId);
+    public void notifyUser(String userId, NotifyResponse notifyResponse, boolean isSaveToDatabase) throws JsonProcessingException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new JavaTimeModule());
+        objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
 
+
+        if (isSaveToDatabase) {
+            Notification newNotification = Notification.builder()
+                    .userId(userId)
+                    .code(notifyResponse.getCode())
+                    .message(notifyResponse.getMessage())
+                    .data(notifyResponse.getData() != null ? objectMapper.writeValueAsString(notifyResponse.getData()) : null)
+                    .isRead(false)
+                    .createdAt(LocalDateTime.now())
+                    .build();
+
+            Notification savedNotification = notificationRepository.save(newNotification);
+
+            // Gán id và createdAt từ DB vào notifyResponse
+            notifyResponse.setId(savedNotification.getId());
+            notifyResponse.setCreatedAt(savedNotification.getCreatedAt());
+        }
+
+        WebSocketSession session = userSessions.get(userId);
         if (session != null && session.isOpen()) {
             try {
-                ObjectMapper objectMapper = new ObjectMapper();
                 String jsonMessage = objectMapper.writeValueAsString(Map.of(
-                        "code", code,
-                        "message", message,
-                        "result", result != null ? result : new HashMap<>()
+                        "id", notifyResponse.getId(),
+                        "code", notifyResponse.getCode(),
+                        "message", notifyResponse.getMessage(),
+                        "data", notifyResponse.getData() != null ? notifyResponse.getData() : new HashMap<>(),
+                        "createdAt", notifyResponse.getCreatedAt()
                 ));
                 session.sendMessage(new TextMessage(jsonMessage));
                 System.out.println("📩 Đã gửi JSON đến " + userId + ": " + jsonMessage);
@@ -90,19 +114,6 @@ public class MatchingWebSocketHandler extends TextWebSocketHandler {
             }
         } else {
             System.out.println("⚠️ Không tìm thấy kết nối WebSocket cho user: " + userId);
-        }
-
-        // Chỉ lưu vào DB
-        if (isSaveToDatabase) {
-            Notification newNotification = Notification.builder()
-                    .userId(userId)
-                    .code(code)
-                    .message(message)
-                    .data(result != null ? new ObjectMapper().writeValueAsString(result) : null)
-                    .isRead(false)
-                    .createdAt(LocalDateTime.now())
-                    .build();
-            notificationRepository.save(newNotification);
         }
     }
 
