@@ -42,7 +42,7 @@ public class MatchingWebSocketHandler extends TextWebSocketHandler {
             userSessions.put(userId, session);
 
 //            kiểm tra xem có thông báo nào chưa gửi không
-            notificationRepository.findByUserIdOrderByCreatedAtAsc(userId)
+            notificationRepository.findByUserIdAndIsReadFalseOrderByCreatedAtAsc(userId)
                     .forEach(notification -> {
                         try {
 //                            gửi thông báo
