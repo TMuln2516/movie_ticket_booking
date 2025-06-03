@@ -9,6 +9,7 @@ import com.example.booking_movie.exception.MyException;
 import com.example.booking_movie.repository.NotificationRepository;
 import com.example.booking_movie.repository.UserRepository;
 import com.example.booking_movie.utils.DateUtils;
+import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -43,16 +44,27 @@ public class NotificationService {
                 .isRead(notificationInfo.getIsRead())
                 .message(notificationInfo.getMessage())
                 .user(UserResponse.builder()
-                            .id(userInfo.getId())
-                            .username(userInfo.getUsername())
-                            .firstName(userInfo.getFirstName())
-                            .lastName(userInfo.getLastName())
-                            .dateOfBirth(userInfo.getDateOfBirth() != null ? DateUtils.formatDate(userInfo.getDateOfBirth()) : null)
-                            .gender(userInfo.getGender())
-                            .email(userInfo.getEmail())
-                            .avatar(userInfo.getAvatar())
-                            .roles(userInfo.getRoles())
-                            .build())
+                        .id(userInfo.getId())
+                        .username(userInfo.getUsername())
+                        .firstName(userInfo.getFirstName())
+                        .lastName(userInfo.getLastName())
+                        .dateOfBirth(userInfo.getDateOfBirth() != null ? DateUtils.formatDate(userInfo.getDateOfBirth()) : null)
+                        .gender(userInfo.getGender())
+                        .email(userInfo.getEmail())
+                        .avatar(userInfo.getAvatar())
+                        .roles(userInfo.getRoles())
+                        .build())
                 .build();
     }
+
+    @Transactional
+    public void deleteAllByToken() {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        User userInfo = userRepository.findByUsername(username).orElseThrow(() -> new MyException(ErrorCode.USER_NOT_EXISTED));
+
+//        delete
+        notificationRepository.deleteAllByUserId(userInfo.getId());
+    }
+
 }

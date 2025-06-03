@@ -23,4 +23,12 @@ public class NotificationController {
                 .result(notificationService.toggleStatusNotification(notifyId))
                 .build();
     }
+
+    @DeleteMapping("/")
+    public ApiResponse<Void> deleteAllByUserId() {
+        notificationService.deleteAllByToken();
+        return ApiResponse.<Void>builder()
+                .message("Xóa tất cả thông báo của người dùng thành công")
+                .build();
+    }
 }
