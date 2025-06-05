@@ -49,7 +49,7 @@ public class TheaterService {
                 .build();
     }
 
-    @PreAuthorize("hasAnyRole('MANAGER', 'USER', 'ADMIN')")
+//    @PreAuthorize("hasAnyRole('MANAGER', 'USER', 'ADMIN')")
     public List<TheaterResponse> getAll() {
         return theaterRepository.findAll()
                 .stream()
