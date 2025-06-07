@@ -33,7 +33,6 @@ import java.util.stream.Collectors;
 public class CouponService {
     CouponRepository couponRepository;
     TicketRepository ticketRepository;
-    UserRepository userRepository;
     ImageService imageService;
 
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")

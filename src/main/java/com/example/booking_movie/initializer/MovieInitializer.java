@@ -4,7 +4,7 @@ import com.example.booking_movie.entity.Elastic.ElasticMovie;
 import com.example.booking_movie.entity.Genre;
 import com.example.booking_movie.entity.Movie;
 import com.example.booking_movie.entity.Person;
-import com.example.booking_movie.repository.Elastic.ElasticMovieRepository;
+//import com.example.booking_movie.repository.Elastic.ElasticMovieRepository;
 import com.example.booking_movie.repository.GenreRepository;
 import com.example.booking_movie.repository.MovieRepository;
 import com.example.booking_movie.repository.PersonRepository;
@@ -27,7 +27,7 @@ public class MovieInitializer {
     GenreRepository genreRepository;
     PersonRepository personRepository;
 
-    ElasticMovieRepository elasticMovieRepository;
+//    ElasticMovieRepository elasticMovieRepository;
 
     public void movieInitializer() {
         var drama = genreRepository.findByName("Chính Kịch").orElseThrow();
@@ -78,23 +78,23 @@ public class MovieInitializer {
             movieRepository.save(movieInfo);
 
 //            save elastic
-            elasticMovieRepository.save(ElasticMovie.builder()
-                    .id(movieInfo.getId())
-                    .name(movieInfo.getName())
-                    .premiere(DateUtils.formatDateToEpochMillis(movieInfo.getPremiere()))
-                    .language(movieInfo.getLanguage())
-                    .duration(movieInfo.getDuration())
-                    .content(movieInfo.getContent())
-                    .rate(movieInfo.getRate())
-                    .image(movieInfo.getImage())
-                    .publicId(movieInfo.getPublicId())
-                    .genreIds(movieInfo.getGenres().stream()
-                            .map(Genre::getId)
-                            .collect(Collectors.toSet()))
-                    .personIds(movieInfo.getPersons().stream()
-                            .map(Person::getId)
-                            .collect(Collectors.toSet()))
-                    .build());
+//            elasticMovieRepository.save(ElasticMovie.builder()
+//                    .id(movieInfo.getId())
+//                    .name(movieInfo.getName())
+//                    .premiere(DateUtils.formatDateToEpochMillis(movieInfo.getPremiere()))
+//                    .language(movieInfo.getLanguage())
+//                    .duration(movieInfo.getDuration())
+//                    .content(movieInfo.getContent())
+//                    .rate(movieInfo.getRate())
+//                    .image(movieInfo.getImage())
+//                    .publicId(movieInfo.getPublicId())
+//                    .genreIds(movieInfo.getGenres().stream()
+//                            .map(Genre::getId)
+//                            .collect(Collectors.toSet()))
+//                    .personIds(movieInfo.getPersons().stream()
+//                            .map(Person::getId)
+//                            .collect(Collectors.toSet()))
+//                    .build());
         }
 
         if (!movieRepository.existsByName("Mai")) {
@@ -123,23 +123,23 @@ public class MovieInitializer {
             movieRepository.save(movieInfo);
 
             //            save elastic
-            elasticMovieRepository.save(ElasticMovie.builder()
-                    .id(movieInfo.getId())
-                    .name(movieInfo.getName())
-                    .premiere(DateUtils.formatDateToEpochMillis(movieInfo.getPremiere()))
-                    .language(movieInfo.getLanguage())
-                    .duration(movieInfo.getDuration())
-                    .content(movieInfo.getContent())
-                    .rate(movieInfo.getRate())
-                    .image(movieInfo.getImage())
-                    .publicId(movieInfo.getPublicId())
-                    .genreIds(movieInfo.getGenres().stream()
-                            .map(Genre::getId)
-                            .collect(Collectors.toSet()))
-                    .personIds(movieInfo.getPersons().stream()
-                            .map(Person::getId)
-                            .collect(Collectors.toSet()))
-                    .build());
+//            elasticMovieRepository.save(ElasticMovie.builder()
+//                    .id(movieInfo.getId())
+//                    .name(movieInfo.getName())
+//                    .premiere(DateUtils.formatDateToEpochMillis(movieInfo.getPremiere()))
+//                    .language(movieInfo.getLanguage())
+//                    .duration(movieInfo.getDuration())
+//                    .content(movieInfo.getContent())
+//                    .rate(movieInfo.getRate())
+//                    .image(movieInfo.getImage())
+//                    .publicId(movieInfo.getPublicId())
+//                    .genreIds(movieInfo.getGenres().stream()
+//                            .map(Genre::getId)
+//                            .collect(Collectors.toSet()))
+//                    .personIds(movieInfo.getPersons().stream()
+//                            .map(Person::getId)
+//                            .collect(Collectors.toSet()))
+//                    .build());
         }
 
         if (!movieRepository.existsByName("Đào, phở và piano")) {
@@ -169,23 +169,23 @@ public class MovieInitializer {
             movieRepository.save(movieInfo);
 
             //            save elastic
-            elasticMovieRepository.save(ElasticMovie.builder()
-                    .id(movieInfo.getId())
-                    .name(movieInfo.getName())
-                    .premiere(DateUtils.formatDateToEpochMillis(movieInfo.getPremiere()))
-                    .language(movieInfo.getLanguage())
-                    .duration(movieInfo.getDuration())
-                    .content(movieInfo.getContent())
-                    .rate(movieInfo.getRate())
-                    .image(movieInfo.getImage())
-                    .publicId(movieInfo.getPublicId())
-                    .genreIds(movieInfo.getGenres().stream()
-                            .map(Genre::getId)
-                            .collect(Collectors.toSet()))
-                    .personIds(movieInfo.getPersons().stream()
-                            .map(Person::getId)
-                            .collect(Collectors.toSet()))
-                    .build());
+//            elasticMovieRepository.save(ElasticMovie.builder()
+//                    .id(movieInfo.getId())
+//                    .name(movieInfo.getName())
+//                    .premiere(DateUtils.formatDateToEpochMillis(movieInfo.getPremiere()))
+//                    .language(movieInfo.getLanguage())
+//                    .duration(movieInfo.getDuration())
+//                    .content(movieInfo.getContent())
+//                    .rate(movieInfo.getRate())
+//                    .image(movieInfo.getImage())
+//                    .publicId(movieInfo.getPublicId())
+//                    .genreIds(movieInfo.getGenres().stream()
+//                            .map(Genre::getId)
+//                            .collect(Collectors.toSet()))
+//                    .personIds(movieInfo.getPersons().stream()
+//                            .map(Person::getId)
+//                            .collect(Collectors.toSet()))
+//                    .build());
         }
 
         if (!movieRepository.existsByName("Linh Miêu: Quỷ Nhập Tràng")) {
@@ -213,23 +213,23 @@ public class MovieInitializer {
             movieRepository.save(movieInfo);
 
             //            save elastic
-            elasticMovieRepository.save(ElasticMovie.builder()
-                    .id(movieInfo.getId())
-                    .name(movieInfo.getName())
-                    .premiere(DateUtils.formatDateToEpochMillis(movieInfo.getPremiere()))
-                    .language(movieInfo.getLanguage())
-                    .duration(movieInfo.getDuration())
-                    .content(movieInfo.getContent())
-                    .rate(movieInfo.getRate())
-                    .image(movieInfo.getImage())
-                    .publicId(movieInfo.getPublicId())
-                    .genreIds(movieInfo.getGenres().stream()
-                            .map(Genre::getId)
-                            .collect(Collectors.toSet()))
-                    .personIds(movieInfo.getPersons().stream()
-                            .map(Person::getId)
-                            .collect(Collectors.toSet()))
-                    .build());
+//            elasticMovieRepository.save(ElasticMovie.builder()
+//                    .id(movieInfo.getId())
+//                    .name(movieInfo.getName())
+//                    .premiere(DateUtils.formatDateToEpochMillis(movieInfo.getPremiere()))
+//                    .language(movieInfo.getLanguage())
+//                    .duration(movieInfo.getDuration())
+//                    .content(movieInfo.getContent())
+//                    .rate(movieInfo.getRate())
+//                    .image(movieInfo.getImage())
+//                    .publicId(movieInfo.getPublicId())
+//                    .genreIds(movieInfo.getGenres().stream()
+//                            .map(Genre::getId)
+//                            .collect(Collectors.toSet()))
+//                    .personIds(movieInfo.getPersons().stream()
+//                            .map(Person::getId)
+//                            .collect(Collectors.toSet()))
+//                    .build());
         }
     }
 }

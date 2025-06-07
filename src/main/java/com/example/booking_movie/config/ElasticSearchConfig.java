@@ -14,18 +14,18 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@Configuration
-public class ElasticSearchConfig extends ElasticsearchConfiguration {
-
-    @Value("${spring.elasticsearch.uris}")
-    protected String elasticUri;
-
-    @Override
-    public ClientConfiguration clientConfiguration() {
-        return ClientConfiguration.builder()
-                .connectedTo(elasticUri)
-                .build();
-    }
+//@Configuration
+//public class ElasticSearchConfig extends ElasticsearchConfiguration {
+//
+//    @Value("${spring.elasticsearch.uris}")
+//    protected String elasticUri;
+//
+//    @Override
+//    public ClientConfiguration clientConfiguration() {
+//        return ClientConfiguration.builder()
+//                .connectedTo(elasticUri)
+//                .build();
+//    }
 
     // Không cần tự tạo ElasticsearchOperations, Spring sẽ tự inject
 //    @Autowired
@@ -66,4 +66,4 @@ public class ElasticSearchConfig extends ElasticsearchConfiguration {
 //            System.out.println("Index 'movies' created with custom analyzers.");
 //        }
 //    }
-}
+//}

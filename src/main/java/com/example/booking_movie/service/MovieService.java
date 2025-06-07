@@ -11,8 +11,8 @@ import com.example.booking_movie.entity.Elastic.ElasticMovie;
 import com.example.booking_movie.exception.ErrorCode;
 import com.example.booking_movie.exception.MyException;
 import com.example.booking_movie.repository.*;
-import com.example.booking_movie.repository.Elastic.ElasticMovieRepository;
-import com.example.booking_movie.service.Elastic.ElasticMovieService;
+//import com.example.booking_movie.repository.Elastic.ElasticMovieRepository;
+//import com.example.booking_movie.service.Elastic.ElasticMovieService;
 import com.example.booking_movie.utils.DateUtils;
 import com.example.booking_movie.utils.ValidUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -41,7 +41,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class MovieService {
-    ElasticMovieRepository elasticMovieRepository;
+//    ElasticMovieRepository elasticMovieRepository;
     MovieRepository movieRepository;
     GenreRepository genreRepository;
     PersonRepository personRepository;
@@ -50,7 +50,7 @@ public class MovieService {
     FeedbackRepository feedbackRepository;
     ShowtimeRepository showtimeRepository;
 
-    ElasticMovieService elasticMovieService;
+//    ElasticMovieService elasticMovieService;
     ImageService imageService;
 
     RedisTemplate<String, Object> redisTemplate;
@@ -115,24 +115,24 @@ public class MovieService {
         redisTemplate.delete("ListMovie");
 
 //        elastic
-        elasticMovieService.createOrUpdate(ElasticMovie.builder()
-                .id(newMovie.getId())
-                .name(newMovie.getName())
-                .premiere(DateUtils.formatDateToEpochMillis(newMovie.getPremiere()))
-                .language(newMovie.getLanguage())
-                .duration(newMovie.getDuration())
-                .content(newMovie.getContent())
-                .rate(newMovie.getRate())
-                .createAt(DateUtils.formatDateToEpochMillis(newMovie.getCreateAt()))
-                .image(newMovie.getImage())
-                .publicId(newMovie.getPublicId())
-                .genreIds(newMovie.getGenres().stream()
-                        .map(Genre::getId)
-                        .collect(Collectors.toSet()))
-                .personIds(newMovie.getPersons().stream()
-                        .map(Person::getId)
-                        .collect(Collectors.toSet()))
-                .build());
+//        elasticMovieService.createOrUpdate(ElasticMovie.builder()
+//                .id(newMovie.getId())
+//                .name(newMovie.getName())
+//                .premiere(DateUtils.formatDateToEpochMillis(newMovie.getPremiere()))
+//                .language(newMovie.getLanguage())
+//                .duration(newMovie.getDuration())
+//                .content(newMovie.getContent())
+//                .rate(newMovie.getRate())
+//                .createAt(DateUtils.formatDateToEpochMillis(newMovie.getCreateAt()))
+//                .image(newMovie.getImage())
+//                .publicId(newMovie.getPublicId())
+//                .genreIds(newMovie.getGenres().stream()
+//                        .map(Genre::getId)
+//                        .collect(Collectors.toSet()))
+//                .personIds(newMovie.getPersons().stream()
+//                        .map(Person::getId)
+//                        .collect(Collectors.toSet()))
+//                .build());
 
         return CreateMovieResponse.builder()
                 .id(newMovie.getId())
@@ -355,7 +355,7 @@ public class MovieService {
 //        get movie
         Movie movie = movieRepository.findById(movieId).orElseThrow(() -> new MyException(ErrorCode.MOVIE_NOT_EXISTED));
 //        get movie in elastic
-        ElasticMovie elasticMovie = elasticMovieRepository.findById(movieId).orElseThrow(() -> new MyException(ErrorCode.MOVIE_NOT_EXISTED));
+//        ElasticMovie elasticMovie = elasticMovieRepository.findById(movieId).orElseThrow(() -> new MyException(ErrorCode.MOVIE_NOT_EXISTED));
 
 //        set image
         if (!file.isEmpty()) {
@@ -379,13 +379,13 @@ public class MovieService {
 
 
 //        elastic
-        elasticMovie.setName(movie.getName());
-        elasticMovie.setPremiere(DateUtils.formatDateToEpochMillis(movie.getPremiere()));
-        elasticMovie.setLanguage(movie.getLanguage());
-        elasticMovie.setDuration(movie.getDuration());
-        elasticMovie.setContent(movie.getContent());
-        elasticMovie.setRate(movie.getRate());
-        elasticMovieService.createOrUpdate(elasticMovie);
+//        elasticMovie.setName(movie.getName());
+//        elasticMovie.setPremiere(DateUtils.formatDateToEpochMillis(movie.getPremiere()));
+//        elasticMovie.setLanguage(movie.getLanguage());
+//        elasticMovie.setDuration(movie.getDuration());
+//        elasticMovie.setContent(movie.getContent());
+//        elasticMovie.setRate(movie.getRate());
+//        elasticMovieService.createOrUpdate(elasticMovie);
 
         // Xóa cache ListMovie
         redisTemplate.delete("ListMovie");
@@ -440,7 +440,7 @@ public class MovieService {
         redisTemplate.delete("ListMovie");
 
 //        elastic
-        elasticMovieRepository.deleteById(movieId);
+//        elasticMovieRepository.deleteById(movieId);
     }
 
     //    delete director
@@ -450,7 +450,7 @@ public class MovieService {
 //        check exist
         Movie movie = movieRepository.findById(movieId).orElseThrow(() -> new MyException(ErrorCode.MOVIE_NOT_EXISTED));
 //        get movie in elastic
-        ElasticMovie elasticMovie = elasticMovieRepository.findById(movieId).orElseThrow(() -> new MyException(ErrorCode.MOVIE_NOT_EXISTED));
+//        ElasticMovie elasticMovie = elasticMovieRepository.findById(movieId).orElseThrow(() -> new MyException(ErrorCode.MOVIE_NOT_EXISTED));
 
 //        use Iterator
         Iterator<Person> personIterator = movie.getPersons().iterator();
@@ -463,7 +463,7 @@ public class MovieService {
                 person.getMovies().remove(movie);
 
 //                delete in elastic
-                elasticMovie.getPersonIds().remove(person.getId());
+//                elasticMovie.getPersonIds().remove(person.getId());
             }
         }
 
@@ -471,7 +471,7 @@ public class MovieService {
         movieRepository.save(movie);
 
 //        save elastic
-        elasticMovieRepository.save(elasticMovie);
+//        elasticMovieRepository.save(elasticMovie);
     }
 
     //    add director of movie (one movie -> one director)
@@ -482,7 +482,7 @@ public class MovieService {
         Person person = personRepository.findById(directorId).orElseThrow(() -> new MyException(ErrorCode.PERSON_NOT_EXISTED));
 
         //        get movie in elastic
-        ElasticMovie elasticMovie = elasticMovieRepository.findById(movieId).orElseThrow(() -> new MyException(ErrorCode.MOVIE_NOT_EXISTED));
+//        ElasticMovie elasticMovie = elasticMovieRepository.findById(movieId).orElseThrow(() -> new MyException(ErrorCode.MOVIE_NOT_EXISTED));
 
 //        check job
         if (!person.getJob().getName().equals(DefinedJob.DIRECTOR)) {
@@ -502,8 +502,8 @@ public class MovieService {
             movieRepository.save(movie);
 
 //            elastic
-            elasticMovie.getPersonIds().add(person.getId());
-            elasticMovieRepository.save(elasticMovie);
+//            elasticMovie.getPersonIds().add(person.getId());
+//            elasticMovieRepository.save(elasticMovie);
         } else {
             throw new MyException(ErrorCode.DIRECTOR_OF_MOVIE_EXISTED);
         }
@@ -515,7 +515,7 @@ public class MovieService {
         Movie movie = movieRepository.findById(movieId).orElseThrow(() -> new MyException(ErrorCode.MOVIE_NOT_EXISTED));
 
         //        get movie in elastic
-        ElasticMovie elasticMovie = elasticMovieRepository.findById(movieId).orElseThrow(() -> new MyException(ErrorCode.MOVIE_NOT_EXISTED));
+//        ElasticMovie elasticMovie = elasticMovieRepository.findById(movieId).orElseThrow(() -> new MyException(ErrorCode.MOVIE_NOT_EXISTED));
 
         // get actor
         Set<Person> actors = addActorsRequest.getActorsId()
@@ -532,8 +532,8 @@ public class MovieService {
         Set<String> actorIds = actors.stream()
                 .map(Person::getId)
                 .collect(Collectors.toSet());
-        elasticMovie.getPersonIds().addAll(actorIds);
-        elasticMovieRepository.save(elasticMovie);
+//        elasticMovie.getPersonIds().addAll(actorIds);
+//        elasticMovieRepository.save(elasticMovie);
     }
 
     @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
@@ -542,7 +542,7 @@ public class MovieService {
         Movie movie = movieRepository.findById(movieId).orElseThrow(() -> new MyException(ErrorCode.MOVIE_NOT_EXISTED));
 
         //        get movie in elastic
-        ElasticMovie elasticMovie = elasticMovieRepository.findById(movieId).orElseThrow(() -> new MyException(ErrorCode.MOVIE_NOT_EXISTED));
+//        ElasticMovie elasticMovie = elasticMovieRepository.findById(movieId).orElseThrow(() -> new MyException(ErrorCode.MOVIE_NOT_EXISTED));
 
 //        get actor
         Set<Person> actors = deleteActorsRequest.getActorsId()
@@ -558,8 +558,8 @@ public class MovieService {
         Set<String> actorIds = actors.stream()
                 .map(Person::getId)
                 .collect(Collectors.toSet());
-        elasticMovie.getPersonIds().removeAll(actorIds);
-        elasticMovieRepository.save(elasticMovie);
+//        elasticMovie.getPersonIds().removeAll(actorIds);
+//        elasticMovieRepository.save(elasticMovie);
     }
 
     public GetMovieByGenreResponse getAllByGenre(String genreId) throws JsonProcessingException {
