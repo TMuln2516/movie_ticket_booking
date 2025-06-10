@@ -1,9 +1,6 @@
 package com.example.booking_movie.utils;
 
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.time.ZoneId;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
 
 public class DateUtils {
@@ -36,5 +33,9 @@ public class DateUtils {
     public static LocalTime formatStringToLocalTime(String timeStr, String pattern) {
         DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern(pattern);
         return LocalTime.parse(timeStr, timeFormatter);
+    }
+
+    public static int calculateAge(LocalDate birthDate) {
+        return Period.between(birthDate, LocalDate.now()).getYears();
     }
 }

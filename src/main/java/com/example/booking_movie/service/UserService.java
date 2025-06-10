@@ -78,6 +78,7 @@ public class UserService {
                 .gender(createUserRequest.getGender())
                 .email(createUserRequest.getEmail())
                 .avatar(createUserRequest.getAvatar())
+                .roles(roles)
                 .status(true)
                 .feedbacks(feedbacks)
                 .build();

@@ -53,56 +53,75 @@ public class MatchingRequestService {
         User currentUser = userRepository.findByUsername(username)
                 .orElseThrow(() -> new MyException(ErrorCode.USER_NOT_EXISTED));
 
-//        if (matchingRequestRepository.existMatchingRequests(
-//                createMatchingRequest.getMovieName(),
-//                createMatchingRequest.getShowtimeId(),
-//                createMatchingRequest.getTheaterName(),
-//                createMatchingRequest.getMinAge(),
-//                createMatchingRequest.getMaxAge(),
-//                createMatchingRequest.getGender(),
-//                currentUser.getId())) {
-//            matchingWebSocketHandler.notifyUser(currentUser.getId(), "Bạn đã có lịch hẹn. Xin vui lòng kiểm tra lại", null);
-//            return;
-//        }
+        int currentUserAge = DateUtils.calculateAge(currentUser.getDateOfBirth());
+        log.info("Current user: {}, age: {}", currentUser.getId(), currentUserAge);
 
-//        lấy ra danh sách các request matching phù hợp với yêu cầu của người gửi
+        // Tính khoảng ngày sinh phù hợp với minAge - maxAge
+        int minAge = createMatchingRequest.getMinAge();
+        int maxAge = createMatchingRequest.getMaxAge();
+        LocalDate today = LocalDate.now();
+        LocalDate maxDateOfBirth = today.minusYears(minAge);
+        LocalDate minDateOfBirth = today.minusYears(maxAge).plusDays(1);
+        log.info("Searching for users with DOB between {} and {}", minDateOfBirth, maxDateOfBirth);
+
         List<MatchingRequest> matchingRequests = matchingRequestRepository.findMatchingRequests(
                 createMatchingRequest.getMovieName(),
                 createMatchingRequest.getShowtimeId(),
                 createMatchingRequest.getTheaterName(),
-                createMatchingRequest.getMinAge(),
-                createMatchingRequest.getMaxAge(),
+                minAge,
+                maxAge,
                 currentUser.getGender(),
-                currentUser.getId());
+                currentUser.getId()
+        );
+        log.info("Found {} matching requests", matchingRequests.size());
+        matchingRequests.forEach(req -> log.info("Matching request: userId={}, minAge={}, maxAge={}",
+                req.getUserId(), req.getMinAge(), req.getMaxAge()));
 
-        System.out.println("Matching request: " + matchingRequests);
+        MatchingRequest matchedRequest = null;
+        User matchedUser = null;
 
-        if (!matchingRequests.isEmpty()) {
-//            lấy giá trị đầu tiên
-            MatchingRequest matchingRequest = matchingRequests.get(0);
-            User matchedUser = userRepository.findById(matchingRequest.getUserId())
+        for (MatchingRequest req : matchingRequests) {
+            User user = userRepository.findById(req.getUserId())
                     .orElseThrow(() -> new MyException(ErrorCode.USER_NOT_EXISTED));
+            int matchedUserAge = DateUtils.calculateAge(user.getDateOfBirth());
+            log.info("Checking user: {}, age: {}, DOB: {}", user.getId(), matchedUserAge, user.getDateOfBirth());
 
-//            cập nhật lại trạng thái isMatched cho request vừa tìm được
-            matchingRequest.setIsMatched(true);
-            matchingRequestRepository.save(matchingRequest);
+            // Kiểm tra bổ sung: Đảm bảo ngày sinh của người dùng khớp với khoảng tuổi
+            if (user.getDateOfBirth().isBefore(minDateOfBirth) || user.getDateOfBirth().isAfter(maxDateOfBirth)) {
+                log.warn("User {} has DOB {} outside of requested range [{}, {}]",
+                        user.getId(), user.getDateOfBirth(), minDateOfBirth, maxDateOfBirth);
+                continue;
+            }
 
-//            tạo thêm record cho user hiện tại vừa mới gửi request
+            boolean matchedUserInCurrentUserRange = matchedUserAge >= minAge && matchedUserAge <= maxAge;
+            boolean currentUserInMatchedUserRange = currentUserAge >= req.getMinAge() && currentUserAge <= req.getMaxAge();
+
+            if (matchedUserInCurrentUserRange && currentUserInMatchedUserRange) {
+                matchedRequest = req;
+                matchedUser = user;
+                log.info("Match found: userId={}, age={}", matchedUser.getId(), matchedUserAge);
+                break;
+            }
+        }
+
+        if (matchedUser != null) {
+            matchedRequest.setIsMatched(true);
+            matchingRequestRepository.save(matchedRequest);
+
             MatchingRequest newMatchingRequest = MatchingRequest.builder()
                     .userId(currentUser.getId())
                     .movieName(createMatchingRequest.getMovieName())
                     .showtimeId(createMatchingRequest.getShowtimeId())
                     .theaterName(createMatchingRequest.getTheaterName())
-                    .maxAge(createMatchingRequest.getMaxAge())
-                    .minAge(createMatchingRequest.getMinAge())
+                    .minAge(minAge)
+                    .maxAge(maxAge)
                     .genderMatch(createMatchingRequest.getGender())
                     .isMatched(true)
                     .createAt(LocalDateTime.now())
                     .build();
             matchingRequestRepository.save(newMatchingRequest);
 
-//            tạo json cho phản hồi từ server cho websocket
-            MatchingInfo matchingUserInfo = MatchingInfo.builder()
+            MatchingInfo matchedUserInfo = MatchingInfo.builder()
                     .name(matchedUser.getFirstName() + " " + matchedUser.getLastName())
                     .dateOfBirth(DateUtils.formatDate(matchedUser.getDateOfBirth()))
                     .gender(matchedUser.getGender())
@@ -114,35 +133,28 @@ public class MatchingRequestService {
                     .gender(currentUser.getGender())
                     .build();
 
-            // Gửi thông báo WebSocket đến cả hai người
-            // Gửi thông báo WebSocket đến cả hai người
             NotifyResponse currentUserResponse = NotifyResponse.builder()
                     .code(200)
                     .message("Ghép đôi thành công")
-                    .data(matchingUserInfo)
+                    .data(matchedUserInfo)
                     .build();
+
             NotifyResponse matchedUserResponse = NotifyResponse.builder()
                     .code(200)
                     .message("Ghép đôi thành công")
                     .data(currentUserInfo)
                     .build();
+
             matchingWebSocketHandler.notifyUser(currentUser.getId(), currentUserResponse, true);
             matchingWebSocketHandler.notifyUser(matchedUser.getId(), matchedUserResponse, true);
 
-//            lấy danh sách ghế đôi chưa được đặt
             List<Seat> availableCoupleSeats = scheduleSeatRepository.findAvailableCoupleSeats(createMatchingRequest.getShowtimeId());
-//            System.out.println("Available Couple Seat: " + availableCoupleSeats);
-
-            // Sắp xếp danh sách ghế theo hàng (locateRow) trước, sau đó theo cột (locateColumn)
             availableCoupleSeats.sort(Comparator.comparing(Seat::getLocateRow).thenComparing(Seat::getLocateColumn));
 
             List<AbstractMap.SimpleEntry<Seat, Seat>> couplePairs = new ArrayList<>();
-
             for (int i = 0; i < availableCoupleSeats.size() - 1; i++) {
                 Seat seat1 = availableCoupleSeats.get(i);
                 Seat seat2 = availableCoupleSeats.get(i + 1);
-
-                // Kiểm tra nếu seat2 kế bên seat1
                 if (seat1.getLocateRow().equals(seat2.getLocateRow()) &&
                         seat1.getLocateColumn() + 1 == seat2.getLocateColumn()) {
                     couplePairs.add(new AbstractMap.SimpleEntry<>(seat1, seat2));
@@ -150,28 +162,22 @@ public class MatchingRequestService {
             }
 
             if (!couplePairs.isEmpty()) {
-                Random random = new Random();
-                AbstractMap.SimpleEntry<Seat, Seat> selectedPair = couplePairs.get(random.nextInt(couplePairs.size()));
+                AbstractMap.SimpleEntry<Seat, Seat> selectedPair = couplePairs.get(new Random().nextInt(couplePairs.size()));
 
-                // Đặt vé cho user đang đăng nhập
                 NotifyResponse ticketResponseCurrent = NotifyResponse.builder()
                         .code(201)
                         .message("Tạo vé thành công")
-                        .data(createTicketForUser(currentUser.getId(), createMatchingRequest.getShowtimeId(),
-                                selectedPair.getKey().getId()))
+                        .data(createTicketForUser(currentUser.getId(), createMatchingRequest.getShowtimeId(), selectedPair.getKey().getId()))
                         .build();
                 matchingWebSocketHandler.notifyUser(currentUser.getId(), ticketResponseCurrent, true);
 
-                // Đặt vé cho user được ghép đôi
                 NotifyResponse ticketResponseMatched = NotifyResponse.builder()
                         .code(201)
                         .message("Tạo vé thành công")
-                        .data(createTicketForUser(matchedUser.getId(), createMatchingRequest.getShowtimeId(),
-                                selectedPair.getValue().getId()))
+                        .data(createTicketForUser(matchedUser.getId(), createMatchingRequest.getShowtimeId(), selectedPair.getValue().getId()))
                         .build();
                 matchingWebSocketHandler.notifyUser(matchedUser.getId(), ticketResponseMatched, true);
             } else {
-                // Trường hợp không có ghế đôi khả dụng
                 NotifyResponse noSeatResponse = NotifyResponse.builder()
                         .code(400)
                         .message("Không còn ghế đôi khả dụng cho suất chiếu này")
@@ -180,33 +186,32 @@ public class MatchingRequestService {
                 matchingWebSocketHandler.notifyUser(currentUser.getId(), noSeatResponse, true);
                 matchingWebSocketHandler.notifyUser(matchedUser.getId(), noSeatResponse, true);
             }
-
-
         } else {
-//            nếu người dùng chưa gửi request thì tạo record mới
-            if (!matchingRequestRepository.existMatchingRequests(
+            boolean alreadyExist = matchingRequestRepository.existMatchingRequests(
                     createMatchingRequest.getMovieName(),
                     createMatchingRequest.getShowtimeId(),
                     createMatchingRequest.getTheaterName(),
-                    createMatchingRequest.getMinAge(),
-                    createMatchingRequest.getMaxAge(),
+                    minAge,
+                    maxAge,
                     createMatchingRequest.getGender(),
-                    currentUser.getId())) {
+                    currentUser.getId());
 
+            if (!alreadyExist) {
                 MatchingRequest newMatchingRequest = MatchingRequest.builder()
                         .userId(currentUser.getId())
                         .movieName(createMatchingRequest.getMovieName())
                         .showtimeId(createMatchingRequest.getShowtimeId())
                         .theaterName(createMatchingRequest.getTheaterName())
-                        .maxAge(createMatchingRequest.getMaxAge())
-                        .minAge(createMatchingRequest.getMinAge())
+                        .minAge(minAge)
+                        .maxAge(maxAge)
                         .genderMatch(createMatchingRequest.getGender())
                         .isMatched(false)
                         .createAt(LocalDateTime.now())
                         .build();
                 matchingRequestRepository.save(newMatchingRequest);
+                log.info("Saved new matching request for user: {}", currentUser.getId());
             }
-//            // Gửi thông báo WebSocket khi không tìm được người phù hợp
+
             NotifyResponse noMatchResponse = NotifyResponse.builder()
                     .code(400)
                     .message("Hệ thống vẫn chưa tìm được người phù hợp")
@@ -215,6 +220,7 @@ public class MatchingRequestService {
             matchingWebSocketHandler.notifyUser(currentUser.getId(), noMatchResponse, true);
         }
     }
+
 
     public CreateTicketResponse createTicketForUser(String userId, String showtimeId, String seatId) {
 //      lấy showtime

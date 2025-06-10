@@ -72,6 +72,9 @@ public class SecurityConfig {
 
 //            coupon
             "/api/coupons/**",
+
+//            theater
+            "/api/theaters/**",
     };
 
     CustomJWTDecoder customJWTDecoder;

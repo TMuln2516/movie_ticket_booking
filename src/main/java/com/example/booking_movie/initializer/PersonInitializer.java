@@ -73,7 +73,7 @@ public class PersonInitializer {
                     .name("Phương Anh Đào")
                     .dateOfBirth(LocalDate.of(1992 ,4,30))
                     .gender(false)
-                    .image("https://res.cloudinary.com/ddwbopzwt/image/upload/v1732213985/Ph%C6%B0%C6%A1ng%20Anh%20%C4%90%C3%A0o/ddrsptsuxsoe9p5t0nqr.jpg")
+                    .image("https://res.cloudinary.com/ddwbopzwt/image/upload/v1749483833/Ph%C6%B0%C6%A1ng%20Anh%20%C4%90%C3%A0o/xlkmlqk2xvxipxrbko5t.jpg")
                     .publicId("Phương Anh Đào/ddrsptsuxsoe9p5t0nqr")
                     .job(job)
                     .build());
@@ -169,7 +169,7 @@ public class PersonInitializer {
                     .name("Nguyễn Thúc Thùy Tiên")
                     .dateOfBirth(LocalDate.of(1998 ,8,12))
                     .gender(false)
-                    .image("https://res.cloudinary.com/ddwbopzwt/image/upload/v1732215788/Nguy%E1%BB%85n%20Th%C3%BAc%20Th%C3%B9y%20Ti%C3%AAn/pcclh2yfepuaxdw9uttf.jpg")
+                    .image("https://res.cloudinary.com/ddwbopzwt/image/upload/v1749483795/Nguy%E1%BB%85n%20Th%C3%BAc%20Th%C3%B9y%20Ti%C3%AAn/xlrejctqtjwu1o3aa1eh.webp")
                     .publicId("Nguyễn Thúc Thùy Tiên/pcclh2yfepuaxdw9uttf")
                     .job(job)
                     .build());

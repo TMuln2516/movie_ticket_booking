@@ -20,9 +20,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
+import java.time.*;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
@@ -107,8 +105,10 @@ public class TicketService {
         Showtime showtime = showtimeRepository.findById(createTicketRequest.getShowtimeId())
                 .orElseThrow(() -> new MyException(ErrorCode.SHOWTIME_NOT_EXISTED));
 
+        ZonedDateTime vnTime = ZonedDateTime.now(ZoneId.of("Asia/Ho_Chi_Minh"));
+
         Ticket ticket = Ticket.builder()
-                .time(LocalTime.now())
+                .time(vnTime.toLocalTime())
                 .date(LocalDate.now())
                 .status(false)
                 .user(user)
