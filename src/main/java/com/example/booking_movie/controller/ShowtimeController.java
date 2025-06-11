@@ -10,6 +10,7 @@ import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.hibernate.annotations.Check;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -38,6 +39,14 @@ public class ShowtimeController {
         return ApiResponse.<GetOneShowtimeResponses>builder()
                 .message("Lấy tất cả suất chiếu thành công")
                 .result(showtimeService.getOneShowtime(showtimeId))
+                .build();
+    }
+
+    @GetMapping("/check/{showtimeId}")
+    public ApiResponse<CheckSeatInShowtimeResponse> checkSeatInShowtime(@PathVariable String showtimeId) {
+        return ApiResponse.<CheckSeatInShowtimeResponse>builder()
+                .message("Lấy thông tin về suất chiếu thành công")
+                .result(showtimeService.checkSeatInShowtime(showtimeId))
                 .build();
     }
 

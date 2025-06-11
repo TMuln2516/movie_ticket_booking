@@ -254,6 +254,18 @@ public class ShowtimeService {
         Movie movie = showtime.getMovie();
         Theater theater = showtime.getRoom().getTheater();
 
+        Set<Person> persons = showtime.getMovie().getPersons();
+        Person director = null;
+        Set<Person> actors = new HashSet<>();
+        for (Person person : persons) {
+            if (DefinedJob.DIRECTOR.equalsIgnoreCase(person.getJob().getName())) {
+                director = person;
+            } else {
+                actors.add(person);
+            }
+        }
+
+        assert director != null;
         return GetOneShowtimeResponses.builder()
                 .id(showtime.getId())
                 .date(DateUtils.formatDate(showtime.getDate()))
@@ -277,16 +289,51 @@ public class ShowtimeService {
                         .rate(movie.getRate())
                         .image(movie.getImage())
                         .canComment(true)
-                        .genres(null)   // bạn có thể set danh sách genre ở đây nếu cần
-                        .director(null) // hoặc map đầy đủ đạo diễn
-                        .actors(null)   // hoặc map danh sách diễn viên
+                        .genres(movie.getGenres().stream().map(
+                                genre -> GenreResponse.builder()
+                                        .id(genre.getId())
+                                        .name(genre.getName())
+                                        .build()
+                        ).collect(Collectors.toSet()))
+                        .director(PersonResponse.builder()
+                                .id(director.getId())
+                                .name(director.getName())
+                                .gender(director.getGender())
+                                .dateOfBirth(DateUtils.formatDate(director.getDateOfBirth()))
+                                .image(director.getImage())
+                                .job(JobResponse.builder()
+                                        .id(director.getJob().getId())
+                                        .name(director.getJob().getName())
+                                        .build())
+                                .build())
+                        .actors(actors.stream().map(
+                                        person -> PersonResponse.builder()
+                                                .id(person.getId())
+                                                .name(person.getName())
+                                                .gender(person.getGender())
+                                                .dateOfBirth(DateUtils.formatDate(person.getDateOfBirth()))
+                                                .image(person.getImage())
+                                                .job(JobResponse.builder()
+                                                        .id(person.getJob().getId())
+                                                        .name(person.getJob().getName())
+                                                        .build())
+                                                .build())
+                                .collect(Collectors.toSet()))
                         .build())
                 .room(RoomResponse.builder()
                         .id(showtime.getRoom().getId())
                         .name(showtime.getRoom().getName())
                         .rows(showtime.getRoom().getRowCount())
                         .columns(showtime.getRoom().getColumnCount())
-                        .seats(null)
+                        .seats(showtime.getRoom().getSeats().stream().map(
+                                seat -> SeatResponse.builder()
+                                        .id(seat.getId())
+                                        .locateColumn(seat.getLocateColumn())
+                                        .locateRow(seat.getLocateRow())
+                                        .price(seat.getPrice())
+                                        .isCouple(seat.getIsCouple())
+                                        .build()
+                        ).collect(Collectors.toSet()))
                         .build())
                 .build();
     }
@@ -365,6 +412,7 @@ public class ShowtimeService {
                         .emptySeat(showtime.getEmptySeat())
                         .status(showtime.getStatus())
                         .movieId(showtime.getMovie().getId())
+                        .status(showtime.getStatus())
                         .theater(TheaterResponse.builder()
                                 .id(showtime.getRoom().getTheater().getId())
                                 .name(showtime.getRoom().getTheater().getName())
@@ -372,6 +420,31 @@ public class ShowtimeService {
                                 .build())
                         .build())
                 .collect(Collectors.toList());
+    }
+
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    public CheckSeatInShowtimeResponse checkSeatInShowtime(String showtimeId) {
+        Showtime showtime = showtimeRepository.findById(showtimeId)
+                .orElseThrow(() -> new MyException(ErrorCode.SHOWTIME_NOT_EXISTED));
+
+        return CheckSeatInShowtimeResponse.builder()
+                .id(showtime.getId())
+                .date(DateUtils.formatDate(showtime.getDate()))
+                .startTime(DateUtils.formatTime(showtime.getStartTime()))
+                .endTime(DateUtils.formatTime(showtime.getEndTime()))
+                .totalSeat(showtime.getTotalSeat())
+                .emptySeat(showtime.getEmptySeat())
+                .bookedSeat(showtime.getTotalSeat() - showtime.getEmptySeat())
+                .seats(showtime.getRoom().getSeats().stream().map(
+                        seat -> SeatResponse.builder()
+                                .id(seat.getId())
+                                .locateRow(seat.getLocateRow())
+                                .locateColumn(seat.getLocateColumn())
+                                .price(seat.getPrice())
+                                .isCouple(seat.getIsCouple())
+                                .build()
+                ).collect(Collectors.toList()))
+                .build();
     }
 
     @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
