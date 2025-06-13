@@ -444,7 +444,8 @@ public class ShowtimeService {
                                 .locateColumn(seat.getLocateColumn())
                                 .price(seat.getPrice())
                                 .isCouple(seat.getIsCouple())
-                                .isBooked(listSeatOfShowtime.contains(seat.getId()))
+                                .isBooked(listSeatOfShowtime.stream()
+                                        .anyMatch(ScheduleSeat::getStatus))
                                 .build()
                 ).collect(Collectors.toList()))
                 .build();
