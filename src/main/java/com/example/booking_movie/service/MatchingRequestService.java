@@ -59,10 +59,6 @@ public class MatchingRequestService {
         // Tính khoảng ngày sinh phù hợp với minAge - maxAge
         int minAge = createMatchingRequest.getMinAge();
         int maxAge = createMatchingRequest.getMaxAge();
-        LocalDate today = LocalDate.now();
-        LocalDate maxDateOfBirth = today.minusYears(minAge);
-        LocalDate minDateOfBirth = today.minusYears(maxAge).plusDays(1);
-        log.info("Searching for users with DOB between {} and {}", minDateOfBirth, maxDateOfBirth);
 
         List<MatchingRequest> matchingRequests = matchingRequestRepository.findMatchingRequests(
                 createMatchingRequest.getMovieName(),
@@ -85,13 +81,6 @@ public class MatchingRequestService {
                     .orElseThrow(() -> new MyException(ErrorCode.USER_NOT_EXISTED));
             int matchedUserAge = DateUtils.calculateAge(user.getDateOfBirth());
             log.info("Checking user: {}, age: {}, DOB: {}", user.getId(), matchedUserAge, user.getDateOfBirth());
-
-            // Kiểm tra bổ sung: Đảm bảo ngày sinh của người dùng khớp với khoảng tuổi
-            if (user.getDateOfBirth().isBefore(minDateOfBirth) || user.getDateOfBirth().isAfter(maxDateOfBirth)) {
-                log.warn("User {} has DOB {} outside of requested range [{}, {}]",
-                        user.getId(), user.getDateOfBirth(), minDateOfBirth, maxDateOfBirth);
-                continue;
-            }
 
             boolean matchedUserInCurrentUserRange = matchedUserAge >= minAge && matchedUserAge <= maxAge;
             boolean currentUserInMatchedUserRange = currentUserAge >= req.getMinAge() && currentUserAge <= req.getMaxAge();

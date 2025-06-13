@@ -96,42 +96,6 @@ public class MovieController {
                 .build();
     }
 
-    //    add director to movie
-    @PutMapping("/{movieId}/{directorId}")
-    public ApiResponse<Void> addDirector(@PathVariable String movieId, @PathVariable String directorId) {
-        movieService.addDirector(movieId, directorId);
-        return ApiResponse.<Void>builder()
-                .message("Add Director To Movie Success")
-                .build();
-    }
-
-    //    delete director of movie
-    @PutMapping("/{movieId}/deleteDirector")
-    public ApiResponse<Void> deleteDirector(@PathVariable String movieId) {
-        movieService.deleteDirector(movieId);
-        return ApiResponse.<Void>builder()
-                .message("Delete Director Of Movie Success")
-                .build();
-    }
-
-    //    add actors to movie
-    @PutMapping("/{movieId}/addActors")
-    public ApiResponse<Void> addActors(@PathVariable String movieId, @RequestBody @Valid AddActorsRequest addActorsRequest) {
-        movieService.addActors(movieId, addActorsRequest);
-        return ApiResponse.<Void>builder()
-                .message("Add Actors To Movie Success")
-                .build();
-    }
-
-    //    delete actors of movie
-    @PutMapping("/{movieId}/deleteActors")
-    public ApiResponse<Void> deleteActors(@PathVariable String movieId, @RequestBody @Valid DeleteActorsRequest deleteActorsRequest) {
-        movieService.deleteActors(movieId, deleteActorsRequest);
-        return ApiResponse.<Void>builder()
-                .message("Delete Actors of Movie Success")
-                .build();
-    }
-
     //    search
     @GetMapping("/search")
     public ApiResponse<List<MovieResponse>> fuzzySearch(@RequestParam String value) throws IOException {
