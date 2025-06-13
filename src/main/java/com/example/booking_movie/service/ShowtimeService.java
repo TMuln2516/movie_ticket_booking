@@ -445,6 +445,7 @@ public class ShowtimeService {
                                 .price(seat.getPrice())
                                 .isCouple(seat.getIsCouple())
                                 .isBooked(listSeatOfShowtime.stream()
+                                        .filter(scheduleSeat -> scheduleSeat.getSeat().getId().equals(seat.getId()))
                                         .anyMatch(ScheduleSeat::getStatus))
                                 .build()
                 ).collect(Collectors.toList()))
