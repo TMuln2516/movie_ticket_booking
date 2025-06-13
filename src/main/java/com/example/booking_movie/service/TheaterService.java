@@ -5,11 +5,12 @@ import com.example.booking_movie.dto.request.UpdateTheaterRequest;
 import com.example.booking_movie.dto.response.CreateTheaterResponse;
 import com.example.booking_movie.dto.response.TheaterResponse;
 import com.example.booking_movie.dto.response.UpdateTheaterResponse;
-import com.example.booking_movie.entity.Theater;
+import com.example.booking_movie.entity.*;
 import com.example.booking_movie.exception.ErrorCode;
 import com.example.booking_movie.exception.MyException;
-import com.example.booking_movie.repository.TheaterRepository;
+import com.example.booking_movie.repository.*;
 import com.example.booking_movie.utils.ValidUtils;
+import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -18,6 +19,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -26,6 +28,10 @@ import java.util.stream.Collectors;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class TheaterService {
     TheaterRepository theaterRepository;
+    TicketRepository ticketRepository;
+    TicketDetailsRepository ticketDetailsRepository;
+    RoomRepository roomRepository;
+    ScheduleSeatRepository scheduleSeatRepository;
 
 //    create theater
     @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
@@ -77,11 +83,65 @@ public class TheaterService {
     }
 
     @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
+    @Transactional
     public void delete(String theaterId) {
-//        check exist
-        Theater theater = theaterRepository.findById(theaterId).orElseThrow(() -> new MyException(ErrorCode.THEATER_NOT_EXISTED));
+        // Kiểm tra Theater
+        Theater theater = theaterRepository.findById(theaterId)
+                .orElseThrow(() -> new MyException(ErrorCode.THEATER_NOT_EXISTED));
 
-//        delete
+        // Xử lý Room
+        Set<Room> rooms = theater.getRooms();
+        if (rooms != null && !rooms.isEmpty()) {
+            for (Room room : rooms) {
+                // Xử lý Showtime
+                Set<Showtime> showtimes = room.getShowtimes();
+                if (showtimes != null) {
+                    for (Showtime showtime : showtimes) {
+                        // Xử lý Ticket
+                        Set<Ticket> tickets = showtime.getTickets();
+                        if (tickets != null) {
+                            for (Ticket ticket : tickets) {
+                                // Đặt các tham chiếu liên quan thành null
+                                ticket.setShowtime(null);
+                                // Đặt các tham chiếu không liên quan thành null
+                                ticket.setUser(null);
+                                ticket.setCoupon(null);
+                                // Không xóa ticketFoods, giữ nguyên @OneToMany
+                                ticketRepository.save(ticket);
+                            }
+                        }
+                        // ScheduleSeat sẽ được xóa tự động nhờ cascade = CascadeType.REMOVE
+                    }
+                }
+
+                // Xử lý Seat
+                Set<Seat> seats = room.getSeats();
+                if (seats != null) {
+                    for (Seat seat : seats) {
+                        // Xử lý TicketDetails
+                        Set<TicketDetails> ticketDetails = seat.getTicketDetails();
+                        if (ticketDetails != null) {
+                            for (TicketDetails detail : ticketDetails) {
+                                // Đặt seat thành null
+                                detail.setSeat(null);
+                                ticketDetailsRepository.save(detail);
+                            }
+                        }
+
+                        // Xóa ScheduleSeat (không có cascade từ Seat)
+                        Set<ScheduleSeat> scheduleSeats = seat.getScheduleSeats();
+                        if (scheduleSeats != null && !scheduleSeats.isEmpty()) {
+                            scheduleSeatRepository.deleteAll(scheduleSeats);
+                        }
+                    }
+                }
+
+                // Xóa Room (Seat và Showtime sẽ được xóa tự động nhờ cascade = CascadeType.ALL)
+                roomRepository.delete(room);
+            }
+        }
+
+        // Xóa Theater
         theaterRepository.delete(theater);
     }
 }

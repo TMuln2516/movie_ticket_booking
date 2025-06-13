@@ -440,19 +440,29 @@ public class TicketService {
         List<TicketDetails> tickets = ticketDetailsRepository.findAllByTicketId(ticketId);
 
         return tickets.stream()
-                .map(ticketDetails -> GetTicketDetailResponse.builder()
-                        .id(ticketDetails.getId())
-                        .price(ticketDetails.getPrice())
-                        .ticketId(ticketDetails.getTicket().getId())
-                        .seat(SeatResponse.builder()
-                                .id(ticketDetails.getSeat().getId())
-                                .locateRow(ticketDetails.getSeat().getLocateRow())
-                                .locateColumn(ticketDetails.getSeat().getLocateColumn())
-                                .price(ticketDetails.getSeat().getPrice())
-                                .isCouple(ticketDetails.getSeat().getIsCouple())
-                                .build())
-                        .build())
+                .map(ticketDetails -> {
+                    Seat seat = ticketDetails.getSeat();
+                    SeatResponse seatResponse = null;
+
+                    if (seat != null) {
+                        seatResponse = SeatResponse.builder()
+                                .id(seat.getId())
+                                .locateRow(seat.getLocateRow())
+                                .locateColumn(seat.getLocateColumn())
+                                .price(seat.getPrice())
+                                .isCouple(seat.getIsCouple())
+                                .build();
+                    }
+
+                    return GetTicketDetailResponse.builder()
+                            .id(ticketDetails.getId())
+                            .price(ticketDetails.getPrice())
+                            .ticketId(ticketDetails.getTicket().getId())
+                            .seat(seatResponse)
+                            .build();
+                })
                 .collect(Collectors.toList());
     }
+
 
 }

@@ -460,9 +460,6 @@ public class ShowtimeService {
 
         ticketRepository.setShowtimeToNull(showtimeId);
 
-//        xóa dữ liệu trong bảng many to many
-        showtimeInfo.getScheduleSeats().clear();
-
         showtimeRepository.deleteById(showtimeId);
     }
 }

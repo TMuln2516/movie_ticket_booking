@@ -52,6 +52,7 @@ public class MovieService {
 
 //    ElasticMovieService elasticMovieService;
     ImageService imageService;
+    ShowtimeService showtimeService;
 
     RedisTemplate<String, Object> redisTemplate;
     ObjectMapper objectMapper;
@@ -404,163 +405,36 @@ public class MovieService {
                 .build();
     }
 
-    //    delete movie
-    @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
+//    delete movie
     @Transactional
+    @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
     public void delete(String movieId) throws IOException {
-//        check exist
-        Movie movie = movieRepository.findById(movieId).orElseThrow(() -> new MyException(ErrorCode.MOVIE_NOT_EXISTED));
+        Movie movie = movieRepository.findById(movieId)
+                .orElseThrow(() -> new MyException(ErrorCode.MOVIE_NOT_EXISTED));
 
-//        delete image
+        // Xóa ảnh trên cloud
         imageService.deleteImage(movie.getPublicId());
 
-//        delete genre in movie
+        // Xóa liên kết với genre và person
         movie.getGenres().clear();
-
-//        delete person in movie
         movie.getPersons().clear();
 
-//        delete feedback
+        // Xóa feedbacks
         feedbackRepository.deleteByMovieId(movieId);
 
-//        set movie_id in showtime = null
+        // Xóa các showtime liên quan
         Set<Showtime> showtimes = movie.getShowtimes();
         for (Showtime showtime : showtimes) {
-            showtime.setMovie(null);
-            showtimeRepository.save(showtime);
+            showtimeService.deleteShowtime(showtime.getId());
         }
 
-//        delete image in cloudinary
-        imageService.deleteImage(movie.getPublicId());
-
-//        delete
+        // Xóa movie
         movieRepository.delete(movie);
 
-        // Xóa cache ListMovie
+        // Xóa cache
         redisTemplate.delete("ListMovie");
-
-//        elastic
-//        elasticMovieRepository.deleteById(movieId);
     }
 
-    //    delete director
-    @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
-    @Transactional
-    public void deleteDirector(String movieId) {
-//        check exist
-        Movie movie = movieRepository.findById(movieId).orElseThrow(() -> new MyException(ErrorCode.MOVIE_NOT_EXISTED));
-//        get movie in elastic
-//        ElasticMovie elasticMovie = elasticMovieRepository.findById(movieId).orElseThrow(() -> new MyException(ErrorCode.MOVIE_NOT_EXISTED));
-
-//        use Iterator
-        Iterator<Person> personIterator = movie.getPersons().iterator();
-        while (personIterator.hasNext()) {  // person++
-            Person person = personIterator.next();
-            if (person.getJob().getName().equals(DefinedJob.DIRECTOR)) {
-//                [movie.getPersons()].remove() -> delete person
-                personIterator.remove();
-//                delete movie
-                person.getMovies().remove(movie);
-
-//                delete in elastic
-//                elasticMovie.getPersonIds().remove(person.getId());
-            }
-        }
-
-//        save
-        movieRepository.save(movie);
-
-//        save elastic
-//        elasticMovieRepository.save(elasticMovie);
-    }
-
-    //    add director of movie (one movie -> one director)
-    @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
-    @Transactional
-    public void addDirector(String movieId, String directorId) {
-//        find person
-        Person person = personRepository.findById(directorId).orElseThrow(() -> new MyException(ErrorCode.PERSON_NOT_EXISTED));
-
-        //        get movie in elastic
-//        ElasticMovie elasticMovie = elasticMovieRepository.findById(movieId).orElseThrow(() -> new MyException(ErrorCode.MOVIE_NOT_EXISTED));
-
-//        check job
-        if (!person.getJob().getName().equals(DefinedJob.DIRECTOR)) {
-            throw new MyException(ErrorCode.PERSON_NOT_PERMISSION);
-        }
-
-//        find movie
-        Movie movie = movieRepository.findById(movieId).orElseThrow(() -> new MyException(ErrorCode.MOVIE_NOT_EXISTED));
-
-//        check existed
-        boolean directorExisted = !movie.getPersons().isEmpty() &&
-                movie.getPersons().stream().anyMatch(existingPerson -> existingPerson.getJob().getName().equals(DefinedJob.DIRECTOR));
-
-        if (!directorExisted) {
-//            mysql
-            movie.getPersons().add(person);
-            movieRepository.save(movie);
-
-//            elastic
-//            elasticMovie.getPersonIds().add(person.getId());
-//            elasticMovieRepository.save(elasticMovie);
-        } else {
-            throw new MyException(ErrorCode.DIRECTOR_OF_MOVIE_EXISTED);
-        }
-    }
-
-    @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
-    public void addActors(String movieId, AddActorsRequest addActorsRequest) {
-//        find movie
-        Movie movie = movieRepository.findById(movieId).orElseThrow(() -> new MyException(ErrorCode.MOVIE_NOT_EXISTED));
-
-        //        get movie in elastic
-//        ElasticMovie elasticMovie = elasticMovieRepository.findById(movieId).orElseThrow(() -> new MyException(ErrorCode.MOVIE_NOT_EXISTED));
-
-        // get actor
-        Set<Person> actors = addActorsRequest.getActorsId()
-                .stream()
-                .map(personId -> personRepository.findById(personId)
-                        .orElseThrow(() -> new MyException(ErrorCode.PERSON_NOT_EXISTED)))
-                .collect(Collectors.toSet());
-
-//        add all actors
-        movie.getPersons().addAll(actors);
-        movieRepository.save(movie);
-
-//        elastic
-        Set<String> actorIds = actors.stream()
-                .map(Person::getId)
-                .collect(Collectors.toSet());
-//        elasticMovie.getPersonIds().addAll(actorIds);
-//        elasticMovieRepository.save(elasticMovie);
-    }
-
-    @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
-    public void deleteActors(String movieId, DeleteActorsRequest deleteActorsRequest) {
-//        find movie
-        Movie movie = movieRepository.findById(movieId).orElseThrow(() -> new MyException(ErrorCode.MOVIE_NOT_EXISTED));
-
-        //        get movie in elastic
-//        ElasticMovie elasticMovie = elasticMovieRepository.findById(movieId).orElseThrow(() -> new MyException(ErrorCode.MOVIE_NOT_EXISTED));
-
-//        get actor
-        Set<Person> actors = deleteActorsRequest.getActorsId()
-                .stream()
-                .map(personId -> personRepository.findById(personId)
-                        .orElseThrow(() -> new MyException(ErrorCode.PERSON_NOT_EXISTED)))
-                .collect(Collectors.toSet());
-
-        movie.getPersons().removeAll(actors);
-        movieRepository.save(movie);
-
-//        elastic
-        Set<String> actorIds = actors.stream()
-                .map(Person::getId)
-                .collect(Collectors.toSet());
-//        elasticMovie.getPersonIds().removeAll(actorIds);
-//        elasticMovieRepository.save(elasticMovie);
-    }
 
     public GetMovieByGenreResponse getAllByGenre(String genreId) throws JsonProcessingException {
         List<MovieCacheResponse> movies = getCachedMovies(); // dùng cache

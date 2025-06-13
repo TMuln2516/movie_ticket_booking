@@ -6,12 +6,13 @@ import com.example.booking_movie.dto.response.CreateRoomResponse;
 import com.example.booking_movie.dto.response.RoomResponse;
 import com.example.booking_movie.dto.response.SeatResponse;
 import com.example.booking_movie.entity.Room;
+import com.example.booking_movie.entity.Seat;
 import com.example.booking_movie.entity.Theater;
+import com.example.booking_movie.entity.TicketDetails;
 import com.example.booking_movie.exception.ErrorCode;
 import com.example.booking_movie.exception.MyException;
-import com.example.booking_movie.repository.RoomRepository;
-import com.example.booking_movie.repository.SeatRepository;
-import com.example.booking_movie.repository.TheaterRepository;
+import com.example.booking_movie.repository.*;
+import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -31,6 +32,8 @@ public class RoomService {
     RoomRepository roomRepository;
     TheaterRepository theaterRepository;
     SeatService seatService;
+    ScheduleSeatRepository scheduleSeatRepository;
+    TicketDetailsRepository ticketDetailsRepository;
 
     //    create room and add to theater
     @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
@@ -94,12 +97,30 @@ public class RoomService {
                 .build();
     }
 
+    @Transactional
     @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
     public void delete(String roomId, String theaterId) {
-        Room room = roomRepository.findRoomByIdAndTheaterId(roomId, theaterId).orElseThrow(() -> new MyException(ErrorCode.ROOM_NOT_EXISTED));
+        Room room = roomRepository.findRoomByIdAndTheaterId(roomId, theaterId)
+                .orElseThrow(() -> new MyException(ErrorCode.ROOM_NOT_EXISTED));
 
+        for (Seat seat : room.getSeats()) {
+            // Xóa scheduleSeats
+            scheduleSeatRepository.deleteAllBySeatId(seat.getId());
+
+            // Set seat = null trong các ticketDetails liên quan
+            for (TicketDetails td : seat.getTicketDetails()) {
+                td.setSeat(null);
+                ticketDetailsRepository.save(td);
+            }
+
+            // Sau khi đã xử lý các quan hệ, xóa seat
+            seatRepository.delete(seat);
+        }
+
+        // Cuối cùng xóa room
         roomRepository.delete(room);
     }
+
 
     @PreAuthorize("hasAnyRole('USER', 'MANAGER', 'ADMIN')")
     public List<RoomResponse> getAll() {

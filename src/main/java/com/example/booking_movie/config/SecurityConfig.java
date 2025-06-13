@@ -75,6 +75,9 @@ public class SecurityConfig {
 
 //            theater
             "/api/theaters/**",
+
+//            book
+            "/api/book/ticket/**"
     };
 
     CustomJWTDecoder customJWTDecoder;
