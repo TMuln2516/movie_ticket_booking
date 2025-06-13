@@ -20,5 +20,4 @@ public interface ScheduleSeatRepository extends JpaRepository<ScheduleSeat, Stri
             "AND s.seat.isCouple = true " +
             "AND (s.status = false OR s.status IS NULL)")
     List<Seat> findAvailableCoupleSeats(@Param("showtimeId") String showtimeId);
-
 }

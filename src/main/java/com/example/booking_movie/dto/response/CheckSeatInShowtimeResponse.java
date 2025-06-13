@@ -19,5 +19,5 @@ public class CheckSeatInShowtimeResponse {
     Integer emptySeat;
     Integer bookedSeat;
     String status;
-    List<SeatResponse> seats;
+    List<CheckSeatResponse> seats;
 }

@@ -427,6 +427,8 @@ public class ShowtimeService {
         Showtime showtime = showtimeRepository.findById(showtimeId)
                 .orElseThrow(() -> new MyException(ErrorCode.SHOWTIME_NOT_EXISTED));
 
+        List<ScheduleSeat> listSeatOfShowtime = scheduleSeatRepository.findAllByShowtimeId(showtimeId);
+
         return CheckSeatInShowtimeResponse.builder()
                 .id(showtime.getId())
                 .date(DateUtils.formatDate(showtime.getDate()))
@@ -436,12 +438,13 @@ public class ShowtimeService {
                 .emptySeat(showtime.getEmptySeat())
                 .bookedSeat(showtime.getTotalSeat() - showtime.getEmptySeat())
                 .seats(showtime.getRoom().getSeats().stream().map(
-                        seat -> SeatResponse.builder()
+                        seat -> CheckSeatResponse.builder()
                                 .id(seat.getId())
                                 .locateRow(seat.getLocateRow())
                                 .locateColumn(seat.getLocateColumn())
                                 .price(seat.getPrice())
                                 .isCouple(seat.getIsCouple())
+                                .isBooked(listSeatOfShowtime.contains(seat.getId()))
                                 .build()
                 ).collect(Collectors.toList()))
                 .build();
