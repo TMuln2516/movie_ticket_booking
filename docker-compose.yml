@@ -40,6 +40,7 @@ services:
     networks:
       - backend
     environment:
+      SPRING_PROFILES_ACTIVE: prod
       DB_URL: jdbc:mysql://mysql:3306/booking_movie
       DB_USERNAME: root
       DB_PASSWORD: 123456
