@@ -2,10 +2,7 @@ package com.example.booking_movie.controller;
 
 import com.example.booking_movie.dto.request.CreateTicketRequest;
 import com.example.booking_movie.dto.request.SetSeatSessionRequest;
-import com.example.booking_movie.dto.response.ApiResponse;
-import com.example.booking_movie.dto.response.CreateTicketResponse;
-import com.example.booking_movie.dto.response.GetAllTicketResponse;
-import com.example.booking_movie.dto.response.GetTicketDetailResponse;
+import com.example.booking_movie.dto.response.*;
 import com.example.booking_movie.service.TicketService;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
@@ -23,14 +20,6 @@ import java.util.List;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class TicketController {
     TicketService ticketService;
-
-//    @PostMapping("/")
-//    public ApiResponse<CreateTicketResponse> create(HttpSession httpSession) {
-//        return ApiResponse.<CreateTicketResponse>builder()
-//                .message("Tạo hóa đơn thành công")
-//                .result(ticketService.create(httpSession))
-//                .build();
-//    }
 
     @GetMapping("/ticket")
     public ApiResponse<List<GetAllTicketResponse>> getAll() {
@@ -56,11 +45,4 @@ public class TicketController {
                 .build();
     }
 
-    @PostMapping("/saveSeat")
-    public ApiResponse<Void> saveSeatSession(@RequestBody @Valid SetSeatSessionRequest setSeatSessionRequest, HttpSession httpSession) {
-        ticketService.saveSeatsToSession(httpSession, setSeatSessionRequest);
-        return ApiResponse.<Void>builder()
-                .message("Lưu thông tin ghế thành công")
-                .build();
-    }
 }

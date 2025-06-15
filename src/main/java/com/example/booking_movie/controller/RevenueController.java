@@ -9,6 +9,7 @@ import lombok.experimental.FieldDefaults;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/revenues")
@@ -18,30 +19,27 @@ import java.time.LocalDate;
 public class RevenueController {
     TicketService ticketService;
 
-    @GetMapping("/ticket")
-    public ApiResponse<RevenueResponse> getRevenueByDate(@RequestParam LocalDate date) {
-        return ApiResponse.<RevenueResponse>builder()
-                .message("Thống kê theo ngày thành công")
-                .result(ticketService.getRevenueByDate(date))
+    @PostMapping("/byDate")
+    public ApiResponse<List<RevenueResponse>> getRevenueByDate() {
+        return ApiResponse.<List<RevenueResponse>>builder()
+                .message("Lấy Top 3 phim có doanh thu cao nhất theo ngày thành công")
+                .result(ticketService.getTop3MoviesRevenueIn1Day())
                 .build();
     }
 
-    @GetMapping("/ticket/range")
-    public ApiResponse<RevenueResponse> getRevenueByDateRange(
-            @RequestParam LocalDate startDate,
-            @RequestParam LocalDate endDate) {
-        return ApiResponse.<RevenueResponse>builder()
-                .message("Thống kê theo khoảng thời gian thành công")
-                .result(ticketService.getRevenueByDateRange(startDate, endDate))
+    @PostMapping("/byWeek")
+    public ApiResponse<List<RevenueResponse>> getRevenueByWeek() {
+        return ApiResponse.<List<RevenueResponse>>builder()
+                .message("Lấy Top 3 phim có doanh thu cao nhất theo 7 ngày thành công")
+                .result(ticketService.getTop3MoviesRevenueIn7Days())
                 .build();
     }
 
-    @GetMapping("/ticket/all")
-    public ApiResponse<RevenueResponse> getRevenue() {
-        return ApiResponse.<RevenueResponse>builder()
-                .message("Thống kê tổng doanh thu thành công")
-                .result(ticketService.getRevenue())
+    @PostMapping("/byMonth")
+    public ApiResponse<List<RevenueResponse>> getRevenueByMonth() {
+        return ApiResponse.<List<RevenueResponse>>builder()
+                .message("Lấy Top 3 phim có doanh thu cao nhất theo tháng thành công")
+                .result(ticketService.getTop3MoviesRevenueInMonth())
                 .build();
     }
-
 }

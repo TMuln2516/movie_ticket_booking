@@ -14,10 +14,6 @@ import java.util.List;
 
 @Repository
 public interface TicketRepository extends JpaRepository<Ticket, String> {
-    List<Ticket> findAllByFinished(Boolean status);
-    List<Ticket> findByDate(LocalDate date);
-    List<Ticket> findByDateBetween(LocalDate startDate, LocalDate endDate);
-
     List<Ticket> findAllByUserId(String userId);
 
     @Modifying
@@ -35,5 +31,4 @@ public interface TicketRepository extends JpaRepository<Ticket, String> {
     @Query("SELECT t FROM Ticket t WHERE t.finished = false AND " +
             "FUNCTION('TIMESTAMP', t.showtime.date, t.showtime.endTime) < :now")
     List<Ticket> findAllByFinishedFalseAndShowtimeBefore(@Param("now") LocalDateTime now);
-
 }

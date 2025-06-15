@@ -12,5 +12,5 @@ import java.util.Set;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class RevenueResponse {
     Double amount;
-    Set<TicketDetailResponse> ticketDetails;
+    MovieResponse movie;
 }

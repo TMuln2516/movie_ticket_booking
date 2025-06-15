@@ -20,7 +20,6 @@ import java.util.Set;
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Table(name = "tickets")
-//@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id", scope = Ticket.class)
 public class Ticket {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -31,6 +30,9 @@ public class Ticket {
     Boolean status;
     Boolean finished;
     Double amount;
+
+//    Snapshot
+    String movieId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")

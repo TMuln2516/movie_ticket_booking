@@ -10,4 +10,5 @@ import java.util.List;
 public interface MovieRepository extends JpaRepository<Movie, String> {
     boolean existsByName(String name);
     List<Movie> findAllByGenresId(String genreId);
+    List<Movie> findAllByIdIn(List<String> ids);
 }

@@ -21,8 +21,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.*;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -38,62 +39,8 @@ public class TicketService {
     CouponRepository couponRepository;
     FoodRepository foodRepository;
     TicketFoodRepository ticketFoodRepository;
+    MovieRepository movieRepository;
 
-//    session
-
-//    @PreAuthorize("hasRole('USER')")
-//    public CreateTicketResponse create(HttpSession httpSession) {
-//        var showtimeIdFromSession = (String) httpSession.getAttribute("showtimeId");
-//        var seatIdsFromSession = (Set<String>) httpSession.getAttribute("seatIds");
-//
-//        if (seatIdsFromSession == null || showtimeIdFromSession == null) {
-//            throw new MyException(ErrorCode.SESSION_EXPIRED_OR_INVALID);
-//        }
-//
-////      lấy user
-//        String username = SecurityContextHolder.getContext().getAuthentication().getName();
-//        User user = userRepository.findByUsername(username).orElseThrow(() -> new MyException(ErrorCode.USER_NOT_EXISTED));
-//
-////      lấy showtime
-//        Showtime showtime = showtimeRepository.findById(showtimeIdFromSession)
-//                .orElseThrow(() -> new MyException(ErrorCode.SHOWTIME_NOT_EXISTED));
-//
-//        Ticket ticket = Ticket.builder()
-//                .time(LocalTime.now())
-//                .date(LocalDate.now())
-//                .status(false)
-//                .user(user)
-//                .showtime(showtime)
-//                .finished(false)
-//                .build();
-//        ticketRepository.save(ticket);
-//
-////      create details
-//        seatIdsFromSession.forEach(seatId -> {
-//            Seat seatInfo = seatRepository.findById(seatId).orElseThrow();
-//
-
-    /// /         builder
-//            TicketDetails ticketDetails = TicketDetails.builder()
-//                    .seat(seatInfo)
-//                    .ticket(ticket)
-//                    .price(seatInfo.getPrice())
-//                    .build();
-//            ticketDetailsRepository.save(ticketDetails);
-//        });
-//
-//        httpSession.removeAttribute("showtimeId");
-//        httpSession.removeAttribute("seatIds");
-//
-//        return CreateTicketResponse.builder()
-//                .id(ticket.getId())
-//                .date(DateUtils.formatDate(ticket.getDate()))
-//                .time(DateUtils.formatTime(ticket.getTime()))
-//                .status(ticket.getStatus())
-//                .userId(user.getId())
-//                .showtimeId(showtime.getId())
-//                .build();
-//    }
     @PreAuthorize("hasRole('USER')")
     @Transactional
     public CreateTicketResponse create(CreateTicketRequest createTicketRequest) {
@@ -113,6 +60,7 @@ public class TicketService {
                 .status(false)
                 .user(user)
                 .showtime(showtime)
+                .movieId(showtime.getMovie().getId())
                 .finished(false)
                 .build();
         ticketRepository.save(ticket);
@@ -214,122 +162,6 @@ public class TicketService {
         tickets.forEach(ticket -> ticket.setFinished(true));
 
         ticketRepository.saveAll(tickets); // Một lần duy nhất
-    }
-
-
-    @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
-    public RevenueResponse getRevenueByDate(LocalDate date) {
-//        List<Ticket> tickets = ticketRepository.findByDate(date);
-//
-//        double totalRevenue = tickets.stream()
-//                .filter(ticket -> ticket.getStatus() != null && ticket.getStatus())
-//                .flatMap(ticket -> ticket.getTicketDetails().stream())
-//                .mapToDouble(TicketDetails::getPrice)
-//                .sum();
-//
-//        var ticketDetailResponses = tickets.stream()
-//                .map(ticket -> TicketDetailResponse.builder()
-//                        .id(ticket.getId())
-//                        .date(DateUtils.formatDate(ticket.getDate()))
-//                        .time(DateUtils.formatTime(ticket.getTime()))
-//                        .startTime(DateUtils.formatTime(ticket.getShowtime().getStartTime()))
-//                        .endTime(DateUtils.formatTime(ticket.getShowtime().getEndTime()))
-//                        .movieName(ticket.getShowtime().getMovie().getName())
-//                        .totalPrice(ticket.getTicketDetails().stream()
-//                                .mapToDouble(TicketDetails::getPrice)
-//                                .sum())
-//                        .build())
-//                .collect(Collectors.toSet());
-//
-//        return RevenueResponse.builder()
-//                .amount(totalRevenue)
-//                .ticketDetails(ticketDetailResponses)
-//                .build();
-        return getRevenueByDateRange(date, date);
-    }
-
-    @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
-    public RevenueResponse getRevenueByDateRange(LocalDate startDate, LocalDate endDate) {
-        if (startDate == null || endDate == null) {
-            throw new MyException(ErrorCode.DATE_NULL);
-        }
-
-        if (startDate.isAfter(endDate)) {
-            throw new MyException(ErrorCode.DATE_INVALID);
-        }
-
-        List<Ticket> tickets = ticketRepository.findByDateBetween(startDate, endDate);
-
-        double totalRevenue = tickets.stream()
-                .filter(ticket -> ticket.getStatus() != null && ticket.getStatus())
-                .flatMap(ticket -> ticket.getTicketDetails().stream())
-                .mapToDouble(TicketDetails::getPrice)
-                .sum();
-
-        var ticketDetailResponses = tickets.stream()
-                .map(ticket -> TicketDetailResponse.builder()
-                        .id(ticket.getId())
-                        .date(DateUtils.formatDate(ticket.getDate()))
-                        .time(DateUtils.formatTime(ticket.getTime()))
-                        .startTime(DateUtils.formatTime(ticket.getShowtime().getStartTime()))
-                        .endTime(DateUtils.formatTime(ticket.getShowtime().getEndTime()))
-                        .movieName(ticket.getShowtime().getMovie().getName())
-                        .totalPrice(ticket.getTicketDetails().stream()
-                                .mapToDouble(TicketDetails::getPrice)
-                                .sum())
-                        .seats(ticket.getTicketDetails().stream().map(
-                                ticketDetails -> SeatResponse.builder()
-                                        .id(ticketDetails.getSeat().getId())
-                                        .locateRow(ticketDetails.getSeat().getLocateRow())
-                                        .locateColumn(ticketDetails.getSeat().getLocateColumn())
-                                        .price(ticketDetails.getPrice())
-                                        .build()
-                        ).collect(Collectors.toSet()))
-                        .build())
-                .collect(Collectors.toSet());
-
-        return RevenueResponse.builder()
-                .amount(totalRevenue)
-                .ticketDetails(ticketDetailResponses)
-                .build();
-    }
-
-    @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
-    public RevenueResponse getRevenue() {
-        List<Ticket> tickets = ticketRepository.findAll();
-
-        double totalRevenue = tickets.stream()
-                .filter(ticket -> ticket.getStatus() != null && ticket.getStatus())
-                .flatMap(ticket -> ticket.getTicketDetails().stream())
-                .mapToDouble(TicketDetails::getPrice)
-                .sum();
-
-        var ticketDetailResponses = tickets.stream()
-                .map(ticket -> TicketDetailResponse.builder()
-                        .id(ticket.getId())
-                        .date(DateUtils.formatDate(ticket.getDate()))
-                        .time(DateUtils.formatTime(ticket.getTime()))
-                        .startTime(DateUtils.formatTime(ticket.getShowtime().getStartTime()))
-                        .endTime(DateUtils.formatTime(ticket.getShowtime().getEndTime()))
-                        .movieName(ticket.getShowtime().getMovie().getName())
-                        .totalPrice(ticket.getTicketDetails().stream()
-                                .mapToDouble(TicketDetails::getPrice)
-                                .sum())
-                        .seats(ticket.getTicketDetails().stream().map(
-                                ticketDetails -> SeatResponse.builder()
-                                        .id(ticketDetails.getSeat().getId())
-                                        .locateRow(ticketDetails.getSeat().getLocateRow())
-                                        .locateColumn(ticketDetails.getSeat().getLocateColumn())
-                                        .price(ticketDetails.getPrice())
-                                        .build()
-                        ).collect(Collectors.toSet()))
-                        .build())
-                .collect(Collectors.toSet());
-
-        return RevenueResponse.builder()
-                .amount(totalRevenue)
-                .ticketDetails(ticketDetailResponses)
-                .build();
     }
 
     @PreAuthorize("hasRole('ADMIN')")
@@ -464,5 +296,70 @@ public class TicketService {
                 .collect(Collectors.toList());
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
+    public List<RevenueResponse> getTop3MoviesRevenueIn1Day() {
+        LocalDate date = LocalDate.now();
+        return getTop3MoviesRevenueByDateRange(date, date);
+    }
+
+
+    @PreAuthorize("hasRole('ADMIN')")
+    public List<RevenueResponse> getTop3MoviesRevenueIn7Days() {
+        LocalDate end = LocalDate.now();
+        LocalDate start = end.minusDays(6);
+        return getTop3MoviesRevenueByDateRange(start, end);
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    public List<RevenueResponse> getTop3MoviesRevenueInMonth() {
+        YearMonth currentMonth = YearMonth.now();
+        return getTop3MoviesRevenueByDateRange(currentMonth.atDay(1), currentMonth.atEndOfMonth());
+    }
+
+    private List<RevenueResponse> getTop3MoviesRevenueByDateRange(LocalDate startDate, LocalDate endDate) {
+        List<TicketDetails> details = ticketDetailsRepository.findTicketDetailsBetweenDates(startDate, endDate);
+
+        // Tính tổng doanh thu theo movieId
+        Map<String, Double> revenueMap = details.stream()
+                .filter(td -> td.getTicket() != null && td.getTicket().getMovieId() != null)
+                .collect(Collectors.groupingBy(
+                        td -> td.getTicket().getMovieId(),
+                        Collectors.summingDouble(TicketDetails::getPrice)
+                ));
+
+        // Lấy top 3 movieId
+        List<String> topMovieIds = revenueMap.entrySet().stream()
+                .sorted(Map.Entry.<String, Double>comparingByValue().reversed())
+                .limit(3)
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toList());
+
+        List<Movie> movies = movieRepository.findAllByIdIn(topMovieIds);
+        Map<String, Movie> movieMap = movies.stream()
+                .collect(Collectors.toMap(Movie::getId, Function.identity()));
+
+        return topMovieIds.stream()
+                .map(movieId -> {
+                    Movie movie = movieMap.get(movieId);
+                    if (movie == null) return null;
+                    return RevenueResponse.builder()
+                            .amount(revenueMap.getOrDefault(movieId, 0.0))
+                            .movie(MovieResponse.builder()
+                                    .id(movie.getId())
+                                    .name(movie.getName())
+                                    .premiere(DateUtils.formatDate(movie.getPremiere()))
+                                    .language(movie.getLanguage())
+                                    .duration(movie.getDuration())
+                                    .content(movie.getContent())
+                                    .rate(movie.getRate())
+                                    .image(movie.getImage())
+                                    .canComment(true)
+                                    .genres(new ArrayList<>())
+                                    .build())
+                            .build();
+                })
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+    }
 
 }
