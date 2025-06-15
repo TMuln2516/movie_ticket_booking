@@ -39,6 +39,13 @@ services:
       - "8080:8080"
     networks:
       - backend
+    environment:
+      DB_URL: jdbc:mysql://mysql:3306/booking_movie
+      DB_USERNAME: root
+      DB_PASSWORD: 123456
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_DB: 0
 
 volumes:
   mysql_data:
