@@ -13,6 +13,6 @@ public class ScheduleSeatResponse {
     Character locateRow;
     Integer locateColumn;
     Double price;
-    Boolean status;
+    Integer status;
     String showtimeId;
 }

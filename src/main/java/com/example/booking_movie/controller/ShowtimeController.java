@@ -2,6 +2,7 @@ package com.example.booking_movie.controller;
 
 import com.example.booking_movie.dto.request.CreateShowtimeRequest;
 import com.example.booking_movie.dto.request.GetAllShowTimeRequest;
+import com.example.booking_movie.dto.request.ToggleStatusSeatInShowtimeRequest;
 import com.example.booking_movie.dto.request.UpdateShowtimeRequest;
 import com.example.booking_movie.dto.response.*;
 import com.example.booking_movie.service.ScheduleSeatService;
@@ -82,6 +83,17 @@ public class ShowtimeController {
         return ApiResponse.<UpdateShowtimeResponse>builder()
                 .message("Cập nhật suất chiếu thành công")
                 .result(showtimeService.update(showtimeId, updateShowtimeRequest))
+                .build();
+    }
+
+//    update status
+    @PutMapping("{showtimeId}/updateStatus")
+    public ApiResponse<List<ToggleStatusSeatInShowtimeResponse>> toggleStatusSeatInShowtime(
+            @PathVariable String showtimeId,
+            @RequestBody @Valid ToggleStatusSeatInShowtimeRequest toggleStatusSeatInShowtimeRequest) {
+        return ApiResponse.<List<ToggleStatusSeatInShowtimeResponse>>builder()
+                .message("Đổi trạng thái ghế trong suất chiếu thành công")
+                .result(showtimeService.toggleStatusSeatInShowtime(toggleStatusSeatInShowtimeRequest, showtimeId))
                 .build();
     }
 

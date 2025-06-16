@@ -3,16 +3,17 @@ package com.example.booking_movie.dto.response;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.time.LocalDate;
+import java.util.List;
+
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class CheckSeatResponse {
+public class ToggleStatusSeatInShowtimeResponse {
     String id;
-    Character locateRow;
-    Integer locateColumn;
-    Double price;
-    Boolean isCouple;
-    Integer isBooked;
+    Integer status;
+    SeatResponse seat;
+    ShowtimeResponse showtime;
 }

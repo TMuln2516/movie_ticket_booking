@@ -65,10 +65,10 @@ public class VNPayService {
 
         // Kiểm tra ghế đã được đặt
         ticketInfo.getTicketDetails().forEach(ticketDetails -> {
-            boolean isBooked = scheduleSeatRepository
+            Integer isBooked = scheduleSeatRepository
                     .findByShowtimeIdAndSeatId(showtimeInfo.getId(), ticketDetails.getSeat().getId())
                     .getStatus();
-            if (isBooked) {
+            if (isBooked == 1) {
                 // Xoá ticket và chi tiết nếu ghế đã được đặt
                 ticketDetailsRepository.deleteAll(ticketInfo.getTicketDetails());
                 ticketRepository.delete(ticketInfo);
@@ -161,7 +161,7 @@ public class VNPayService {
             AtomicInteger countSeat = new AtomicInteger(0);
             ticketInfo.getTicketDetails().forEach(ticketDetails -> {
                 ScheduleSeat scheduleSeatInfo = scheduleSeatRepository.findByShowtimeIdAndSeatId(ticketInfo.getShowtime().getId(), ticketDetails.getSeat().getId());
-                scheduleSeatInfo.setStatus(true);
+                scheduleSeatInfo.setStatus(1);
                 countSeat.incrementAndGet();
             });
 

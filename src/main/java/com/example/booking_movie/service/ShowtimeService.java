@@ -4,6 +4,7 @@ import com.example.booking_movie.constant.DefinedJob;
 import com.example.booking_movie.constant.DefinedStatus;
 import com.example.booking_movie.dto.request.CreateShowtimeRequest;
 import com.example.booking_movie.dto.request.GetAllShowTimeRequest;
+import com.example.booking_movie.dto.request.ToggleStatusSeatInShowtimeRequest;
 import com.example.booking_movie.dto.request.UpdateShowtimeRequest;
 import com.example.booking_movie.dto.response.*;
 import com.example.booking_movie.entity.*;
@@ -15,10 +16,12 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
@@ -93,7 +96,7 @@ public class ShowtimeService {
             ScheduleSeat scheduleSeat = ScheduleSeat.builder()
                     .seat(seat)
                     .showtime(newShowtime)
-                    .status(false)
+                    .status(0)
                     .build();
             scheduleSeatRepository.save(scheduleSeat);
         });
@@ -446,10 +449,75 @@ public class ShowtimeService {
                                 .isCouple(seat.getIsCouple())
                                 .isBooked(listSeatOfShowtime.stream()
                                         .filter(scheduleSeat -> scheduleSeat.getSeat().getId().equals(seat.getId()))
-                                        .anyMatch(ScheduleSeat::getStatus))
+                                        .map(ScheduleSeat::getStatus)
+                                        .findFirst()
+                                        .orElse(0)
+                                )
                                 .build()
                 ).collect(Collectors.toList()))
                 .build();
+    }
+
+    @PreAuthorize("hasRole('USER')")
+    public List<ToggleStatusSeatInShowtimeResponse> toggleStatusSeatInShowtime(
+            ToggleStatusSeatInShowtimeRequest toggleStatusSeatInShowtimeRequest, String showtimeId) {
+//        showtime information
+        Showtime showtimeInfo = showtimeRepository.findById(showtimeId).orElseThrow(() -> new MyException(ErrorCode.SHOWTIME_NOT_EXISTED));
+
+        List<ToggleStatusSeatInShowtimeResponse> responseList = new ArrayList<>();
+
+        for (String seatId : toggleStatusSeatInShowtimeRequest.getSeatIds()) {
+            // Lấy thông tin ghế
+            Seat seatInfo = seatRepository.findById(seatId)
+                    .orElseThrow(() -> new MyException(ErrorCode.SEAT_NOT_EXISTED));
+
+//            current time
+            LocalDateTime currentTime = LocalDateTime.now();
+            // Lấy và cập nhật trạng thái ghế trong suất chiếu
+            ScheduleSeat scheduleSeatInfo = scheduleSeatRepository.findByShowtimeIdAndSeatId(showtimeId, seatId);
+            scheduleSeatInfo.setStatus(toggleStatusSeatInShowtimeRequest.getStatus());
+            scheduleSeatInfo.setUpdatedAt(currentTime);
+            scheduleSeatRepository.save(scheduleSeatInfo);
+
+            // Tạo response cho từng ghế
+            ToggleStatusSeatInShowtimeResponse response = ToggleStatusSeatInShowtimeResponse.builder()
+                    .id(scheduleSeatInfo.getId())
+                    .status(scheduleSeatInfo.getStatus())
+                    .seat(SeatResponse.builder()
+                            .id(seatInfo.getId())
+                            .isCouple(seatInfo.getIsCouple())
+                            .price(seatInfo.getPrice())
+                            .locateColumn(seatInfo.getLocateColumn())
+                            .locateRow(seatInfo.getLocateRow())
+                            .build())
+                    .showtime(ShowtimeResponse.builder()
+                            .id(showtimeInfo.getId())
+                            .date(DateUtils.formatDate(showtimeInfo.getDate()))
+                            .startTime(DateUtils.formatTime(showtimeInfo.getStartTime()))
+                            .endTime(DateUtils.formatTime(showtimeInfo.getEndTime()))
+                            .totalSeat(showtimeInfo.getTotalSeat())
+                            .emptySeat(showtimeInfo.getEmptySeat())
+                            .status(showtimeInfo.getStatus())
+                            .build())
+                    .build();
+
+            responseList.add(response);
+        }
+
+        return responseList;
+    }
+
+    @Transactional
+    @Scheduled(fixedRate = 60_000)
+    public void resetExpiredSeats() {
+        LocalDateTime fiveMinutesAgo = LocalDateTime.now().minusMinutes(5);
+
+        List<ScheduleSeat> expiredSeats = scheduleSeatRepository.findAllByStatusAndUpdatedAtBefore(2, fiveMinutesAgo);
+
+        for (ScheduleSeat seat : expiredSeats) {
+            seat.setStatus(0);
+            seat.setUpdatedAt(LocalDateTime.now());
+        }
     }
 
     @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")

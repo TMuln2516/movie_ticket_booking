@@ -299,6 +299,7 @@ public class TicketService {
     @PreAuthorize("hasRole('ADMIN')")
     public List<RevenueResponse> getTop3MoviesRevenueIn1Day() {
         LocalDate date = LocalDate.now();
+        log.info("Date: {}", date);
         return getTop3MoviesRevenueByDateRange(date, date);
     }
 

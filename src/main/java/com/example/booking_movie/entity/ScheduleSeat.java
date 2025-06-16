@@ -7,6 +7,9 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
 @Entity
 @Getter
 @Setter
@@ -31,5 +34,7 @@ public class ScheduleSeat {
     @JsonBackReference
     Seat seat;
 
-    Boolean status;
+    Integer status;
+
+    LocalDateTime updatedAt;
 }
