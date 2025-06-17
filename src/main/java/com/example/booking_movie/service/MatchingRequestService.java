@@ -19,6 +19,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -295,5 +296,44 @@ public class MatchingRequestService {
 
         // Xóa yêu cầu matching gần nhất
         matchingRequestRepository.delete(latestRequest.get());
+    }
+
+    @Scheduled(fixedRate = 60000)
+    @Transactional
+    public void handleUnmatchedRequestsBeforeShowtime() throws JsonProcessingException {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime fiveMinutesLater = now.plusMinutes(5);
+
+        List<MatchingRequest> requests = matchingRequestRepository.findUnmatchedRequests();
+
+        for (MatchingRequest request : requests) {
+            Optional<Showtime> optionalShowtime = showtimeRepository.findById(request.getShowtimeId());
+            if (optionalShowtime.isEmpty()) continue;
+
+            Showtime showtime = optionalShowtime.get();
+
+            // Ghép LocalDate + LocalTime => thời điểm bắt đầu
+            LocalDateTime showtimeStart = LocalDateTime.of(showtime.getDate(), showtime.getStartTime());
+
+            // Xử lý nếu suất chiếu đã bắt đầu hoặc sắp bắt đầu trong 5 phút
+            boolean showtimeStarted = showtimeStart.isBefore(now);
+            boolean showtimeIsStartingSoon = showtimeStart.isAfter(now) && showtimeStart.isBefore(fiveMinutesLater);
+
+            if (showtimeStarted || showtimeIsStartingSoon) {
+                // Gửi thông báo
+                NotifyResponse notifyResponse = NotifyResponse.builder()
+                        .code(202)
+                        .message("Thông báo hủy yêu cầu ghép đôi")
+                        .data("Không tìm được người phù hợp cho suất chiếu " +
+                                request.getMovieName() + " tại " + request.getTheaterName() +
+                                ". Vui lòng chọn suất chiếu khác.")
+                        .build();
+
+                matchingWebSocketHandler.notifyUser(request.getUserId(), notifyResponse, true);
+
+                // Xoá yêu cầu
+                matchingRequestRepository.delete(request);
+            }
+        }
     }
 }
