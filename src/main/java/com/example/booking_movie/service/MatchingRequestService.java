@@ -302,7 +302,7 @@ public class MatchingRequestService {
     @Transactional
     public void handleUnmatchedRequestsBeforeShowtime() throws JsonProcessingException {
         LocalDateTime now = LocalDateTime.now();
-        LocalDateTime fiveMinutesLater = now.plusMinutes(5);
+        LocalDateTime fiveMinutesLater = now.plusMinutes(30);
 
         List<MatchingRequest> requests = matchingRequestRepository.findUnmatchedRequests();
 
