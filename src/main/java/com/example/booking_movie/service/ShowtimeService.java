@@ -461,8 +461,10 @@ public class ShowtimeService {
     @PreAuthorize("hasRole('USER')")
     public List<ToggleStatusSeatInShowtimeResponse> toggleStatusSeatInShowtime(
             ToggleStatusSeatInShowtimeRequest toggleStatusSeatInShowtimeRequest, String showtimeId) {
-//        showtime information
-        Showtime showtimeInfo = showtimeRepository.findById(showtimeId).orElseThrow(() -> new MyException(ErrorCode.SHOWTIME_NOT_EXISTED));
+
+        // Lấy thông tin suất chiếu
+        Showtime showtimeInfo = showtimeRepository.findById(showtimeId)
+                .orElseThrow(() -> new MyException(ErrorCode.SHOWTIME_NOT_EXISTED));
 
         List<ToggleStatusSeatInShowtimeResponse> responseList = new ArrayList<>();
 
@@ -471,15 +473,21 @@ public class ShowtimeService {
             Seat seatInfo = seatRepository.findById(seatId)
                     .orElseThrow(() -> new MyException(ErrorCode.SEAT_NOT_EXISTED));
 
-//            current time
-            LocalDateTime currentTime = LocalDateTime.now();
-            // Lấy và cập nhật trạng thái ghế trong suất chiếu
+            // Lấy trạng thái ghế trong suất chiếu
             ScheduleSeat scheduleSeatInfo = scheduleSeatRepository.findByShowtimeIdAndSeatId(showtimeId, seatId);
+
+            // ❗ Chặn chuyển sang trạng thái 2 nếu ghế đang là 2
+            if (toggleStatusSeatInShowtimeRequest.getStatus() == 2 &&
+                    scheduleSeatInfo.getStatus() == 2) {
+                throw new MyException(ErrorCode.SEAT_IS_PROCESSING);
+            }
+
+            // Cập nhật trạng thái ghế
             scheduleSeatInfo.setStatus(toggleStatusSeatInShowtimeRequest.getStatus());
-            scheduleSeatInfo.setUpdatedAt(currentTime);
+            scheduleSeatInfo.setUpdatedAt(LocalDateTime.now());
             scheduleSeatRepository.save(scheduleSeatInfo);
 
-            // Tạo response cho từng ghế
+            // Tạo response cho ghế
             ToggleStatusSeatInShowtimeResponse response = ToggleStatusSeatInShowtimeResponse.builder()
                     .id(scheduleSeatInfo.getId())
                     .status(scheduleSeatInfo.getStatus())
@@ -507,27 +515,28 @@ public class ShowtimeService {
         return responseList;
     }
 
+
     @Transactional
-    @Scheduled(fixedRate = 60_000)
-    public void resetExpiredSeats() {
-        LocalDateTime fiveMinutesAgo = LocalDateTime.now().minusMinutes(5);
+        @Scheduled(fixedRate = 60_000)
+        public void resetExpiredSeats () {
+            LocalDateTime fiveMinutesAgo = LocalDateTime.now().minusMinutes(5);
 
-        List<ScheduleSeat> expiredSeats = scheduleSeatRepository.findAllByStatusAndUpdatedAtBefore(2, fiveMinutesAgo);
+            List<ScheduleSeat> expiredSeats = scheduleSeatRepository.findAllByStatusAndUpdatedAtBefore(2, fiveMinutesAgo);
 
-        for (ScheduleSeat seat : expiredSeats) {
-            seat.setStatus(0);
-            seat.setUpdatedAt(LocalDateTime.now());
+            for (ScheduleSeat seat : expiredSeats) {
+                seat.setStatus(0);
+                seat.setUpdatedAt(LocalDateTime.now());
+            }
+        }
+
+        @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
+        @Transactional
+        public void deleteShowtime (String showtimeId){
+            var showtimeInfo = showtimeRepository.findById(showtimeId)
+                    .orElseThrow(() -> new MyException(ErrorCode.SHOWTIME_NOT_EXISTED));
+
+            ticketRepository.setShowtimeToNull(showtimeId);
+
+            showtimeRepository.deleteById(showtimeId);
         }
     }
-
-    @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
-    @Transactional
-    public void deleteShowtime(String showtimeId) {
-        var showtimeInfo = showtimeRepository.findById(showtimeId)
-                .orElseThrow(() -> new MyException(ErrorCode.SHOWTIME_NOT_EXISTED));
-
-        ticketRepository.setShowtimeToNull(showtimeId);
-
-        showtimeRepository.deleteById(showtimeId);
-    }
-}
