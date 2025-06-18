@@ -30,8 +30,8 @@ public class TicketController {
     }
 
     @GetMapping("/ticket/{ticketId}")
-    public ApiResponse<List<GetTicketDetailResponse>> getDetailByTicketId(@PathVariable String ticketId) {
-        return ApiResponse.<List<GetTicketDetailResponse>>builder()
+    public ApiResponse<GetTicketDetailsResponse> getDetailByTicketId(@PathVariable String ticketId) {
+        return ApiResponse.<GetTicketDetailsResponse>builder()
                 .message("Lấy chi tiết thông tin hóa đơn thành công")
                 .result(ticketService.getTicketById(ticketId))
                 .build();

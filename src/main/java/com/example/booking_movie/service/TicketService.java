@@ -268,33 +268,59 @@ public class TicketService {
 
 
     @PreAuthorize("hasRole('ADMIN')")
-    public List<GetTicketDetailResponse> getTicketById(String ticketId) {
+    public GetTicketDetailsResponse getTicketById(String ticketId) {
         List<TicketDetails> tickets = ticketDetailsRepository.findAllByTicketId(ticketId);
 
-        return tickets.stream()
+        if (tickets.isEmpty()) {
+            throw new MyException(ErrorCode.TICKET_NOT_EXISTED);
+        }
+
+        // Lấy thông tin user từ ticket
+        Ticket ticket = tickets.get(0).getTicket();
+        User user = ticket.getUser();
+
+        UserResponse userResponse = UserResponse.builder()
+                .id(user.getId())
+                .username(user.getUsername())
+                .firstName(user.getFirstName())
+                .lastName(user.getLastName())
+                .dateOfBirth(user.getDateOfBirth() != null
+                        ? (DateUtils.formatDate(user.getDateOfBirth()))
+                        : null)
+                .gender(user.getGender())
+                .email(user.getEmail())
+                .avatar(user.getAvatar())
+                .status(user.getStatus())
+                .roles(user.getRoles())
+                .build();
+
+        List<GetTicketDetailResponse> detailResponses = tickets.stream()
                 .map(ticketDetails -> {
                     Seat seat = ticketDetails.getSeat();
-                    SeatResponse seatResponse = null;
 
-                    if (seat != null) {
-                        seatResponse = SeatResponse.builder()
-                                .id(seat.getId())
-                                .locateRow(seat.getLocateRow())
-                                .locateColumn(seat.getLocateColumn())
-                                .price(seat.getPrice())
-                                .isCouple(seat.getIsCouple())
-                                .build();
-                    }
+                    SeatResponse seatResponse = seat != null ? SeatResponse.builder()
+                            .id(seat.getId())
+                            .locateRow(seat.getLocateRow())
+                            .locateColumn(seat.getLocateColumn())
+                            .price(seat.getPrice())
+                            .isCouple(seat.getIsCouple())
+                            .build() : null;
 
                     return GetTicketDetailResponse.builder()
                             .id(ticketDetails.getId())
                             .price(ticketDetails.getPrice())
-                            .ticketId(ticketDetails.getTicket().getId())
+                            .ticketId(ticket.getId())
                             .seat(seatResponse)
                             .build();
                 })
                 .collect(Collectors.toList());
+
+        return GetTicketDetailsResponse.builder()
+                .user(userResponse)
+                .ticketDetails(detailResponses)
+                .build();
     }
+
 
     @PreAuthorize("hasRole('ADMIN')")
     public List<RevenueResponse> getTop3MoviesRevenueIn1Day() {

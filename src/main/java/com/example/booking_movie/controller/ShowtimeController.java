@@ -68,6 +68,15 @@ public class ShowtimeController {
                 .build();
     }
 
+    //    get all couple showtime by movie
+    @GetMapping("/matching/{movieId}/all")
+    public ApiResponse<List<GetAllShowtimeResponse>> getAllCoupleShowtimeByMovie(@PathVariable String movieId) {
+        return ApiResponse.<List<GetAllShowtimeResponse>>builder()
+                .message("Lấy danh sách suất chiếu theo Phim thành công")
+                .result(showtimeService.getAllShowtimeCoupleByMovie(movieId))
+                .build();
+    }
+
     //    create
     @PostMapping("/")
     public ApiResponse<CreateShowtimeResponse> create(@RequestBody @Valid CreateShowtimeRequest createShowtimeRequest) {
@@ -86,7 +95,7 @@ public class ShowtimeController {
                 .build();
     }
 
-//    update status
+    //    update status
     @PutMapping("{showtimeId}/updateStatus")
     public ApiResponse<List<ToggleStatusSeatInShowtimeResponse>> toggleStatusSeatInShowtime(
             @PathVariable String showtimeId,

@@ -425,6 +425,28 @@ public class ShowtimeService {
                 .collect(Collectors.toList());
     }
 
+    @PreAuthorize("hasRole('USER')")
+    public List<GetAllShowtimeResponse> getAllShowtimeCoupleByMovie(String movieId) {
+        return showtimeRepository.findShowtimesWithCoupleSeatByMovieId(movieId).stream()
+                .map(showtime -> GetAllShowtimeResponse.builder()
+                        .id(showtime.getId())
+                        .date(DateUtils.formatDate(showtime.getDate()))
+                        .startTime(DateUtils.formatTime(showtime.getStartTime()))
+                        .endTime(DateUtils.formatTime(showtime.getEndTime()))
+                        .totalSeat(showtime.getTotalSeat())
+                        .emptySeat(showtime.getEmptySeat())
+                        .status(showtime.getStatus())
+                        .movieId(showtime.getMovie().getId())
+                        .theater(TheaterResponse.builder()
+                                .id(showtime.getRoom().getTheater().getId())
+                                .name(showtime.getRoom().getTheater().getName())
+                                .location(showtime.getRoom().getTheater().getLocation())
+                                .build())
+                        .build())
+                .collect(Collectors.toList());
+    }
+
+
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     public CheckSeatInShowtimeResponse checkSeatInShowtime(String showtimeId) {
         Showtime showtime = showtimeRepository.findById(showtimeId)
